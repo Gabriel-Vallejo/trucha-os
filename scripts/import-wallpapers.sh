@@ -10,7 +10,8 @@ find_steamapps() {
   local c
   for c in "${1:-}" "$HOME/.local/share/Steam/steamapps" "$HOME/.steam/steam/steamapps" \
            "$HOME/.var/app/com.valvesoftware.Steam/.local/share/Steam/steamapps" \
-           /media/*/*/"Program Files (x86)/Steam/steamapps" /mnt/*/"Program Files (x86)/Steam/steamapps"; do
+           /media/*/*/"Program Files (x86)/Steam/steamapps" /run/media/*/*/"Program Files (x86)/Steam/steamapps" \
+           /mnt/*/"Program Files (x86)/Steam/steamapps"; do
     [ -n "$c" ] && [ -d "$c/workshop/content/431960" ] && { echo "$c"; return; }
   done
   return 1
