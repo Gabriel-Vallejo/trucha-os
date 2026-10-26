@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=CyberChef (offline)
+Comment=The Cyber Swiss Army Knife — copia local, sin internet
+Exec=__HOME__/.local/bin/cyberchef
+Icon=__HOME__/tools/CyberChef/images/cyberchef-128x128.png
+Terminal=false
+Categories=Security;Utility;
+Keywords=cyberchef;base64;hex;xor;cripto;decode;encode;ctf;

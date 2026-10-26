@@ -1,0 +1,52 @@
+{
+  "trucha_clock": {
+    "_synced": {
+      "x": 0.04,
+      "anchorX": "start",
+      "y": 0.1,
+      "anchorY": "end",
+      "width": 520,
+      "height": 240
+    }
+  },
+  "trucha_kanji": {
+    "_synced": {
+      "x": 0.045,
+      "anchorX": "end",
+      "y": 0,
+      "anchorY": "center",
+      "width": 120,
+      "height": 560
+    }
+  },
+  "trucha_visualizer": {
+    "_synced": {
+      "x": 0,
+      "anchorX": "start",
+      "y": 0,
+      "anchorY": "end",
+      "width": 1706,
+      "height": 150
+    }
+  },
+  "trucha_media": {
+    "_synced": {
+      "x": 0.03,
+      "anchorX": "start",
+      "y": 0.065,
+      "anchorY": "start",
+      "width": 380,
+      "height": 112
+    }
+  },
+  "trucha_stats": {
+    "_synced": {
+      "x": 0.035,
+      "anchorX": "end",
+      "y": 0.075,
+      "anchorY": "start",
+      "width": 190,
+      "height": 150
+    }
+  }
+}

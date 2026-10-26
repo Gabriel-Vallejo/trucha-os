@@ -1,0 +1,23 @@
+{
+  "competis": {
+    "enabled": true
+  },
+  "truchaKanji": {
+    "enabled": true
+  },
+  "truchaVisualizer": {
+    "enabled": true
+  },
+  "truchaMedia": {
+    "enabled": true
+  },
+  "truchaStats": {
+    "enabled": true
+  },
+  "truchaDim": {
+    "enabled": false
+  },
+  "truchaThemes": {
+    "enabled": true
+  }
+}

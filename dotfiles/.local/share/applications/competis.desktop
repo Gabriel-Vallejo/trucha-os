@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Competis
+Comment=Ciberseguridad y hackatones: herramientas, carpetas y webs de CTF
+Exec=dms ipc call spotlight toggleQuery "@ "
+Icon=kali-menu
+Terminal=false
+Categories=Security;Development;
+Keywords=ctf;hackaton;hacking;pwn;reversing;forense;cripto;

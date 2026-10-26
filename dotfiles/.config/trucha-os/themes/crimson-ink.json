@@ -1,0 +1,20 @@
+{
+  "id": "crimson-ink",
+  "label": "Crimson Ink",
+  "description": "Torii carmesí · tinta negra",
+  "wallpaper": "torii",
+  "lockscreen": "__HOME__/.local/share/backgrounds/crimson-ink/torii.jpg",
+  "thumbnail": "__HOME__/.local/share/trucha-os/thumbs/crimson-ink.png",
+  "fetch_logo": "__HOME__/.config/fastfetch/torii.png",
+  "kanji": "鱒",
+  "kana": [
+    "ト",
+    "ル",
+    "︱",
+    "チ",
+    "ャ"
+  ],
+  "dim": 0.0,
+  "accent_hue": null,
+  "greeter": "__HOME__/.local/share/trucha-os/greeter/crimson-ink.jpg"
+}

@@ -1,0 +1,202 @@
+// ─── Crimson Ink · niri ─────────────────────────────────────
+// Se incluye al final de config.kdl, así que manda sobre lo que genera DMS.
+// Documentación: ~/.local/src/crimson-ink/niri/docs/wiki
+
+input {
+    keyboard {
+        xkb {
+            layout "es"
+            options "lv3:ralt_switch,compose:rctrl"
+        }
+        repeat-delay 300
+        repeat-rate 40
+        numlock
+    }
+    touchpad {
+        tap
+        dwt
+        natural-scroll
+        accel-speed 0.15
+        scroll-factor 0.6
+    }
+    mouse {
+        accel-profile "flat"
+    }
+    focus-follows-mouse max-scroll-amount="0%"
+    workspace-auto-back-and-forth
+}
+
+output "eDP-1" {
+    mode "2560x1600"
+    scale 1.5
+    variable-refresh-rate on-demand=true
+}
+
+layout {
+    gaps 12
+    center-focused-column "on-overflow"
+    always-center-single-column
+    background-color "transparent"
+
+    default-column-width { proportion 0.5; }
+    preset-column-widths {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+        proportion 1.0
+    }
+
+    focus-ring {
+        width 2
+        active-gradient from="#e5383b" to="#ff5a5f" angle=135 relative-to="workspace-view"
+        inactive-color "#26262b"
+        urgent-color "#e8b04b"
+    }
+    border {
+        off
+    }
+    shadow {
+        on
+        softness 34
+        spread 4
+        offset x=0 y=8
+        color "#000000a0"
+        inactive-color "#00000060"
+    }
+    tab-indicator {
+        active-color "#e5383b"
+        inactive-color "#4a4a52"
+        width 4
+        gap 6
+        corner-radius 4
+    }
+    insert-hint {
+        color "#e5383b66"
+    }
+}
+
+blur {
+    passes 3
+    offset 4
+    noise 0.03
+    saturation 1.3
+}
+
+overview {
+    zoom 0.45
+    backdrop-color "#060607"
+    workspace-shadow {
+        softness 40
+        spread 8
+        offset x=0 y=10
+        color "#000000b0"
+    }
+}
+
+cursor {
+    xcursor-theme "Bibata-Modern-Classic"
+    xcursor-size 24
+    hide-when-typing
+    hide-after-inactive-ms 4000
+}
+
+screenshot-path "~/Imágenes/Capturas/%Y-%m-%d_%H-%M-%S.png"
+
+environment {
+    XDG_CURRENT_DESKTOP "niri"
+    ELECTRON_OZONE_PLATFORM_HINT "auto"
+    QT_QPA_PLATFORM "wayland;xcb"
+    QT_QPA_PLATFORMTHEME "qt6ct"
+    XCURSOR_THEME "Bibata-Modern-Classic"
+    XCURSOR_SIZE "24"
+    // Ghidra, Burp, DataGrip… (Java/XWayland) salen en blanco sin esto
+    _JAVA_AWT_WM_NONREPARENTING "1"
+}
+
+// Fondo animado (Torii) con linux-wallpaperengine
+spawn-at-startup "systemctl" "--user" "restart" "trucha-fondo.service"
+
+animations {
+    window-open {
+        duration-ms 220
+        curve "ease-out-expo"
+    }
+    window-close {
+        duration-ms 180
+        curve "ease-out-quad"
+    }
+}
+
+// ─── Reglas de ventana ──────────────────────────────────────
+window-rule {
+    geometry-corner-radius 14
+    clip-to-geometry true
+    draw-border-with-background false
+}
+
+// Ventanas sin foco ligeramente apagadas
+window-rule {
+    match is-active=false
+    opacity 0.94
+}
+
+// Modo exhibición: ocupa toda la pantalla
+window-rule {
+    match app-id="^trucha-showcase$"
+    open-maximized true
+    background-effect {
+        blur true
+    }
+}
+
+// Terminal translúcido con blur
+window-rule {
+    match app-id="^kitty$"
+    background-effect {
+        blur true
+    }
+}
+
+window-rule {
+    match app-id=r#"^com\.system76\.Cosmic(Files|Settings|Edit)$"#
+    match app-id="^org.gnome.Nautilus$"
+    default-column-width { proportion 0.5; }
+}
+
+window-rule {
+    match app-id=r#"^com\.system76\.CosmicFilesDialog$"#
+    match app-id="^xdg-desktop-portal"
+    match title="^Picture-in-Picture$"
+    match title="^Imagen con imagen$"
+    open-floating true
+}
+
+window-rule {
+    match app-id="^google-chrome$"
+    match app-id="^code$"
+    match app-id=r#"^jetbrains-"#
+    default-column-width { proportion 0.66667; }
+}
+
+// Fondo de pantalla dentro del backdrop: se ve detrás del overview
+layer-rule {
+    match namespace="^wallpaper"
+    match namespace="^linux-wallpaperengine"
+    place-within-backdrop true
+}
+
+// (DMS pide su propio blur con la forma exacta de cada panel vía ext-background-effect)
+
+// ─── Atajos propios (además de los de DMS: Mod+/ los muestra todos) ──
+binds {
+    Mod+Return hotkey-overlay-title="Terminal (kitty)" { spawn "__HOME__/.local/bin/kitty"; }
+    Mod+E hotkey-overlay-title="Archivos" { spawn "cosmic-files"; }
+    Mod+B hotkey-overlay-title="Navegador" { spawn "google-chrome"; }
+    Mod+C hotkey-overlay-title="VS Code" { spawn "code"; }
+    Mod+Shift+Space hotkey-overlay-title="Competis (ciberseguridad y hackatones)" { spawn "dms" "ipc" "call" "spotlight" "toggleQuery" "@ "; }
+    Mod+Alt+T hotkey-overlay-title="Cambiar de tema (Trucha OS!)" { spawn "dms" "ipc" "call" "spotlight" "toggleQuery" "% "; }
+    Mod+Alt+Return hotkey-overlay-title="Modo exhibición (fetch · cava · reloj · btop)" { spawn "__HOME__/.local/bin/trucha-showcase"; }
+    Mod+Shift+W hotkey-overlay-title="Reiniciar fondo animado" { spawn "systemctl" "--user" "restart" "trucha-fondo.service"; }
+    Mod+Shift+S hotkey-overlay-title="Captura de región" { screenshot; }
+    Print { screenshot-screen; }
+}

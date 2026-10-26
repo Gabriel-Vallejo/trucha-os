@@ -1,0 +1,4 @@
+iso/work/
+iso/out/
+*.antes-trucha
+__pycache__/

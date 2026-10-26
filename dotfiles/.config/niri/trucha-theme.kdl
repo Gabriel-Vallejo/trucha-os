@@ -1,0 +1,5 @@
+// Generado por trucha-theme (crimson-ink): no editar a mano
+layer-rule {
+    match namespace="^linux-wallpaperengine$"
+    opacity 1.00
+}

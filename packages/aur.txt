@@ -1,0 +1,13 @@
+# Trucha OS! — paquetes del AUR (se instalan con paru o yay)
+dms-shell-bin
+quickshell
+linux-wallpaperengine-git
+bibata-cursor-theme-bin
+ttf-departure-mono
+ghidra
+burpsuite
+volatility3
+rsactftool
+python-oletools
+dgop
+danksearch

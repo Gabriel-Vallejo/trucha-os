@@ -1,0 +1,87 @@
+#!/usr/bin/env python3
+"""trucha-theme-assets <id> — genera los recursos tipográficos de un tema de Trucha OS!:
+logo del fetch, fondo de login/bloqueo y miniatura del selector, a partir del kanji, la lectura (kana)
+y el color del tema. Solo tipografía: el personaje va en el fondo animado, no aquí."""
+import importlib.machinery
+import importlib.util
+import json
+import os
+import subprocess
+import sys
+import tempfile
+
+HOME = os.path.expanduser("~")
+OUT = os.path.join(HOME, ".local/share/trucha-os")
+
+loader = importlib.machinery.SourceFileLoader("tt", os.path.join(HOME, ".local/bin/trucha-theme"))
+spec = importlib.util.spec_from_loader("tt", loader)
+tt = importlib.util.module_from_spec(spec)
+loader.exec_module(tt)
+
+CHROME = ["google-chrome", "--headless=new", "--disable-gpu", "--hide-scrollbars",
+          "--default-background-color=00000000"]
+
+
+def shot(html, w, h, out, scale=1):
+    with tempfile.NamedTemporaryFile("w", suffix=".html", delete=False, encoding="utf-8") as fh:
+        fh.write(html)
+    subprocess.run(CHROME + [f"--window-size={w},{h}", f"--force-device-scale-factor={scale}",
+                             f"--screenshot={out}", "file://" + fh.name],
+                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+    os.unlink(fh.name)
+
+
+def main(theme_id):
+    theme = tt.load(theme_id)
+    f = tt.make_mapper(theme)
+    c = {k: tt.hexmap(f, v) for k, v in {"acc": "#e5383b", "bright": "#ff5a5f", "dark": "#a32a2c",
+                                         "deep": "#3a1214", "bg": "#0c0c0e", "bg2": "#141417",
+                                         "ash": "#8a8580", "bone": "#ece8e4"}.items()}
+    kanji = theme["kanji"]
+    kana = "".join(theme["kana"]).replace("︱", "ー")
+    stack = "".join(f"<span>{k}</span>" for k in kanji)
+    for d in ("logos", "thumbs", "greeter"):
+        os.makedirs(os.path.join(OUT, d), exist_ok=True)
+
+    font = f'''@font-face{{font-family:Inter;src:url("file://{HOME}/.local/share/fonts/Inter/InterVariable.ttf");font-weight:100 900}}'''
+    big = 210 if len(kanji) > 1 else 300
+
+    logo = f'''<!doctype html><meta charset="utf-8"><style>{font}
+html,body{{margin:0;width:600px;height:600px;background:transparent;overflow:hidden}}
+.c{{position:absolute;inset:8px;border-radius:64px;background:radial-gradient(circle at 50% 35%,{c["deep"]},{c["bg"]} 70%);border:5px solid {c["acc"]};display:flex;flex-direction:column;align-items:center;justify-content:center}}
+.k{{font:900 {big}px "Noto Serif JP";color:{c["acc"]};line-height:1;letter-spacing:-6px;text-shadow:0 0 40px {c["acc"]}55}}
+.l{{width:140px;height:4px;border-radius:2px;background:{c["acc"]};opacity:.6;margin-top:26px}}
+.r{{font:500 46px "Noto Serif JP";color:{c["ash"]};letter-spacing:22px;margin-top:22px;padding-left:22px}}
+</style><div class="c"><div class="k">{kanji}</div><div class="l"></div><div class="r">{kana}</div></div>'''
+    shot(logo, 600, 600, os.path.join(OUT, "logos", theme_id + ".png"))
+
+    greeter = f'''<!doctype html><meta charset="utf-8"><style>{font}
+html,body{{margin:0;width:1280px;height:800px;overflow:hidden;background:{c["bg"]}}}
+.bg{{position:absolute;inset:0;background:radial-gradient(ellipse at 30% 40%,{c["deep"]} 0%,{c["bg2"]} 45%,#050506 100%)}}
+.k{{position:absolute;right:110px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;font:900 260px "Noto Serif JP";line-height:1;color:{c["acc"]};opacity:.14}}
+.ln{{position:absolute;left:0;right:0;bottom:120px;height:1px;background:linear-gradient(90deg,transparent,{c["acc"]} 40%,transparent);opacity:.35}}
+.w{{position:absolute;left:60px;bottom:48px;font:800 30px Inter;color:{c["bone"]}}}
+.w em{{font-style:normal;color:{c["acc"]}}}
+.w small{{display:block;font:500 12px Inter;color:{c["ash"]};letter-spacing:7px;text-transform:uppercase;margin-top:6px}}
+</style><div class="bg"></div><div class="k">{stack}</div><div class="ln"></div>
+<div class="w">Trucha OS<em>!</em><small>{theme["label"]}</small></div>'''
+    png = os.path.join(tempfile.gettempdir(), f"trucha-greeter-{theme_id}.png")
+    shot(greeter, 1280, 800, png, scale=2)
+    jpg = os.path.join(OUT, "greeter", theme_id + ".jpg")
+    subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", png, "-q:v", "2", jpg], check=True)
+    os.unlink(png)
+
+    thumb = f'''<!doctype html><meta charset="utf-8"><style>
+html,body{{margin:0;width:320px;height:200px;overflow:hidden;background:transparent}}
+.c{{position:absolute;inset:0;border-radius:18px;background:radial-gradient(ellipse at 30% 40%,{c["deep"]},#050506 80%);display:flex;align-items:center;justify-content:center;gap:18px}}
+.k{{font:900 {92 if len(kanji) > 1 else 120}px "Noto Serif JP";color:{c["acc"]}}}
+.s{{display:flex;flex-direction:column;gap:8px}}.s i{{display:block;width:34px;height:14px;border-radius:7px}}
+</style><div class="c"><div class="k">{kanji}</div><div class="s"><i style="background:{c["bright"]}"></i><i style="background:{c["acc"]}"></i><i style="background:{c["dark"]}"></i><i style="background:{c["deep"]}"></i></div></div>'''
+    shot(thumb, 320, 200, os.path.join(OUT, "thumbs", theme_id + ".png"))
+    print(f"recursos de {theme_id}: acento {c['acc']}")
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        sys.exit("uso: trucha-theme-assets <id>")
+    main(sys.argv[1])

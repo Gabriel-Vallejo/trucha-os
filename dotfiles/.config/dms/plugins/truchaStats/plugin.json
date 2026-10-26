@@ -1,0 +1,13 @@
+{
+    "id": "truchaStats",
+    "name": "Trucha · Sistema",
+    "description": "Monitor mínimo (CPU, RAM, temperatura) en la fuente pixel del reloj, sin cajas",
+    "version": "1.0.0",
+    "author": "Gabriel",
+    "type": "desktop",
+    "capabilities": ["desktop-widget"],
+    "component": "./TruchaStats.qml",
+    "icon": "monitoring",
+    "requires_dms": ">=2.0.0",
+    "permissions": ["settings_read"]
+}

@@ -1,0 +1,13 @@
+{
+    "id": "truchaDim",
+    "name": "Trucha · Oscurecer fondo",
+    "description": "Capa oscura con viñeta sobre el fondo animado, para temas oscuros con fondos claros",
+    "version": "1.0.0",
+    "author": "Gabriel",
+    "type": "desktop",
+    "capabilities": ["desktop-widget"],
+    "component": "./TruchaDim.qml",
+    "icon": "contrast",
+    "requires_dms": ">=2.0.0",
+    "permissions": ["settings_read"]
+}

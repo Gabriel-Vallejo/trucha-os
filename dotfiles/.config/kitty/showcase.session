@@ -1,0 +1,8 @@
+# Trucha OS! — modo exhibición (⊞+Alt+Intro): fetch · visualizador · reloj · monitor
+layout grid
+# el fetch espera a que la ventana se maximice para no dejar restos al redimensionar
+launch --title "fetch" --env TRUCHA_NOFETCH=1 bash -c "sleep 0.6; clear; fastfetch --logo-type kitty-direct --logo ~/.config/fastfetch/logo.png --logo-width 22 --logo-height 11 --logo-padding-top 1; exec bash"
+launch --title "cava" cava
+launch --title "reloj" __HOME__/.local/bin/trucha-clock
+launch --title "btop" __HOME__/.local/bin/btop
+focus 0

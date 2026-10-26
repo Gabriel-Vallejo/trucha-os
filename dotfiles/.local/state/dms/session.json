@@ -1,0 +1,108 @@
+{
+  "wallpaperPath": "__HOME__/.local/share/trucha-os/transparent.png",
+  "weatherLocation": "Salamanca, España",
+  "weatherCoordinates": "40.9701,-5.6635",
+  "desktopWidgetInstancePositions": {
+    "trucha_clock": {
+      "_synced": {
+        "x": 0.04,
+        "anchorX": "start",
+        "y": 0.1,
+        "anchorY": "end",
+        "width": 520,
+        "height": 240
+      }
+    },
+    "trucha_kanji": {
+      "_synced": {
+        "x": 0.045,
+        "anchorX": "end",
+        "y": 0,
+        "anchorY": "center",
+        "width": 120,
+        "height": 560
+      }
+    },
+    "trucha_visualizer": {
+      "_synced": {
+        "x": 0,
+        "anchorX": "start",
+        "y": 0,
+        "anchorY": "end",
+        "width": 1706,
+        "height": 150
+      }
+    },
+    "trucha_media": {
+      "_synced": {
+        "x": 0.03,
+        "anchorX": "start",
+        "y": 0.065,
+        "anchorY": "start",
+        "width": 380,
+        "height": 112
+      }
+    },
+    "trucha_stats": {
+      "_synced": {
+        "x": 0.035,
+        "anchorX": "end",
+        "y": 0.075,
+        "anchorY": "start",
+        "width": 190,
+        "height": 150
+      }
+    }
+  },
+  "lockScreenAutoPositions": {
+    "eDP-1": {
+      "width": 1707,
+      "height": 1067,
+      "positions": {
+        "lock_clock": {
+          "x": 48,
+          "y": 428.5
+        }
+      }
+    }
+  },
+  "nightModeTemperature": 4000,
+  "nightModeAutoEnabled": true,
+  "nightModeAutoMode": "location",
+  "nightModeTransitionMinutes": 45,
+  "latitude": 40.9701,
+  "longitude": -5.6635,
+  "nightModeLocationName": "Salamanca",
+  "dockPins": {
+    "dock": [
+      "competis",
+      "kitty",
+      "google-chrome",
+      "code",
+      "com.system76.CosmicFiles",
+      "obsidian",
+      "jetbrains-datagrip-8987bc10-d4a9-4655-9157-7f580fe7aa0b",
+      "com.anthropic.Claude"
+    ]
+  },
+  "launcherLastQuery": "dis",
+  "launcherQueryHistory": [
+    "dis",
+    "cla",
+    "claude",
+    "%",
+    "d",
+    "vsc",
+    "discord",
+    "stea",
+    "steam",
+    "google",
+    "obsid",
+    "disco",
+    "@",
+    "cyber",
+    "@ cyber",
+    "clad"
+  ],
+  "configVersion": 7
+}

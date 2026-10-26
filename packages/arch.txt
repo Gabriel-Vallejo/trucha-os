@@ -1,0 +1,61 @@
+# Trucha OS! — paquetes de repositorios oficiales (Arch / CachyOS)
+# escritorio
+niri
+xwayland-satellite
+xdg-desktop-portal-gnome
+xdg-desktop-portal-gtk
+gnome-keyring
+polkit
+kitty
+# terminal
+starship
+fastfetch
+eza
+bat
+zoxide
+fzf
+btop
+cava
+# sistema
+keyd
+refind
+plymouth
+wl-clipboard
+cliphist
+brightnessctl
+qt6ct
+qt5ct
+python-pillow
+ffmpeg
+git
+# tema
+papirus-icon-theme
+ttf-jetbrains-mono-nerd
+inter-font
+noto-fonts-cjk
+# DMS
+matugen
+accountsservice
+# CTF / hackatones (repos oficiales)
+gdb
+radare2
+binwalk
+foremost
+sleuthkit
+hashcat
+john
+sqlmap
+nmap
+wireshark-qt
+gobuster
+ffuf
+yara
+perl-image-exiftool
+steghide
+upx
+docker
+python-pwntools
+python-pycryptodome
+z3
+python-gmpy2
+python-scapy

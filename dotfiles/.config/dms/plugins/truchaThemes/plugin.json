@@ -1,0 +1,14 @@
+{
+    "id": "truchaThemes",
+    "name": "Temas de Trucha OS!",
+    "description": "Selector de temas completos (colores, fondo animado, kanji, fetch)",
+    "version": "1.0.0",
+    "author": "Gabriel",
+    "icon": "palette",
+    "type": "launcher",
+    "capabilities": ["command-execution"],
+    "component": "./TruchaThemes.qml",
+    "trigger": "%",
+    "requires_dms": ">=2.0.0",
+    "permissions": ["settings_read"]
+}

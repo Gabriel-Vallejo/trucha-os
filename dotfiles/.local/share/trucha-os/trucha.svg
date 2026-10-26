@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ff6b6f"/>
+      <stop offset="0.5" stop-color="#e5383b"/>
+      <stop offset="1" stop-color="#8f2224"/>
+    </linearGradient>
+    <linearGradient id="band" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffc2c3" stop-opacity="0"/>
+      <stop offset="0.2" stop-color="#ffc2c3" stop-opacity="0.6"/>
+      <stop offset="0.9" stop-color="#ffc2c3" stop-opacity="0.25"/>
+      <stop offset="1" stop-color="#ffc2c3" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <g transform="rotate(-12 256 256)">
+    <!-- cola en horquilla -->
+    <path d="M388,258 C414,236 440,214 482,200 C468,232 462,248 452,258 C462,268 468,284 482,316 C440,302 414,280 388,258 Z" fill="#a32a2c"/>
+    <!-- dorsal y adiposa -->
+    <path d="M176,214 C190,176 240,170 262,206 Z" fill="#a32a2c"/>
+    <path d="M330,222 C336,208 350,208 354,224 Z" fill="#a32a2c"/>
+    <!-- pectoral, ventral, anal -->
+    <path d="M132,290 C140,316 160,322 168,300 Z" fill="#a32a2c"/>
+    <path d="M228,304 C236,328 256,332 262,308 Z" fill="#a32a2c"/>
+    <path d="M318,294 C324,314 340,318 344,298 Z" fill="#a32a2c"/>
+    <!-- cuerpo alargado -->
+    <path d="M44,262 C84,206 214,190 316,206 C356,212 384,230 400,250 L400,266 C384,284 356,300 316,306 C214,322 84,312 44,262 Z" fill="url(#body)"/>
+    <!-- banda arcoíris -->
+    <path d="M78,264 C160,244 300,240 396,256 L396,264 C300,276 160,282 78,274 Z" fill="url(#band)"/>
+    <!-- motas -->
+    <g fill="#0c0c0e" opacity="0.88">
+      <circle cx="170" cy="226" r="3.6"/><circle cx="196" cy="218" r="4.2"/><circle cx="224" cy="214" r="3.4"/>
+      <circle cx="250" cy="220" r="4.4"/><circle cx="276" cy="214" r="3.6"/><circle cx="300" cy="222" r="4.2"/>
+      <circle cx="326" cy="230" r="3.4"/><circle cx="350" cy="238" r="3.8"/><circle cx="372" cy="246" r="3"/>
+      <circle cx="212" cy="236" r="2.8"/><circle cx="262" cy="236" r="3"/><circle cx="314" cy="240" r="2.8"/>
+      <circle cx="430" cy="236" r="2.6"/><circle cx="440" cy="274" r="2.6"/><circle cx="456" cy="226" r="2.2"/>
+    </g>
+    <!-- opérculo, boca y ojo -->
+    <path d="M112,226 C126,248 126,276 112,298" fill="none" stroke="#0c0c0e" stroke-width="5" stroke-linecap="round" opacity="0.8"/>
+    <path d="M46,264 C56,268 66,270 78,268" fill="none" stroke="#0c0c0e" stroke-width="3.5" stroke-linecap="round" opacity="0.7"/>
+    <circle cx="80" cy="252" r="8.5" fill="#0c0c0e"/>
+    <circle cx="82.5" cy="249.5" r="2.6" fill="#ece8e4"/>
+  </g>
+</svg>

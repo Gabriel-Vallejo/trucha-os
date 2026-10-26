@@ -1,0 +1,11 @@
+[Unit]
+Description=Trucha OS! — fondo animado (linux-wallpaperengine) del tema activo
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+Type=simple
+# sin argumento, fondo usa el fondo del tema activo (~/.config/trucha-os/current.json)
+ExecStart=__HOME__/.local/bin/fondo
+Restart=on-failure
+RestartSec=2

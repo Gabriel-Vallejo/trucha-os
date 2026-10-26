@@ -1,0 +1,14 @@
+{
+    "id": "competis",
+    "name": "Competis",
+    "description": "Hub de ciberseguridad y hackatones: apps, herramientas de terminal, carpetas y webs de CTF",
+    "version": "1.0.0",
+    "author": "Gabriel",
+    "icon": "security",
+    "type": "launcher",
+    "capabilities": ["command-execution"],
+    "component": "./CompetisLauncher.qml",
+    "trigger": "@",
+    "requires_dms": ">=2.0.0",
+    "permissions": ["settings_read"]
+}

@@ -1,0 +1,24 @@
+# Crimson Ink — cava (Trucha OS!)
+[general]
+framerate = 60
+autosens = 1
+bar_width = 2
+bar_spacing = 1
+
+[input]
+method = pulse
+
+[output]
+method = ncurses
+
+[color]
+gradient = 1
+gradient_count = 4
+gradient_color_1 = '#5a1a1c'
+gradient_color_2 = '#a32a2c'
+gradient_color_3 = '#e5383b'
+gradient_color_4 = '#ff8a8c'
+
+[smoothing]
+noise_reduction = 70
+monstercat = 1

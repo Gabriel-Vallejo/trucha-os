@@ -1,0 +1,113 @@
+# Crimson Ink — prompt negro y rojo
+"$schema" = 'https://starship.rs/config-schema.json'
+add_newline = true
+palette = "crimson_ink"
+
+format = """
+[╭─](crimson)$os$username$hostname$directory$git_branch$git_status$python$nodejs$rust$java$docker_context$cmd_duration
+[╰─](crimson)$character"""
+right_format = "$status$jobs$time"
+
+[palettes.crimson_ink]
+crimson = "#e5383b"
+ember   = "#ff5a5f"
+blood   = "#a32a2c"
+ink     = "#0c0c0e"
+ash     = "#4a4a52"
+bone    = "#e4dfda"
+gold    = "#e8b04b"
+jade    = "#8fbf7f"
+
+[os]
+disabled = false
+style = "bold crimson"
+format = "[$symbol]($style) "
+[os.symbols]
+Pop = "󰈺 "
+Ubuntu = " "
+Linux = " "
+
+[username]
+show_always = false
+style_user = "bold bone"
+style_root = "bold ember"
+format = "[$user]($style)"
+
+[hostname]
+ssh_only = true
+style = "bold crimson"
+format = "[@$hostname]($style) "
+
+[directory]
+style = "bold bone"
+read_only = " 󰌾"
+read_only_style = "crimson"
+truncation_length = 3
+truncation_symbol = "…/"
+format = "[ $path]($style)[$read_only]($read_only_style) "
+[directory.substitutions]
+"Descargas" = "󰉍 "
+"Documentos" = "󰈙 "
+"Imágenes" = "󰉏 "
+"CTF" = "󰒃 CTF"
+"Truchilla" = "󱓷 Truchilla"
+
+[git_branch]
+symbol = " "
+style = "bold crimson"
+format = "[on](ash) [$symbol$branch]($style) "
+
+[git_status]
+style = "ember"
+format = "([\\[$all_status$ahead_behind\\]]($style) )"
+
+[python]
+symbol = " "
+style = "gold"
+format = "[via](ash) [$symbol$version( \\($virtualenv\\))]($style) "
+
+[nodejs]
+symbol = " "
+style = "jade"
+format = "[via](ash) [$symbol$version]($style) "
+
+[rust]
+symbol = " "
+style = "ember"
+format = "[via](ash) [$symbol$version]($style) "
+
+[java]
+symbol = " "
+style = "ember"
+format = "[via](ash) [$symbol$version]($style) "
+
+[docker_context]
+symbol = " "
+style = "bold #7a9cc6"
+format = "[via](ash) [$symbol$context]($style) "
+
+[cmd_duration]
+min_time = 2000
+style = "gold"
+format = "[took](ash) [ $duration]($style)"
+
+[character]
+success_symbol = "[❯](bold crimson)"
+error_symbol = "[❯](bold ember)[!](bold ember)"
+vimcmd_symbol = "[❮](bold jade)"
+
+[status]
+disabled = false
+symbol = "✘ "
+style = "bold ember"
+format = "[$symbol$status]($style) "
+
+[jobs]
+symbol = "󰜎 "
+style = "gold"
+
+[time]
+disabled = false
+style = "ash"
+format = "[$time]($style)"
+time_format = "%H:%M"

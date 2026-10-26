@@ -1,0 +1,14 @@
+{
+    "id": "truchaVisualizer",
+    "name": "Trucha · Visualizador",
+    "description": "Barras de audio (cava) carmesí sobre el fondo de escritorio",
+    "version": "1.0.0",
+    "author": "Gabriel",
+    "type": "desktop",
+    "capabilities": ["desktop-widget"],
+    "component": "./TruchaVisualizer.qml",
+    "icon": "graphic_eq",
+    "requires": ["cava"],
+    "requires_dms": ">=2.0.0",
+    "permissions": ["settings_read"]
+}

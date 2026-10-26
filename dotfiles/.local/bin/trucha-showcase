@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Trucha OS! — modo exhibición: cuadrícula de kitty con fetch, cava, reloj y btop
+exec __HOME__/.local/bin/kitty --class trucha-showcase --title "Trucha OS!" -o font_size=10 --session __HOME__/.config/kitty/showcase.session

@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# cyberchef — CyberChef offline (~/tools/CyberChef) en ventana de app propia
+#   cyberchef          abre la versión local más reciente
+#   cyberchef update   descarga la última release de GitHub (gchq/CyberChef) si hay una nueva
+DIR="$HOME/tools/CyberChef"
+
+if [ "${1:-}" = "update" ]; then
+    set -euo pipefail
+    tag=$(gh release view -R gchq/CyberChef --json tagName -q .tagName)
+    if ls "$DIR/CyberChef_${tag}.html" >/dev/null 2>&1; then
+        echo "CyberChef ya está en la última versión ($tag)"; exit 0
+    fi
+    tmp=$(mktemp -d)
+    gh release download "$tag" -R gchq/CyberChef -p 'CyberChef_*.zip' -D "$tmp"
+    mkdir -p "$tmp/x" && unzip -q "$tmp"/CyberChef_*.zip -d "$tmp/x"
+    [ -f "$tmp/x/CyberChef_${tag}.html" ] || { echo "El zip no trae CyberChef_${tag}.html; no toco nada"; exit 1; }
+    mv "$DIR" "$DIR.old-$(date +%Y%m%d)" && mv "$tmp/x" "$DIR" && rm -rf "$tmp"
+    echo "CyberChef actualizado a $tag (la versión anterior queda en $DIR.old-*)"
+    exit 0
+fi
+
+html=$(ls -v "$DIR"/CyberChef_v*.html 2>/dev/null | tail -1)
+[ -n "$html" ] || { echo "No encuentro CyberChef en $DIR (prueba: cyberchef update)"; exit 1; }
+exec google-chrome --app="file://$html" --class=CyberChef "$@" >/dev/null 2>&1

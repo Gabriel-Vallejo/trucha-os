@@ -1,0 +1,242 @@
+#!/usr/bin/env python3
+"""trucha-theme — selector de temas de Trucha OS!
+
+  trucha-theme              lista los temas (marca el activo)
+  trucha-theme <id>         aplica el tema: colores, fondo animado, kanji, fetch, pantalla de bloqueo
+  trucha-theme --next       pasa al siguiente tema
+
+Cada tema es un JSON en ~/.config/trucha-os/themes/. Las configuraciones se generan desde las
+plantillas Crimson Ink (~/.config/trucha-os/templates/) desplazando el tono de los rojos al del tema
+y tiñendo los grises; los widgets de DMS leen ~/.config/trucha-os/current.json y cambian solos.
+"""
+import colorsys
+import json
+import os
+import re
+import subprocess
+import sys
+import time
+
+HOME = os.path.expanduser("~")
+BASE = os.path.join(HOME, ".config/trucha-os")
+THEMES = os.path.join(BASE, "themes")
+TEMPLATES = os.path.join(BASE, "templates")
+CURRENT = os.path.join(BASE, "current.json")
+
+# líneas que no se recolorean (el rojo ANSI de errores debe seguir siendo rojo)
+PROTECT = {
+    "kitty/kitty.conf": re.compile(r"^\s*color(1|9)\s"),
+}
+HEX = re.compile(r"#([0-9a-fA-F]{6})([0-9a-fA-F]{2})?\b")
+TRIPLET = re.compile(r"(38;2;)(\d{1,3});(\d{1,3});(\d{1,3})")
+
+# colores base de los widgets (Crimson Ink); se recolorean igual que las plantillas
+WIDGET_COLORS = {
+    "accent": "#e5383b", "accentBright": "#ff5a5f", "accentDark": "#a32a2c",
+    "track": "#2a2a30", "bone": "#ece8e4", "ash": "#8a8580", "surface": "#0c0c0e", "card": "#1c1c20",
+}
+
+
+def load(theme_id):
+    with open(os.path.join(THEMES, theme_id + ".json"), encoding="utf-8") as f:
+        return json.load(f)
+
+
+def themes():
+    return sorted(f[:-5] for f in os.listdir(THEMES) if f.endswith(".json"))
+
+
+def current_id():
+    try:
+        with open(CURRENT, encoding="utf-8") as f:
+            return json.load(f)["id"]
+    except (OSError, ValueError, KeyError):
+        return "crimson-ink"
+
+
+def write_index():
+    """Índice para el selector del lanzador (plugin truchaThemes): temas + activo."""
+    data = {"current": current_id(), "themes": [load(t) for t in themes()]}
+    with open(os.path.join(BASE, "index.json"), "w", encoding="utf-8") as fh:
+        json.dump(data, fh, indent=2, ensure_ascii=False)
+
+
+def make_mapper(theme):
+    hue = theme.get("accent_hue")
+    if hue is None:
+        return lambda rgb: rgb
+    acc_h = (hue % 360) / 360.0
+    neu_h = (theme.get("neutral_hue", hue) % 360) / 360.0
+    neu_s = float(theme.get("neutral_sat", 0.15))
+
+    def f(rgb):
+        r, g, b = (c / 255.0 for c in rgb)
+        h, l, s = colorsys.rgb_to_hls(r, g, b)
+        if s > 0.25 and (h < 0.06 or h > 0.93):          # rojos / carmesís → tono del tema
+            h = acc_h
+        elif s < 0.2:                                        # grises cálidos → neutros teñidos
+            h, s = neu_h, max(s, neu_s * (1.0 if l < 0.5 else 0.6))
+        else:
+            return rgb                                        # verdes, ámbar, azules ANSI… se quedan
+        r, g, b = colorsys.hls_to_rgb(h, l, s)
+        return tuple(max(0, min(255, round(c * 255))) for c in (r, g, b))
+    return f
+
+
+def hexmap(f, value):
+    rgb = tuple(int(value[i:i + 2], 16) for i in (1, 3, 5))
+    return "#%02x%02x%02x" % f(rgb)
+
+
+def render(text, f, protect=None):
+    out = []
+    for line in text.splitlines(keepends=True):
+        if protect and protect.search(line):
+            out.append(line)
+            continue
+        line = HEX.sub(lambda m: hexmap(f, "#" + m.group(1)) + (m.group(2) or ""), line)
+        line = TRIPLET.sub(lambda m: m.group(1) + ";".join(str(c) for c in f(tuple(int(m.group(i)) for i in (2, 3, 4)))), line)
+        out.append(line)
+    return "".join(out)
+
+
+def edit_json(path, fn):
+    with open(path, encoding="utf-8") as fh:
+        data = json.load(fh)
+    fn(data)
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(data, fh, indent=2, ensure_ascii=False)
+
+
+def run(*cmd):
+    subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+def apply_greeter(theme, f):
+    """Pantalla de login (cosmic-greeter) y sesión COSMIC: lee el fondo y el tema COSMIC del usuario."""
+    image = theme.get("greeter") or theme["lockscreen"]
+    state = os.path.join(HOME, ".local/state/cosmic/com.system76.CosmicBackground/v1/wallpapers")
+    os.makedirs(os.path.dirname(state), exist_ok=True)
+    with open(state, "w", encoding="utf-8") as fh:
+        fh.write('[\n    ("eDP-1", Path("%s")),\n]' % image)
+    cfg = os.path.join(HOME, ".config/cosmic/com.system76.CosmicBackground/v1/all")
+    if os.path.exists(cfg):
+        with open(cfg, encoding="utf-8") as fh:
+            text = fh.read()
+        with open(cfg, "w", encoding="utf-8") as fh:
+            fh.write(re.sub(r'source: Path\("[^"]*"\)', 'source: Path("%s")' % image, text))
+    # colores del tema COSMIC (el generador acepta TRUCHA_* desde la versión con env_hex)
+    base = {"TRUCHA_ACCENT": "#e5383b", "TRUCHA_BG": "#0c0c0e", "TRUCHA_PRIMARY": "#141417",
+            "TRUCHA_SECONDARY": "#1c1c20", "TRUCHA_NEUTRAL": "#7a7a80", "TRUCHA_TEXT": "#ece8e4"}
+    env = dict(os.environ, **{k: hexmap(f, v) for k, v in base.items()})
+    subprocess.run([os.path.join(HOME, ".local/src/crimson-ink-theme/target/release/crimson-ink-theme")],
+                   env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+def apply(theme_id):
+    theme = load(theme_id)
+    f = make_mapper(theme)
+
+    # 1. configuraciones desde las plantillas
+    for root, _, files in os.walk(TEMPLATES):
+        for name in files:
+            src = os.path.join(root, name)
+            rel = os.path.relpath(src, TEMPLATES)
+            with open(src, encoding="utf-8") as fh:
+                text = fh.read()
+            dst = os.path.join(HOME, ".config", rel)
+            os.makedirs(os.path.dirname(dst), exist_ok=True)
+            with open(dst, "w", encoding="utf-8") as fh:
+                fh.write(render(text, f, PROTECT.get(rel)))
+
+    # 1b. oscurecido del fondo animado: niri baja la opacidad de su capa (debajo queda negro);
+    #     así los widgets nunca quedan tapados
+    dim = float(theme.get("dim", 0.0))
+    with open(os.path.join(HOME, ".config/niri/trucha-theme.kdl"), "w", encoding="utf-8") as fh:
+        fh.write("// Generado por trucha-theme (%s): no editar a mano\n" % theme["id"])
+        fh.write('layer-rule {\n    match namespace="^linux-wallpaperengine$"\n    opacity %.2f\n}\n' % (1.0 - dim))
+
+    # 1c. login (cosmic-greeter) y sesión COSMIC
+    apply_greeter(theme, f)
+
+    # 2. estado para los widgets de DMS
+    current = {"id": theme["id"], "label": theme["label"], "kanji": theme["kanji"], "kana": theme["kana"],
+               "dim": theme.get("dim", 0.0)}
+    current.update({k: hexmap(f, v) for k, v in WIDGET_COLORS.items()})
+    with open(CURRENT, "w", encoding="utf-8") as fh:
+        json.dump(current, fh, indent=2, ensure_ascii=False)
+
+    # 3. logo del fetch
+    logo = os.path.join(HOME, ".config/fastfetch/logo.png")
+    if os.path.lexists(logo):
+        os.remove(logo)
+    os.symlink(theme["fetch_logo"], logo)
+
+    # 4. fondos de DMS (bloqueo y respaldo bajo el fondo animado) con DMS parado
+    run("systemctl", "--user", "stop", "dms.service")
+    edit_json(os.path.join(HOME, ".config/dms/settings.json"),
+              lambda d: d.update({"lockScreenWallpaperPath": theme["lockscreen"]}))
+    # el fondo lo pinta linux-wallpaperengine: DMS con una imagen transparente para no taparlo nunca
+    # (sin imagen, DMS pone un fondo de serie encima)
+    edit_json(os.path.join(HOME, ".local/state/dms/session.json"),
+              lambda d: d.update({"wallpaperPath": os.path.join(HOME, ".local/share/trucha-os/transparent.png")}))
+    edit_json(os.path.join(HOME, ".config/dms/settings.json"),
+              lambda d: d.update({"wallpaperBackgroundColorMode": "custom", "wallpaperBackgroundCustomColor": "#00000000"}))
+    # colocación de los widgets: la de siempre, con los cambios que pida el tema ("positions")
+    with open(os.path.join(BASE, "positions-default.json"), encoding="utf-8") as fh:
+        positions = json.load(fh)
+    for wid, pos in theme.get("positions", {}).items():
+        positions[wid] = {"_synced": pos}
+    edit_json(os.path.join(HOME, ".local/state/dms/session.json"),
+              lambda d: d.setdefault("desktopWidgetInstancePositions", {}).update(positions))
+    run("systemctl", "--user", "start", "dms.service")
+
+    # 5. fondo animado, kitty (recarga en caliente) y aviso
+    # el fondo animado es su propio servicio (si lo lanzáramos nosotros, moriría al acabar este script)
+    run("systemctl", "--user", "restart", "trucha-fondo.service")
+    run("pkill", "-USR1", "-x", "kitty")
+    time.sleep(3)
+    run("notify-send", "-a", "Trucha OS!", "-i", theme.get("thumbnail", "trucha-os"),
+        "Tema: " + theme["label"], theme.get("description", ""))
+    write_index()
+    print(f"🐟 Tema aplicado: {theme['label']}")
+
+
+def detach_from_dms():
+    """Si nos ha lanzado DMS (selector ⊞+Alt+T, o una app abierta desde su lanzador), estamos dentro del
+    grupo de dms.service: al parar DMS, systemd nos mataría a medias. Nos relanzamos en una unidad propia."""
+    if os.environ.get("TRUCHA_DETACHED"):
+        return
+    try:
+        with open("/proc/self/cgroup", encoding="utf-8") as fh:
+            inside = "dms.service" in fh.read()
+    except OSError:
+        inside = False
+    if inside or os.environ.get("TRUCHA_FORCE_DETACH"):
+        unit = "trucha-theme-%d" % int(time.time() * 1000)
+        os.execvp("systemd-run", ["systemd-run", "--user", "--collect", "--quiet", "--unit", unit,
+                                  "--setenv=TRUCHA_DETACHED=1", os.path.abspath(sys.argv[0])] + sys.argv[1:])
+
+
+def main():
+    args = sys.argv[1:]
+    if args:
+        detach_from_dms()
+    if not args:
+        write_index()
+        cur = current_id()
+        for t in themes():
+            th = load(t)
+            print(("● " if t == cur else "  ") + f"{t:<14} {th['label']} — {th.get('description', '')}")
+        return
+    if args[0] == "--next":
+        ts = themes()
+        cur = current_id()
+        args = [ts[(ts.index(cur) + 1) % len(ts)] if cur in ts else ts[0]]
+    if args[0] not in themes():
+        sys.exit(f"No existe el tema '{args[0]}'. Disponibles: {', '.join(themes())}")
+    apply(args[0])
+
+
+if __name__ == "__main__":
+    main()

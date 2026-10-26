@@ -1,0 +1,61 @@
+[Plymouth Theme]
+Name=Trucha OS!
+Description=Arranque de Trucha OS! (Crimson Ink): trucha carmesí sobre negro tinta
+ModuleName=two-step
+
+[two-step]
+Font=Fira Sans Regular 14
+TitleFont=Fira Sans Regular 18
+ImageDir=/usr/share/plymouth/themes/trucha-os
+WatermarkHorizontalAlignment=.5
+WatermarkVerticalAlignment=.42
+HorizontalAlignment=.5
+VerticalAlignment=.78
+DialogHorizontalAlignment=.5
+DialogVerticalAlignment=.72
+TitleHorizontalAlignment=.5
+TitleVerticalAlignment=.68
+Transition=none
+TransitionDuration=0.0
+BackgroundStartColor=0x0c0c0e
+BackgroundEndColor=0x0c0c0e
+ProgressBarBackgroundColor=0x26262b
+ProgressBarForegroundColor=0xe5383b
+DialogClearsFirmwareBackground=true
+MessageBelowAnimation=true
+MessageBelowAnimationDistance=24
+CursorAnimation=breath
+CursorAnimationSpeed=7
+
+[boot-up]
+UseEndAnimation=false
+UseFirmwareBackground=false
+
+[shutdown]
+UseEndAnimation=false
+UseFirmwareBackground=false
+
+[reboot]
+UseEndAnimation=false
+UseFirmwareBackground=false
+
+[updates]
+SuppressMessages=true
+ProgressBarShowPercentComplete=true
+UseProgressBar=true
+Title=Instalando actualizaciones…
+SubTitle=No apagues el equipo
+
+[system-upgrade]
+SuppressMessages=false
+ProgressBarShowPercentComplete=false
+UseProgressBar=true
+Title=Actualizando Trucha OS!…
+SubTitle=No apagues el equipo
+
+[firmware-upgrade]
+SuppressMessages=true
+ProgressBarShowPercentComplete=true
+UseProgressBar=true
+Title=Actualizando el firmware…
+SubTitle=No apagues el equipo

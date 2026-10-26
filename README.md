@@ -1,0 +1,101 @@
+# 🐟 Trucha OS!
+
+Mi Linux personalizado: **niri** (tiling con scroll) + **DankMaterialShell**, tema **Crimson Ink**
+(negro tinta y carmesí, estética japonesa) y temas intercambiables de anime en modo dark.
+
+| | |
+|---|---|
+| Gestor de ventanas | niri v26.04 |
+| Interfaz | DankMaterialShell 2.0 (barra, dock, lanzador, notificaciones, bloqueo) |
+| Terminal | kitty + starship + fastfetch (con el torii) |
+| Temas | Crimson Ink · Miku Dark · Nino Dark · Marin Dark (`trucha-theme`, ⊞+Alt+T) |
+| Escritorio | fondo animado (linux-wallpaperengine), reloj pixel, kanji vertical, visualizador cava, monitor |
+| Arranque | Plymouth con la trucha · tema de rEFInd |
+| Extras | pestaña **Competis** (ciberseguridad y hackatones, ⊞+Shift+Espacio) · tecla ⊞ sola = lanzador |
+
+## Instalar
+
+Funciona sobre **CachyOS / Arch** (recomendado: todo viene de repos/AUR) y **Ubuntu 24.04 / Pop!_OS**
+(niri y Quickshell se compilan).
+
+```bash
+git clone <este-repo> ~/trucha-os
+cd ~/trucha-os
+./install.sh
+```
+
+Después cierra sesión y entra en **niri**.
+
+### Pasarse a CachyOS
+
+1. Instala CachyOS (edición **niri**, o cualquiera y el instalador pone niri).
+2. Monta la partición de Windows si tus fondos de Wallpaper Engine están allí:
+   `udisksctl mount -b /dev/nvmeXnYpZ`
+3. `./install.sh`. Hace en este orden:
+   1. Instala paquetes con pacman y paru.
+   2. Descarga las fuentes.
+   3. Copia tu configuración.
+   4. Importa los fondos y regenera los recursos derivados.
+   5. Aplica la marca y los temas de Plymouth y rEFInd, y configura la tecla ⊞.
+
+### USB live
+
+**Opción fácil (recomendada):** Ventoy + la ISO oficial de CachyOS.
+1. Graba [Ventoy](https://www.ventoy.net) en el USB y copia dentro la ISO de CachyOS.
+2. Si quieres que los cambios se guarden, añade un fichero de persistencia de Ventoy.
+3. Arranca el USB, conéctate a internet y ejecuta `./install.sh --live`.
+   Instala todo menos lo que no tiene sentido en un live (marca del sistema, Plymouth y rEFInd).
+
+**Opción ISO propia (experimental):** `./iso/build-iso.sh` (en CachyOS/Arch, con `archiso`).
+Genera `iso/out/trucha-os-*.iso`, con los paquetes dentro y un usuario live `trucha`/`trucha`
+que entra directamente en niri.
+
+## Fondos de Wallpaper Engine
+
+**No están en el repo**, porque son de sus autores. `scripts/import-wallpapers.sh` los copia
+de **tu** Wallpaper Engine: Steam de Linux o la partición de Windows.
+
+| Tema | ID del workshop |
+|---|---|
+| Crimson Ink (torii) | 3404531656 |
+| Miku Dark | 2397088460 |
+| Nino Dark | 2376540588 |
+| Marin Dark | 3489782387 |
+
+Lo que deriva de ellos lo regenera `scripts/gen-crimson-assets.py`: el login de Crimson,
+su miniatura, el fondo de rEFInd y el logo del fetch.
+
+## Mantener el repo al día
+
+Cuando cambies algo en tu sistema:
+
+```bash
+./scripts/export.sh && git add -A && git commit -m "Actualizar configuración"
+```
+
+Las rutas `/home/<tú>` se guardan como `__HOME__` y el instalador las adapta al usuario de destino.
+
+## Estructura
+
+```
+install.sh                instalador (modo completo, --live, --solo-config)
+packages/                 arch.txt · aur.txt · ubuntu.txt
+dotfiles/                 tu $HOME de Trucha OS! (niri, DMS, kitty, temas, widgets, scripts…)
+system/keyd.conf          tecla ⊞ sola = lanzador
+scripts/export.sh         sistema → repo
+scripts/import-wallpapers.sh   Wallpaper Engine → ~/.local/share/wallpaperengine
+scripts/gen-crimson-assets.py  recursos derivados del torii
+scripts/system.sh         marca, Plymouth, rEFInd, keyd (root)
+scripts/ubuntu-build.sh   compilaciones para Ubuntu/Pop
+iso/build-iso.sh          ISO live propia (archiso, experimental)
+```
+
+## Añadir un tema
+
+1. Copia el fondo a `~/.local/share/wallpaperengine/wallpapers/<nombre>`.
+2. Crea `~/.config/trucha-os/themes/<id>.json` con estos campos:
+   - `accent_hue`;
+   - `kanji` y `kana`;
+   - `dim`, para oscurecer el fondo;
+   - `positions`, opcional, si el personaje tapa los widgets.
+3. Ejecuta `trucha-theme-assets <id>` (genera el logo, el login y la miniatura) y elige el tema con ⊞+Alt+T.

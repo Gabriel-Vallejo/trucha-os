@@ -1,0 +1,14 @@
+# Trucha OS! — paquetes apt (Ubuntu 24.04 / Pop!_OS). niri, Quickshell y DMS no están en apt:
+# los compila/descarga scripts/ubuntu-build.sh
+clang pkg-config ninja-build cmake meson
+libudev-dev libgbm-dev libxkbcommon-dev libegl1-mesa-dev libwayland-dev libinput-dev
+libdbus-1-dev libsystemd-dev libseat-dev libpipewire-0.3-dev libpango1.0-dev libdisplay-info-dev
+libxcb1-dev libxcb-cursor-dev xwayland
+libdrm-dev spirv-tools libcli11-dev libjemalloc-dev wayland-protocols libvulkan-dev
+libpam0g-dev libpolkit-agent-1-dev libpolkit-gobject-1-dev libglib2.0-dev
+libgl-dev libegl-dev libfontconfig1-dev libfreetype-dev libxkbcommon-x11-0 libffi-dev libexpat1-dev
+wl-clipboard cliphist brightnessctl cava golang-go
+xdg-desktop-portal-gnome xdg-desktop-portal-gtk gnome-keyring
+qt6ct qt5ct python3-pil ffmpeg git curl unzip plymouth refind
+gdb radare2 binwalk foremost sleuthkit hashcat john sqlmap nmap wireshark tshark gobuster ffuf
+yara libimage-exiftool-perl steghide upx-ucl docker.io python3-pwntools

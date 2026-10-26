@@ -1,0 +1,16 @@
+{
+  "id": "nino-dark",
+  "label": "Nino Dark",
+  "description": "Nino Nakano · rosa de sus mechas sobre tinta y caligrafía",
+  "wallpaper": "nino",
+  "lockscreen": "__HOME__/.local/share/trucha-os/greeter/nino-dark.jpg",
+  "greeter": "__HOME__/.local/share/trucha-os/greeter/nino-dark.jpg",
+  "thumbnail": "__HOME__/.local/share/trucha-os/thumbs/nino-dark.png",
+  "fetch_logo": "__HOME__/.local/share/trucha-os/logos/nino-dark.png",
+  "kanji": "二乃",
+  "kana": ["ニ", "ノ"],
+  "dim": 0.6,
+  "accent_hue": 340,
+  "neutral_hue": 335,
+  "neutral_sat": 0.14
+}
