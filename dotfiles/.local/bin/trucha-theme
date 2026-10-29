@@ -129,8 +129,9 @@ def apply_greeter(theme, f):
     base = {"TRUCHA_ACCENT": "#e5383b", "TRUCHA_BG": "#0c0c0e", "TRUCHA_PRIMARY": "#141417",
             "TRUCHA_SECONDARY": "#1c1c20", "TRUCHA_NEUTRAL": "#7a7a80", "TRUCHA_TEXT": "#ece8e4"}
     env = dict(os.environ, **{k: hexmap(f, v) for k, v in base.items()})
-    subprocess.run([os.path.join(HOME, ".local/src/crimson-ink-theme/target/release/crimson-ink-theme")],
-                   env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    gen = os.path.join(HOME, ".local/src/crimson-ink-theme/target/release/crimson-ink-theme")
+    if os.path.exists(gen):   # no viene en la copia: sin él, el login usa los colores de serie de COSMIC
+        subprocess.run([gen], env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
 def apply(theme_id):
