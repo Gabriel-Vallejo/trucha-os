@@ -31,4 +31,4 @@ bg="$DATA/wallpapers/${1:-$DEFAULT}"
 pkill -f "^$LWE/linux-wallpaperengine"
 LD_LIBRARY_PATH="$LWE:$LWE/lib" exec "$LWE/linux-wallpaperengine" \
   --assets-dir "$DATA/assets" --silent --fps 30 --disable-mouse \
-  --screen-root "$OUTPUT" --bg "$bg" --scaling fill
+  --layer background --screen-root "$OUTPUT" --bg "$bg" --scaling fill
