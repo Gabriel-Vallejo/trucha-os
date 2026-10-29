@@ -36,6 +36,9 @@ noto-fonts-cjk
 # DMS
 matugen
 accountsservice
+dms-shell
+dux-gop
+quickshell
 # CTF / hackatones (repos oficiales)
 gdb
 radare2
@@ -48,10 +51,10 @@ sqlmap
 nmap
 wireshark-qt
 gobuster
-ffuf
 yara
+ghidra
+volatility3
 perl-image-exiftool
-steghide
 upx
 docker
 python-pwntools
