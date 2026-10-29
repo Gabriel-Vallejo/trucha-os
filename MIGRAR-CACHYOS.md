@@ -39,21 +39,24 @@ Windows **no se toca**. La copia de seguridad está en la partición de Windows:
 Reinicia, quita el USB y elige CachyOS en rEFInd. Abre una terminal y ejecuta:
 
 ```bash
-# fondos y copia: montar la partición de Windows
+# 1. partición de Windows (copia de seguridad y fondos de Wallpaper Engine)
 udisksctl mount -b /dev/nvme0n1p3
+B=$(ls -d /run/media/$USER/*/TruchaBackup)
 
-# Trucha OS! (repo privado: inicia sesión en GitHub)
-sudo pacman -S --needed github-cli git
-gh auth login
-gh repo clone Gabriel-Vallejo/trucha-os ~/trucha-os
-cd ~/trucha-os
+# 2. repositorio desde la copia (sin iniciar sesión en GitHub)
+cp -r "$B/trucha-os" ~/trucha-os && cd ~/trucha-os
 
-# 1) tus datos de vuelta
-./scripts/restore-backup.sh
-
-# 2) Trucha OS! completo (paquetes, configuración, fondos, Plymouth, rEFInd, tecla ⊞)
+# 3. Trucha OS! completo (paquetes, configuración, fondos, Plymouth, rEFInd, tecla ⊞)
 ./install.sh
+
+# 4. tus datos y los volúmenes de Docker: siempre DESPUÉS de install.sh
+./scripts/restore-backup.sh "$B"
 ```
+
+El orden importa: `restore-backup.sh` necesita Docker ya instalado para los volúmenes, y retira los
+binarios que Pop compilaba a mano en `~/.local/bin` (quickshell, niri, dms…), que taparían los de CachyOS.
+
+Para usar GitHub en lugar de la copia: `sudo pacman -S github-cli && gh auth login && gh repo clone Gabriel-Vallejo/trucha-os ~/trucha-os`.
 
 Cierra sesión y entra en **niri**.
 
@@ -61,6 +64,7 @@ Cierra sesión y entra en **niri**.
 
 - **eduroam:** EAP-TTLS + PAP, identidad anónima `cat.20200723@usal.es`, CA en `~/.config/cat_installer/ca.pem`
   (ya viene restaurada con la copia) y dominio `jaspe.usal.es;mica.usal.es`. También vale el instalador oficial de eduroam CAT.
+- **Grupo `docker`:** vuelve a entrar en la sesión para usar `docker` sin `sudo`.
 - **MySQL de style-scent-engine:** levanta su `docker compose` y ejecuta el comando que imprime `restore-backup.sh`.
 - **JetBrains:** instala JetBrains Toolbox y vuelve a instalar las IDE (no se copiaron: 28 GB). Tus ajustes sí están en `~/.config/JetBrains`.
 - **Restos de Pop en la partición EFI** (`EFI/Pop_OS-*`, `EFI/systemd`): rEFInd ya los oculta.
