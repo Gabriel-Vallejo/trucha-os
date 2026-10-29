@@ -1,0 +1,7 @@
+#!/bin/sh
+# Discord con Vencord: Discord se actualiza solo en ~/.config/discord/app-*; si la versión nueva viene sin parchear, reaplica Vencord
+app=$(ls -d "$HOME"/.config/discord/app-* 2>/dev/null | sort -V | tail -1)
+if [ -n "$app" ] && [ ! -e "$app/resources/_app.asar" ]; then
+  vencordinstallercli -install -location "$app/" >/dev/null 2>&1
+fi
+exec /usr/bin/discord "$@"
