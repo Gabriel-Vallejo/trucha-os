@@ -62,3 +62,26 @@ python-pycryptodome
 z3
 python-gmpy2
 python-scapy
+# apps (en Pop venían de Flatpak/.deb)
+spotify-launcher
+steam
+obsidian
+discord
+thunderbird
+fuse2
+seahorse
+cosmic-files
+greetd
+cosmic-greeter
+github-cli
+nodejs
+npm
+python-pipx
+yt-dlp
+pwndbg
+audacity
+libreoffice-fresh
+libreoffice-fresh-es
+gedit
+eog
+evolution

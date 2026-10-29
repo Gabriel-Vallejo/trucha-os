@@ -7,3 +7,9 @@ python-oletools
 dux-search-bin
 ffuf
 steghide
+google-chrome
+visual-studio-code-bin
+jetbrains-toolbox
+jd-gui-bin
+vencord-installer
+millennium
