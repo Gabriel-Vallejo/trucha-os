@@ -21,7 +21,7 @@ DesktopPluginComponent {
     }
 
     minWidth: 160
-    minHeight: 120
+    minHeight: 160
 
     readonly property color crimson: theme.accent ?? "#e5383b"
     readonly property color bone: theme.bone ?? "#ece8e4"
@@ -30,6 +30,32 @@ DesktopPluginComponent {
 
     Component.onCompleted: DgopService.addRef(["cpu", "memory"])
     Component.onDestruction: DgopService.removeRef(["cpu", "memory"])
+
+    // GPU NVIDIA: dgop solo da la temperatura, así que se pregunta a nvidia-smi cada 3 s.
+    // Si la dGPU está suspendida (runtime D3) no se le pregunta, para no despertarla.
+    property real gpuUsage: -1          // -1 = sin datos o suspendida
+    Process {
+        running: true
+        command: ["sh", "-c", `gpu=""
+for d in /sys/bus/pci/devices/*; do
+  [ "$(cat "$d/vendor")" = 0x10de ] && case "$(cat "$d/class")" in 0x03*) gpu="$d";; esac
+done
+[ -n "$gpu" ] || exit 0
+while :; do
+  if [ "$(cat "$gpu/power/runtime_status")" = active ]; then
+    nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits || echo off
+  else
+    echo off
+  fi
+  sleep 3
+done`]
+        stdout: SplitParser {
+            onRead: data => {
+                const v = parseInt(data, 10);
+                root.gpuUsage = isNaN(v) ? -1 : v;
+            }
+        }
+    }
 
     component Stat: Column {
         id: stat
@@ -90,6 +116,11 @@ DesktopPluginComponent {
             label: "RAM"
             value: root.pad(DgopService.memoryUsage) + "%"
             ratio: DgopService.memoryUsage / 100
+        }
+        Stat {
+            label: "GPU"
+            value: root.gpuUsage < 0 ? "ZZ" : root.pad(root.gpuUsage) + "%"
+            ratio: Math.max(0, root.gpuUsage) / 100
         }
         Stat {
             label: "TEMP"

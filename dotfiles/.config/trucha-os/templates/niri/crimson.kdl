@@ -198,5 +198,6 @@ binds {
     Mod+Alt+Return hotkey-overlay-title="Modo exhibición (fetch · cava · reloj · btop)" { spawn "__HOME__/.local/bin/trucha-showcase"; }
     Mod+Shift+W hotkey-overlay-title="Reiniciar fondo animado" { spawn "systemctl" "--user" "restart" "trucha-fondo.service"; }
     Mod+Shift+S hotkey-overlay-title="Captura de región" { screenshot; }
+    Shift+Print hotkey-overlay-title="Quick Capture (anotar, grabar, OCR, QR)" { spawn "dms" "ipc" "call" "quickCapture" "toggle"; }
     Print { screenshot-screen; }
 }

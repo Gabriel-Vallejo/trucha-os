@@ -85,3 +85,12 @@ libreoffice-fresh-es
 gedit
 eog
 evolution
+# Quick Capture (plugin de DMS): grabación, OCR y QR
+gpu-screen-recorder
+wf-recorder
+imagemagick
+img2pdf
+tesseract
+tesseract-data-eng
+tesseract-data-spa
+zbar

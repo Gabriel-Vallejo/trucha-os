@@ -31,5 +31,8 @@
   },
   "truchaUtils": {
     "enabled": true
+  },
+  "quickCapture": {
+    "enabled": true
   }
 }

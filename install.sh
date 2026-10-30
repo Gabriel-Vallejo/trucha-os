@@ -77,6 +77,8 @@ mkdir -p "$HOME/Imágenes/Capturas"
 # DMS arranca con niri
 systemctl --user daemon-reload
 systemctl --user add-wants niri.service dms.service 2>/dev/null || true
+# plugins de terceros del registro de DMS (no se guardan en el repo)
+"$HOME/.local/bin/dms" plugins install quickCapture >/dev/null 2>&1 || echo "  (no se pudo instalar quickCapture; luego: dms plugins install quickCapture)"
 
 # ── 4. Fondos (de tu Wallpaper Engine) y recursos derivados ────────────────
 say "Fondos"

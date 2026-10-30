@@ -2,3 +2,7 @@ iso/work/
 iso/out/
 *.antes-trucha
 __pycache__/
+# plugins de DMS de terceros: los instala install.sh desde el registro
+dotfiles/.config/dms/plugins/quickCapture
+dotfiles/.config/dms/plugins/quickCapture.meta
+dotfiles/.config/dms/plugins/.repos/
