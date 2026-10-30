@@ -12,3 +12,4 @@ xdg-desktop-portal-gnome xdg-desktop-portal-gtk gnome-keyring
 qt6ct qt5ct python3-pil ffmpeg git curl unzip plymouth refind
 gdb radare2 binwalk foremost sleuthkit hashcat john sqlmap nmap wireshark tshark gobuster ffuf
 yara libimage-exiftool-perl steghide upx-ucl docker.io python3-pwntools
+jq

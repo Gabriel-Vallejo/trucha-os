@@ -189,6 +189,28 @@ layer-rule {
 
 // ─── Atajos propios (además de los de DMS: Mod+/ los muestra todos) ──
 binds {
+    Alt+F4 repeat=false hotkey-overlay-title="Cerrar ventana" { close-window; }
+    // === Atajos estilo Windows (sobrescriben los de dms/binds.kdl) ===
+    Mod+L repeat=false hotkey-overlay-title="Bloquear (Win+L)" { spawn "dms" "ipc" "call" "lock" "lock"; }
+    Mod+D repeat=false hotkey-overlay-title="Vista general (Win+D)" { toggle-overview; }
+    Mod+Shift+D hotkey-overlay-title="Dash" { spawn "dms" "ipc" "call" "dash" "toggle" ""; }
+    Mod+R hotkey-overlay-title="Ejecutar (Win+R)" { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
+    Mod+S hotkey-overlay-title="Buscar (Win+S)" { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
+    Mod+Ctrl+W { switch-preset-column-width; }
+    Mod+I hotkey-overlay-title="Configuración (Win+I)" { spawn "dms" "ipc" "call" "settings" "focusOrToggle"; }
+    Mod+N hotkey-overlay-title="Notificaciones (Win+N)" { spawn "dms" "ipc" "call" "notifications" "toggle"; }
+    Mod+Ctrl+N hotkey-overlay-title="Notepad" { spawn "dms" "ipc" "call" "notepad" "toggle"; }
+    Ctrl+Shift+Escape hotkey-overlay-title="Administrador de tareas" { spawn "dms" "ipc" "call" "processlist" "focusOrToggle"; }
+    Mod+Print hotkey-overlay-title="Captura pantalla completa (Win+ImpPnt)" { spawn "dms" "screenshot" "full"; }
+    Mod+Up repeat=false hotkey-overlay-title="Maximizar (Win+Arriba)" { maximize-window-to-edges; }
+    Mod+Down repeat=false hotkey-overlay-title="Restaurar (Win+Abajo)" { maximize-window-to-edges; }
+    Mod+Ctrl+Left hotkey-overlay-title="Escritorio anterior" { focus-workspace-up; }
+    Mod+Ctrl+Right hotkey-overlay-title="Escritorio siguiente" { focus-workspace-down; }
+    Mod+Ctrl+D hotkey-overlay-title="Nuevo escritorio (Win+Ctrl+D)" { spawn "__HOME__/.local/bin/niri-nuevo-escritorio"; }
+    Mod+Shift+Left hotkey-overlay-title="Mover a monitor izquierdo" { move-column-to-monitor-left; }
+    Mod+Shift+Right hotkey-overlay-title="Mover a monitor derecho" { move-column-to-monitor-right; }
+    Mod+Alt+Left { move-column-left; }
+    Mod+Alt+Right { move-column-right; }
     Mod+Return hotkey-overlay-title="Terminal (kitty)" { spawn "__HOME__/.local/bin/kitty"; }
     Mod+E hotkey-overlay-title="Archivos" { spawn "cosmic-files"; }
     Mod+B hotkey-overlay-title="Navegador" { spawn "google-chrome"; }

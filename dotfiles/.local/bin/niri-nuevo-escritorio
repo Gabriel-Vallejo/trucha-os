@@ -1,0 +1,5 @@
+#!/bin/sh
+# Win+Ctrl+D: va al escritorio vacío del final del monitor actual (niri siempre deja uno)
+out=$(niri msg -j workspaces | jq -r '.[] | select(.is_focused) | .output')
+last=$(niri msg -j workspaces | jq --arg o "$out" '[.[] | select(.output == $o) | .idx] | max')
+niri msg action focus-workspace "$last"

@@ -94,3 +94,5 @@ tesseract
 tesseract-data-eng
 tesseract-data-spa
 zbar
+# niri-nuevo-escritorio (Win+Ctrl+D)
+jq
