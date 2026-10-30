@@ -6,6 +6,7 @@ import importlib.machinery
 import importlib.util
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -18,7 +19,8 @@ spec = importlib.util.spec_from_loader("tt", loader)
 tt = importlib.util.module_from_spec(spec)
 loader.exec_module(tt)
 
-CHROME = ["google-chrome", "--headless=new", "--disable-gpu", "--hide-scrollbars",
+# Arch solo instala google-chrome-stable; Ubuntu/Pop traen también google-chrome
+CHROME = [next((b for b in ("google-chrome", "google-chrome-stable", "chromium") if shutil.which(b)), "google-chrome"), "--headless=new", "--disable-gpu", "--hide-scrollbars",
           "--default-background-color=00000000"]
 
 

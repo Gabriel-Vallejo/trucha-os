@@ -8,7 +8,7 @@ Mi Linux personalizado: **niri** (tiling con scroll) + **DankMaterialShell**, te
 | Gestor de ventanas | niri v26.04 |
 | Interfaz | DankMaterialShell 2.0 (barra, dock, lanzador, notificaciones, bloqueo) |
 | Terminal | kitty + starship + fastfetch (con el torii) |
-| Temas | Crimson Ink · Miku Dark · Nino Dark · Marin Dark (`trucha-theme`, ⊞+Alt+T) |
+| Temas | Crimson Ink · Miku Dark · Nino Dark · Marin Dark · Umbrella (`trucha-theme`, ⊞+Alt+T) |
 | Escritorio | fondo animado (linux-wallpaperengine), reloj pixel, kanji vertical, visualizador cava, monitor, tiempo, calendario (十月), pétalos de sakura |
 | Arranque | Plymouth con la trucha · tema de rEFInd |
 | Extras | pestaña **Competis** (ciberseguridad y hackatones, ⊞+Shift+Espacio) · **Utilidades** con `=` en el lanzador · tecla ⊞ sola = lanzador |
@@ -61,6 +61,7 @@ de **tu** Wallpaper Engine: Steam de Linux o la partición de Windows.
 | Miku Dark | 2397088460 |
 | Nino Dark | 2376540588 |
 | Marin Dark | 3489782387 |
+| Umbrella | 2762828956 |
 
 Lo que deriva de ellos lo regenera `scripts/gen-crimson-assets.py`: el login de Crimson,
 su miniatura, el fondo de rEFInd y el logo del fetch.
