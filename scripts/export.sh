@@ -17,7 +17,7 @@ FILES=(
   .config/btop/btop.conf .config/btop/themes/crimson-ink.theme
   .config/cava/config
   .config/fastfetch/config.jsonc .config/fastfetch/torii.txt
-  .config/starship.toml
+  .config/starship.toml .config/mimeapps.list
   .config/trucha-os/themes .config/trucha-os/templates .config/trucha-os/positions-default.json
   .config/systemd/user/dms.service .config/systemd/user/dms.service.d .config/systemd/user/trucha-fondo.service
   .config/environment.d/90-crimson-ink-cursor.conf .config/environment.d/90-crimson-ink-java.conf

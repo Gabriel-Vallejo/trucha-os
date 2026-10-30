@@ -73,6 +73,10 @@ for b in kitty btop dms; do
   [ -x "$HOME/.local/bin/$b" ] || { p=$(command -v "$b" || true); [ -n "$p" ] && ln -sf "$p" "$HOME/.local/bin/$b"; }
 done
 mkdir -p "$HOME/Imágenes/Capturas"
+# Nautilus (libadwaita) lee el tema de iconos de gsettings, no de settings.ini; carpetas de Papirus en rojo
+gsettings set org.gnome.desktop.interface icon-theme 'Papirus-Dark' 2>/dev/null || true
+command -v papirus-folders >/dev/null && sudo papirus-folders -C red --theme Papirus-Dark >/dev/null 2>&1 || true
+xdg-mime default org.gnome.Nautilus.desktop inode/directory 2>/dev/null || true
 
 # DMS arranca con niri
 systemctl --user daemon-reload

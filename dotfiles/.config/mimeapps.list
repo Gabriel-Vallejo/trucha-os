@@ -1,0 +1,6 @@
+
+[Default Applications]
+x-scheme-handler/claude-cli=claude-code-url-handler.desktop
+x-scheme-handler/jetbrains=jetbrainsd.desktop
+x-scheme-handler/jetbrains-gateway=jetbrains-gateway.desktop
+inode/directory=org.gnome.Nautilus.desktop

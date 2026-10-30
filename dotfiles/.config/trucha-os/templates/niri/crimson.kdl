@@ -214,7 +214,7 @@ binds {
     Mod+Alt+Left { move-column-left; }
     Mod+Alt+Right { move-column-right; }
     Mod+Return hotkey-overlay-title="Terminal (kitty)" { spawn "__HOME__/.local/bin/kitty"; }
-    Mod+E hotkey-overlay-title="Archivos" { spawn "cosmic-files"; }
+    Mod+E hotkey-overlay-title="Archivos" { spawn "nautilus" "--new-window"; }
     Mod+B hotkey-overlay-title="Navegador" { spawn "google-chrome-stable"; }
     Mod+C hotkey-overlay-title="VS Code" { spawn "code"; }
     Mod+Shift+Space hotkey-overlay-title="Competis (ciberseguridad y hackatones)" { spawn "dms" "ipc" "call" "spotlight" "toggleQuery" "@ "; }

@@ -96,3 +96,5 @@ tesseract-data-spa
 zbar
 # niri-nuevo-escritorio (Win+Ctrl+D)
 jq
+# gestor de archivos (Win+E)
+nautilus
