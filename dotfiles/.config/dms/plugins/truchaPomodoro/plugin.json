@@ -1,0 +1,13 @@
+{
+    "id": "truchaPomodoro",
+    "name": "Trucha · Pomodoro",
+    "description": "Temporizador 25/5 con anillo carmesí; clic para empezar o pausar, clic derecho para reiniciar",
+    "version": "1.0.0",
+    "author": "Gabriel",
+    "type": "desktop",
+    "capabilities": ["desktop-widget"],
+    "component": "./TruchaPomodoro.qml",
+    "icon": "timer",
+    "requires_dms": ">=2.0.0",
+    "permissions": ["settings_read"]
+}

@@ -381,10 +381,14 @@
     },
     "truchaThemes": {
       "allowWithoutTrigger": false
+    },
+    "truchaUtils": {
+      "allowWithoutTrigger": false
     }
   },
   "launcherPluginOrder": [
-    "competis"
+    "competis",
+    "truchaUtils"
   ],
   "spotlightSectionViewModes": {
     "apps": "list"
@@ -585,6 +589,67 @@
         "displayPreferences": [
           "all"
         ]
+      }
+    },
+    {
+      "id": "trucha_weather",
+      "widgetType": "truchaWeather",
+      "name": "Tiempo",
+      "enabled": true,
+      "config": {
+        "syncPositionAcrossScreens": true,
+        "displayPreferences": [
+          "all"
+        ]
+      }
+    },
+    {
+      "id": "trucha_calendar",
+      "widgetType": "truchaCalendar",
+      "name": "Calendario",
+      "enabled": true,
+      "config": {
+        "syncPositionAcrossScreens": true,
+        "displayPreferences": [
+          "all"
+        ]
+      }
+    },
+    {
+      "id": "trucha_net",
+      "widgetType": "truchaNet",
+      "name": "Red",
+      "enabled": true,
+      "config": {
+        "syncPositionAcrossScreens": true,
+        "displayPreferences": [
+          "all"
+        ]
+      }
+    },
+    {
+      "id": "trucha_pomodoro",
+      "widgetType": "truchaPomodoro",
+      "name": "Pomodoro",
+      "enabled": true,
+      "config": {
+        "syncPositionAcrossScreens": true,
+        "displayPreferences": [
+          "all"
+        ]
+      }
+    },
+    {
+      "id": "trucha_sakura",
+      "widgetType": "truchaSakura",
+      "name": "Pétalos",
+      "enabled": true,
+      "config": {
+        "syncPositionAcrossScreens": true,
+        "displayPreferences": [
+          "all"
+        ],
+        "clickThrough": true
       }
     }
   ],

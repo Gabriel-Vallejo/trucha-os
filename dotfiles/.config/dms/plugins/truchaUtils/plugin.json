@@ -1,0 +1,14 @@
+{
+    "id": "truchaUtils",
+    "name": "Utilidades Trucha",
+    "description": "Calculadora, conversiones de CTF (base64, hex, rot13, url, binario, timestamps), selector de color y capturas; copia el resultado",
+    "version": "1.0.0",
+    "author": "Gabriel",
+    "icon": "construction",
+    "type": "launcher",
+    "capabilities": ["command-execution"],
+    "component": "./TruchaUtils.qml",
+    "trigger": "=",
+    "requires_dms": ">=2.0.0",
+    "permissions": ["settings_read"]
+}

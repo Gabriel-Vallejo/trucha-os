@@ -9,9 +9,9 @@ Mi Linux personalizado: **niri** (tiling con scroll) + **DankMaterialShell**, te
 | Interfaz | DankMaterialShell 2.0 (barra, dock, lanzador, notificaciones, bloqueo) |
 | Terminal | kitty + starship + fastfetch (con el torii) |
 | Temas | Crimson Ink · Miku Dark · Nino Dark · Marin Dark (`trucha-theme`, ⊞+Alt+T) |
-| Escritorio | fondo animado (linux-wallpaperengine), reloj pixel, kanji vertical, visualizador cava, monitor |
+| Escritorio | fondo animado (linux-wallpaperengine), reloj pixel, kanji vertical, visualizador cava, monitor, tiempo, calendario (十月), red con gráfica, pomodoro, pétalos de sakura |
 | Arranque | Plymouth con la trucha · tema de rEFInd |
-| Extras | pestaña **Competis** (ciberseguridad y hackatones, ⊞+Shift+Espacio) · tecla ⊞ sola = lanzador |
+| Extras | pestaña **Competis** (ciberseguridad y hackatones, ⊞+Shift+Espacio) · **Utilidades** con `=` en el lanzador · tecla ⊞ sola = lanzador |
 
 ## Instalar
 
@@ -90,6 +90,25 @@ scripts/ubuntu-build.sh   compilaciones para Ubuntu/Pop
 iso/build-iso.sh          ISO live propia (archiso, experimental)
 ```
 
+## Widgets y utilidades
+
+| Widget | Qué hace |
+|---|---|
+| Tiempo | temperatura, estado y máx/mín del día (servicio del tiempo de DMS) |
+| Calendario | mes con su kanji, semana de lunes a domingo, hoy en carmesí |
+| Red | bajada/subida en vivo y gráfica de los últimos ~2 min |
+| Pomodoro | 25/5 (15 tras la cuarta ronda). Clic: empezar/pausar · clic derecho: reiniciar |
+| Pétalos | caen despacio con el acento del tema; no bloquean clics (`clickThrough`) |
+
+**Utilidades** (`=` en el lanzador; el resultado se copia al elegirlo):
+- vacío → selector de color y capturas (zona, ventana, pantalla);
+- `2^10/3`, `sqrt(2)`, `5!`, `3,5*2` → calculadora (sin `eval`);
+- `255`, `0xff`, `0b1010` → decimal/hex/binario/octal y carácter;
+- `ts` o `ts 1700000000` → timestamp Unix ↔ fecha;
+- `#e5383b` → rgb y hsl;
+- texto libre → base64, hex, rot13 y url, y lo decodifica si puede;
+- prefijos: `b64` `b64d` `hex` `unhex` `rot13` `url` `urld` `bin` `unbin` `up` `low` `rev` `len`.
+
 ## Añadir un tema
 
 1. Copia el fondo a `~/.local/share/wallpaperengine/wallpapers/<nombre>`.
@@ -97,5 +116,6 @@ iso/build-iso.sh          ISO live propia (archiso, experimental)
    - `accent_hue`;
    - `kanji` y `kana`;
    - `dim`, para oscurecer el fondo;
-   - `positions`, opcional, si el personaje tapa los widgets.
+   - `positions`, opcional, si el personaje tapa los widgets;
+   - `petals`, opcional (`false` apaga los pétalos en ese tema).
 3. Ejecuta `trucha-theme-assets <id>` (genera el logo, el login y la miniatura) y elige el tema con ⊞+Alt+T.

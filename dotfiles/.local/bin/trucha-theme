@@ -162,7 +162,7 @@ def apply(theme_id):
 
     # 2. estado para los widgets de DMS
     current = {"id": theme["id"], "label": theme["label"], "kanji": theme["kanji"], "kana": theme["kana"],
-               "dim": theme.get("dim", 0.0)}
+               "dim": theme.get("dim", 0.0), "petals": theme.get("petals", True)}
     current.update({k: hexmap(f, v) for k, v in WIDGET_COLORS.items()})
     with open(CURRENT, "w", encoding="utf-8") as fh:
         json.dump(current, fh, indent=2, ensure_ascii=False)

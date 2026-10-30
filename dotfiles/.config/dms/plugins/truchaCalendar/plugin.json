@@ -1,0 +1,13 @@
+{
+    "id": "truchaCalendar",
+    "name": "Trucha · Calendario",
+    "description": "Mes en curso con el mes en kanji y el día de hoy en carmesí",
+    "version": "1.0.0",
+    "author": "Gabriel",
+    "type": "desktop",
+    "capabilities": ["desktop-widget"],
+    "component": "./TruchaCalendar.qml",
+    "icon": "calendar_month",
+    "requires_dms": ">=2.0.0",
+    "permissions": ["settings_read"]
+}

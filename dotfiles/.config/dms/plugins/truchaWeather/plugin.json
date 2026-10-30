@@ -1,0 +1,13 @@
+{
+    "id": "truchaWeather",
+    "name": "Trucha · Tiempo",
+    "description": "Tiempo actual y máx/mín del día en la fuente pixel, sin cajas",
+    "version": "1.0.0",
+    "author": "Gabriel",
+    "type": "desktop",
+    "capabilities": ["desktop-widget"],
+    "component": "./TruchaWeather.qml",
+    "icon": "partly_cloudy_day",
+    "requires_dms": ">=2.0.0",
+    "permissions": ["settings_read"]
+}

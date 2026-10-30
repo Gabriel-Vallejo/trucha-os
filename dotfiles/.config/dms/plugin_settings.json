@@ -19,5 +19,23 @@
   },
   "truchaThemes": {
     "enabled": true
+  },
+  "truchaWeather": {
+    "enabled": true
+  },
+  "truchaCalendar": {
+    "enabled": true
+  },
+  "truchaNet": {
+    "enabled": true
+  },
+  "truchaPomodoro": {
+    "enabled": true
+  },
+  "truchaSakura": {
+    "enabled": true
+  },
+  "truchaUtils": {
+    "enabled": true
   }
 }
