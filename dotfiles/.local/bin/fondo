@@ -28,7 +28,18 @@ bg="$DATA/wallpapers/${1:-$DEFAULT}"
 [ -d "$bg" ] || bg="$WIN_WS/$1"
 [ -d "$bg" ] || { echo "No encuentro el fondo '$1' (prueba: fondo list)"; exit 1; }
 
+# propiedades de la escena que fija el tema que usa este fondo ("wallpaper_properties"), p. ej. apagar su reloj
+props=()
+while IFS= read -r p; do props+=(--set-property "$p"); done < <(python3 -I -c '
+import glob, json, os, sys
+for f in glob.glob(os.path.expanduser("~/.config/trucha-os/themes/*.json")):
+    t = json.load(open(f, encoding="utf-8"))
+    if t.get("wallpaper") == sys.argv[1]:
+        for k, v in t.get("wallpaper_properties", {}).items():
+            print(f"{k}={int(v) if isinstance(v, bool) else v}")
+' "${1:-$DEFAULT}" 2>/dev/null)
+
 pkill -f "^$LWE/linux-wallpaperengine"
 LD_LIBRARY_PATH="$LWE:$LWE/lib" exec "$LWE/linux-wallpaperengine" \
   --assets-dir "$DATA/assets" --silent --fps 30 --disable-mouse \
-  --layer background --screen-root "$OUTPUT" --bg "$bg" --scaling fill
+  --layer background --screen-root "$OUTPUT" --bg "$bg" --scaling fill "${props[@]}"

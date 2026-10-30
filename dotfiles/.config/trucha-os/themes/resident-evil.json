@@ -1,0 +1,70 @@
+{
+  "id": "resident-evil",
+  "label": "Resident Evil",
+  "description": "Leon · Requiem · escarlata Umbrella sobre grafito",
+  "wallpaper": "requiem",
+  "lockscreen": "__HOME__/.local/share/backgrounds/resident-evil/requiem.jpg",
+  "thumbnail": "__HOME__/.local/share/trucha-os/thumbs/resident-evil.png",
+  "fetch_logo": "__HOME__/.local/share/trucha-os/logos/resident-evil.png",
+  "kanji": "鎮魂",
+  "kana": [
+    "レ",
+    "ク",
+    "イ",
+    "エ",
+    "ム"
+  ],
+  "dim": 0.0,
+  "accent_hue": 356,
+  "neutral_hue": 220,
+  "neutral_sat": 0.06,
+  "greeter": "__HOME__/.local/share/trucha-os/greeter/resident-evil.jpg",
+  "wallpaper_properties": {
+    "clock": false,
+    "day": false,
+    "fullmediainfo": false,
+    "fullmediaplayerlight": false
+  },
+  "positions": {
+    "trucha_calendar": {
+      "x": 0.04,
+      "anchorX": "start",
+      "y": 0.07,
+      "anchorY": "start",
+      "width": 230,
+      "height": 235
+    },
+    "trucha_weather": {
+      "x": 0.04,
+      "anchorX": "start",
+      "y": 0.52,
+      "anchorY": "start",
+      "width": 230,
+      "height": 115
+    },
+    "trucha_media": {
+      "x": 0.27,
+      "anchorX": "start",
+      "y": 0.03,
+      "anchorY": "start",
+      "width": 380,
+      "height": 112
+    },
+    "trucha_stats": {
+      "x": 0.2,
+      "anchorX": "end",
+      "y": 0.16,
+      "anchorY": "end",
+      "width": 190,
+      "height": 200
+    },
+    "trucha_kanji": {
+      "x": 0.1,
+      "anchorX": "end",
+      "y": 0.06,
+      "anchorY": "end",
+      "width": 90,
+      "height": 400
+    }
+  }
+}

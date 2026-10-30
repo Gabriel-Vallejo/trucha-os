@@ -4,7 +4,7 @@
 # Busca steamapps en: el argumento, Steam de Linux, Steam en una partición de Windows montada.
 set -euo pipefail
 DATA="$HOME/.local/share/wallpaperengine"
-declare -A WALLS=( [torii]=3404531656 [miku]=2397088460 [nino]=2376540588 [marin]=3489782387 [umbrella]=2762828956 )
+declare -A WALLS=( [torii]=3404531656 [miku]=2397088460 [nino]=2376540588 [marin]=3489782387 [requiem]=3665954520 )
 
 find_steamapps() {
   local c
@@ -47,12 +47,11 @@ fi
 mkdir -p "$HOME/.local/share/backgrounds/crimson-ink"
 [ -f "$T/torii-1600p.mp4" ] && ffmpeg -loglevel error -y -ss 3 -i "$T/torii-1600p.mp4" -frames:v 1 -q:v 2 \
   "$HOME/.local/share/backgrounds/crimson-ink/torii.jpg"
-# umbrella: es una escena y no se puede sacar un fotograma sin sesión gráfica; el bloqueo sale de su vista previa
-# (shortcut: recorta el cuadrado de 1024 px; para uno exacto, captura el escritorio sin DMS y guárdalo encima)
-U="$DATA/wallpapers/umbrella"
-if [ -f "$U/preview.jpg" ] && [ ! -f "$HOME/.local/share/backgrounds/umbrella/umbrella.jpg" ]; then
-  mkdir -p "$HOME/.local/share/backgrounds/umbrella"
-  ffmpeg -loglevel error -y -i "$U/preview.jpg" -vf "scale=2560:-1,crop=2560:1600" -q:v 2 \
-    "$HOME/.local/share/backgrounds/umbrella/umbrella.jpg"
+# requiem (Resident Evil): es una escena y sin sesión gráfica no se le puede sacar un fotograma;
+# el bloqueo usa la imagen tipográfica del login hasta que guardes una captura del escritorio sin DMS
+# (shortcut: imagen provisional, captura real con DMS parado y guárdala en esa misma ruta)
+B="$HOME/.local/share/backgrounds/resident-evil"
+if [ -d "$DATA/wallpapers/requiem" ] && [ ! -f "$B/requiem.jpg" ] && [ -f "$HOME/.local/share/trucha-os/greeter/resident-evil.jpg" ]; then
+  mkdir -p "$B"; cp "$HOME/.local/share/trucha-os/greeter/resident-evil.jpg" "$B/requiem.jpg"
 fi
 echo "✔ Fondos importados en $DATA/wallpapers"
