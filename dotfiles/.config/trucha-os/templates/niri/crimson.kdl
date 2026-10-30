@@ -115,6 +115,8 @@ environment {
 
 // Fondo animado (Torii) con linux-wallpaperengine
 spawn-at-startup "systemctl" "--user" "restart" "trucha-fondo.service"
+// ventanas flotantes en todos los escritorios: solo las que fijes con Win+G (Win+Shift+T las pone flotantes)
+spawn-at-startup "niri-float-sticky" "-disable-auto-stick"
 
 animations {
     window-open {
@@ -221,5 +223,6 @@ binds {
     Mod+Shift+W hotkey-overlay-title="Reiniciar fondo animado" { spawn "systemctl" "--user" "restart" "trucha-fondo.service"; }
     Mod+Shift+S hotkey-overlay-title="Captura de región" { screenshot; }
     Shift+Print hotkey-overlay-title="Quick Capture (anotar, grabar, OCR, QR)" { spawn "dms" "ipc" "call" "quickCapture" "toggle"; }
+    Mod+G hotkey-overlay-title="Fijar ventana flotante en todos los escritorios" { spawn "niri-float-sticky" "-ipc" "toggle_sticky"; }
     Print { screenshot-screen; }
 }

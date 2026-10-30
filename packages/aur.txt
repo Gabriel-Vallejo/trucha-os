@@ -13,3 +13,4 @@ jetbrains-toolbox
 jd-gui-bin
 vencord-installer
 millennium
+niri-float-sticky
