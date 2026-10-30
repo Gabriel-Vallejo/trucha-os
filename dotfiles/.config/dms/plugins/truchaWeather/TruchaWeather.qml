@@ -96,7 +96,7 @@ DesktopPluginComponent {
 
         Text {
             visible: root.today !== null
-            text: root.today ? "↑" + root.today.tempMax + "° ↓" + root.today.tempMin + "°" + (root.w.city ? "  ·  " + root.w.city.toUpperCase() : "") : ""
+            text: root.today ? "↑" + root.today.tempMax + "° ↓" + root.today.tempMin + "°" + (root.w.city ? "  ·  " + root.w.city.split(",")[0].toUpperCase() : "") : ""
             width: parent.width
             elide: Text.ElideRight
             color: root.ash

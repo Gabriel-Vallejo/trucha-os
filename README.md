@@ -9,7 +9,7 @@ Mi Linux personalizado: **niri** (tiling con scroll) + **DankMaterialShell**, te
 | Interfaz | DankMaterialShell 2.0 (barra, dock, lanzador, notificaciones, bloqueo) |
 | Terminal | kitty + starship + fastfetch (con el torii) |
 | Temas | Crimson Ink · Miku Dark · Nino Dark · Marin Dark (`trucha-theme`, ⊞+Alt+T) |
-| Escritorio | fondo animado (linux-wallpaperengine), reloj pixel, kanji vertical, visualizador cava, monitor, tiempo, calendario (十月), red con gráfica, pomodoro, pétalos de sakura |
+| Escritorio | fondo animado (linux-wallpaperengine), reloj pixel, kanji vertical, visualizador cava, monitor, tiempo, calendario (十月), pétalos de sakura |
 | Arranque | Plymouth con la trucha · tema de rEFInd |
 | Extras | pestaña **Competis** (ciberseguridad y hackatones, ⊞+Shift+Espacio) · **Utilidades** con `=` en el lanzador · tecla ⊞ sola = lanzador |
 
@@ -96,8 +96,6 @@ iso/build-iso.sh          ISO live propia (archiso, experimental)
 |---|---|
 | Tiempo | temperatura, estado y máx/mín del día (servicio del tiempo de DMS) |
 | Calendario | mes con su kanji, semana de lunes a domingo, hoy en carmesí |
-| Red | bajada/subida en vivo y gráfica de los últimos ~2 min |
-| Pomodoro | 25/5 (15 tras la cuarta ronda). Clic: empezar/pausar · clic derecho: reiniciar |
 | Pétalos | caen despacio con el acento del tema; no bloquean clics (`clickThrough`) |
 
 **Utilidades** (`=` en el lanzador; el resultado se copia al elegirlo):

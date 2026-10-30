@@ -26,12 +26,6 @@
   "truchaCalendar": {
     "enabled": true
   },
-  "truchaNet": {
-    "enabled": true
-  },
-  "truchaPomodoro": {
-    "enabled": true
-  },
   "truchaSakura": {
     "enabled": true
   },

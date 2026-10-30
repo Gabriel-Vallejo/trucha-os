@@ -616,30 +616,6 @@
       }
     },
     {
-      "id": "trucha_net",
-      "widgetType": "truchaNet",
-      "name": "Red",
-      "enabled": true,
-      "config": {
-        "syncPositionAcrossScreens": true,
-        "displayPreferences": [
-          "all"
-        ]
-      }
-    },
-    {
-      "id": "trucha_pomodoro",
-      "widgetType": "truchaPomodoro",
-      "name": "Pomodoro",
-      "enabled": true,
-      "config": {
-        "syncPositionAcrossScreens": true,
-        "displayPreferences": [
-          "all"
-        ]
-      }
-    },
-    {
       "id": "trucha_sakura",
       "widgetType": "truchaSakura",
       "name": "Pétalos",

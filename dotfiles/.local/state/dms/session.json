@@ -55,11 +55,11 @@
     },
     "trucha_weather": {
       "_synced": {
-        "x": 0.2,
+        "x": 0.04,
         "anchorX": "start",
-        "y": 0.25,
+        "y": 0.5,
         "anchorY": "start",
-        "width": 200,
+        "width": 230,
         "height": 115
       }
     },
@@ -71,26 +71,6 @@
         "anchorY": "start",
         "width": 230,
         "height": 235
-      }
-    },
-    "trucha_net": {
-      "_synced": {
-        "x": 0.04,
-        "anchorX": "start",
-        "y": 0.5,
-        "anchorY": "start",
-        "width": 230,
-        "height": 80
-      }
-    },
-    "trucha_pomodoro": {
-      "_synced": {
-        "x": 0.215,
-        "anchorX": "start",
-        "y": 0.43,
-        "anchorY": "start",
-        "width": 140,
-        "height": 140
       }
     },
     "trucha_sakura": {
