@@ -160,13 +160,12 @@ window-rule {
 }
 
 window-rule {
-    match app-id=r#"^com\.system76\.Cosmic(Files|Settings|Edit)$"#
+    match app-id=r#"^com\.system76\.Cosmic(Settings|Edit)$"#
     match app-id="^org.gnome.Nautilus$"
     default-column-width { proportion 0.5; }
 }
 
 window-rule {
-    match app-id=r#"^com\.system76\.CosmicFilesDialog$"#
     match app-id="^xdg-desktop-portal"
     match title="^Picture-in-Picture$"
     match title="^Imagen con imagen$"
