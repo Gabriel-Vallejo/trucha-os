@@ -48,9 +48,13 @@ for f in "${FILES[@]}"; do
 done
 for f in "${EXCLUDE[@]}"; do rm -f "$DOT/$f"; done
 
-# bloque Crimson Ink del .bashrc
+# bloque Crimson Ink: install.sh lo deja en ~/.config/trucha-os/trucha.bashrc; en sistemas antiguos estaba dentro del .bashrc
+if [ -s "$HOME/.config/trucha-os/trucha.bashrc" ]; then
+  cp "$HOME/.config/trucha-os/trucha.bashrc" "$DOT/trucha.bashrc"
+else
 awk '/^# ─── Crimson Ink/{p=1} p{print} p&&/^# ──────────────────────────────────────────────────────────────$/{exit}' \
   "$HOME/.bashrc" > "$DOT/trucha.bashrc"
+fi
 
 # rutas del usuario → __HOME__ (solo ficheros de texto)
 grep -rlI "$HOME" "$DOT" | while read -r f; do sed -i "s|$HOME|__HOME__|g" "$f"; done

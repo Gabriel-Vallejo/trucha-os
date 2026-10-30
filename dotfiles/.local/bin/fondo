@@ -6,7 +6,9 @@
 #   fondo list       lista los fondos disponibles
 LWE=/opt/linux-wallpaperengine
 DATA="$HOME/.local/share/wallpaperengine"
-WIN_WS="/media/imtrucha/D822E40722E3E908/Program Files (x86)/Steam/steamapps/workshop/content/431960"
+# Windows se monta en /run/media (Arch) o en /media (Ubuntu/Pop)
+WIN_WS=$(ls -d /run/media/"$USER"/*/"Program Files (x86)/Steam/steamapps/workshop/content/431960" \
+               /media/"$USER"/*/"Program Files (x86)/Steam/steamapps/workshop/content/431960" 2>/dev/null | head -1)
 OUTPUT="${FONDO_OUTPUT:-eDP-1}"
 # sin argumento: el fondo del tema activo de Trucha OS! (trucha-theme)
 DEFAULT=$(python3 -I -c 'import json,os;print(json.load(open(os.path.expanduser("~/.config/trucha-os/themes/"+json.load(open(os.path.expanduser("~/.config/trucha-os/current.json")))["id"]+".json")))["wallpaper"])' 2>/dev/null || echo torii)
