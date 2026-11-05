@@ -5,7 +5,8 @@ import Quickshell.Io
 import qs.Modules.Plugins
 
 // Pétalos que caen despacio y se mecen con el viento, en el acento del tema activo.
-// Pocos y ligeros: los giros van en el hilo de render. Un tema puede apagarlos con "petals": false.
+// Pocos y ligeros: los giros van en el hilo de render. Un tema puede apagarlos con "petals": false
+// o cambiarlos por ceniza con "particles": "ash".
 // Pensado para ocupar toda la pantalla con "clickThrough": true en la instancia.
 DesktopPluginComponent {
     id: root
@@ -27,6 +28,8 @@ DesktopPluginComponent {
     readonly property bool on: theme.petals ?? true
     readonly property color accent: theme.accent ?? "#e5383b"
     readonly property color accentBright: theme.accentBright ?? "#ff5a5f"
+    readonly property bool ash: theme.particles === "ash"
+    readonly property color ashColor: theme.ash ?? "#8a8580"
 
     opacity: on ? 1 : 0
     Behavior on opacity { NumberAnimation { duration: 800 } }
@@ -44,13 +47,13 @@ DesktopPluginComponent {
         y: -30
         width: root.width * 1.1
         height: 10
-        emitRate: 0.45
-        lifeSpan: 30000
-        maximumEmitted: 16
+        emitRate: root.ash ? 0.8 : 0.45
+        lifeSpan: root.ash ? 60000 : 30000
+        maximumEmitted: root.ash ? 48 : 16
         velocity: AngleDirection {
             angle: 82
             angleVariation: 12
-            magnitude: 38
+            magnitude: root.ash ? 30 : 38
             magnitudeVariation: 14
         }
     }
@@ -73,7 +76,7 @@ DesktopPluginComponent {
         fade: true
         delegate: Item {
             id: petal
-            readonly property real size: 9 + Math.random() * 8
+            readonly property real size: root.ash ? 1.5 + Math.random() * 3.5 : 9 + Math.random() * 8
             width: size
             height: size * 0.7
             opacity: 0.45 + Math.random() * 0.4
@@ -84,7 +87,9 @@ DesktopPluginComponent {
                 // pétalo de cerezo: óvalo con la muesca en la punta
                 ShapePath {
                     strokeWidth: -1
-                    fillColor: Math.random() < 0.35 ? root.accentBright : root.accent
+                    // ceniza gris con alguna brasa suelta
+                    fillColor: root.ash ? (Math.random() < 0.08 ? root.accent : root.ashColor)
+                                        : (Math.random() < 0.35 ? root.accentBright : root.accent)
                     startX: 0
                     startY: petal.height / 2
                     PathQuad { x: petal.width * 0.86; y: 0; controlX: petal.width * 0.35; controlY: -petal.height * 0.25 }
