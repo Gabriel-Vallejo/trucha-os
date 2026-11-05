@@ -1,0 +1,13 @@
+{
+    "id": "truchaLyrics",
+    "name": "Trucha · Letras",
+    "description": "Letra sincronizada de lo que suena, línea a línea en la fuente pixel; solo se ve mientras hay letra",
+    "version": "1.0.0",
+    "author": "Gabriel",
+    "type": "desktop",
+    "capabilities": ["desktop-widget"],
+    "component": "./TruchaLyrics.qml",
+    "icon": "lyrics",
+    "requires_dms": ">=2.0.0",
+    "permissions": ["settings_read"]
+}

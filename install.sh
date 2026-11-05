@@ -63,7 +63,7 @@ say "Configuración"
 done
 grep -rlI "__HOME__" "$HOME/.config" "$HOME/.local/bin" "$HOME/.local/share/trucha-os" "$HOME/.local/share/applications" \
   "$HOME/.local/state/dms" 2>/dev/null | while read -r f; do sed -i "s|__HOME__|$HOME|g" "$f"; done
-chmod +x "$HOME"/.local/bin/{trucha-theme,trucha-theme-assets,fondo,trucha-clock,trucha-showcase,cyberchef,discord,niri-nuevo-escritorio}
+chmod +x "$HOME"/.local/bin/{trucha-theme,trucha-ocr,trucha-theme-assets,fondo,trucha-clock,trucha-showcase,cyberchef,discord,niri-nuevo-escritorio}
 install -Dm644 "$REPO/dotfiles/trucha.bashrc" "$HOME/.config/trucha-os/trucha.bashrc"
 grep -q "trucha-os/trucha.bashrc" "$HOME/.bashrc" 2>/dev/null || \
   printf '\n# Trucha OS!\n[ -f ~/.config/trucha-os/trucha.bashrc ] && . ~/.config/trucha-os/trucha.bashrc\n' >> "$HOME/.bashrc"

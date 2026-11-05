@@ -26,7 +26,7 @@ FILES=(
   .config/qt5ct/qt5ct.conf .config/qt6ct/qt6ct.conf
   .config/autostart/nm-applet.desktop .config/autostart/org.gnome.Evolution-alarm-notify.desktop
   .config/autostart/nvidia-settings-autostart.desktop
-  .local/bin/trucha-theme .local/bin/trucha-theme-assets .local/bin/fondo .local/bin/trucha-clock
+  .local/bin/trucha-theme .local/bin/trucha-ocr .local/bin/trucha-theme-assets .local/bin/fondo .local/bin/trucha-clock
   .local/bin/trucha-showcase .local/bin/cyberchef .local/bin/discord .local/bin/niri-nuevo-escritorio
   .local/share/applications/competis.desktop .local/share/applications/cyberchef-offline.desktop
   .local/share/trucha-os

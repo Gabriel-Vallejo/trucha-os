@@ -7,7 +7,7 @@ libxcb1-dev libxcb-cursor-dev xwayland
 libdrm-dev spirv-tools libcli11-dev libjemalloc-dev wayland-protocols libvulkan-dev
 libpam0g-dev libpolkit-agent-1-dev libpolkit-gobject-1-dev libglib2.0-dev
 libgl-dev libegl-dev libfontconfig1-dev libfreetype-dev libxkbcommon-x11-0 libffi-dev libexpat1-dev
-wl-clipboard cliphist brightnessctl cava golang-go
+wl-clipboard cliphist brightnessctl cava golang-go tesseract-ocr tesseract-ocr-spa tesseract-ocr-eng
 xdg-desktop-portal-gnome xdg-desktop-portal-gtk gnome-keyring
 qt6ct qt5ct python3-pil ffmpeg git curl unzip plymouth refind
 gdb radare2 binwalk foremost sleuthkit hashcat john sqlmap nmap wireshark tshark gobuster ffuf

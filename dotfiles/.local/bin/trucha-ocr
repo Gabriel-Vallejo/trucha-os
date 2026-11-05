@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Trucha OS! — OCR de una zona de pantalla al portapapeles (⊞+Shift+X). Todo en local: la captura no sale del equipo.
+set -euo pipefail
+IMG=$(mktemp --suffix=.png)
+trap 'rm -f "$IMG"' EXIT
+
+dms screenshot region --stdout --no-file --no-clipboard --no-notify --no-confirm > "$IMG" 2>/dev/null || exit 0   # Esc cancela
+[ -s "$IMG" ] || exit 0
+
+if ! TEXT=$(tesseract "$IMG" stdout -l spa+eng 2>/dev/null); then
+  dms notify -a "Trucha OCR" -u critical "OCR" "tesseract no ha podido leer la captura"
+  exit 1
+fi
+if [ -z "${TEXT//[[:space:]]/}" ]; then
+  dms notify -a "Trucha OCR" "OCR" "No se ha encontrado texto"
+  exit 0
+fi
+printf '%s' "$TEXT" | wl-copy
+# solo la cuenta: el texto puede ser privado y las notificaciones quedan en el historial
+dms notify -a "Trucha OCR" "Texto copiado" "${#TEXT} caracteres"

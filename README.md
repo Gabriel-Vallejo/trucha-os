@@ -11,7 +11,7 @@ Mi Linux personalizado: **niri** (tiling con scroll) + **DankMaterialShell**, te
 | Temas | Crimson Ink · Miku Dark · Nino Dark · Marin Dark · Resident Evil · Ceniza (`trucha-theme`, ⊞+Alt+T) |
 | Escritorio | fondo animado (linux-wallpaperengine), reloj pixel, kanji vertical, visualizador cava, monitor, tiempo, calendario (十月), pétalos de sakura |
 | Arranque | Plymouth con la trucha · tema de rEFInd |
-| Extras | pestaña **Competis** (ciberseguridad y hackatones, ⊞+Shift+Espacio) · **Utilidades** con `=` en el lanzador · tecla ⊞ sola = lanzador |
+| Extras | pestaña **Competis** (ciberseguridad y hackatones, ⊞+Shift+Espacio) · **Utilidades** con `=` en el lanzador · OCR de una zona con ⊞+Shift+X (local, al portapapeles) · tecla ⊞ sola = lanzador |
 
 ## Instalar
 
@@ -99,6 +99,7 @@ iso/build-iso.sh          ISO live propia (archiso, experimental)
 | Tiempo | temperatura, estado y máx/mín del día (servicio del tiempo de DMS) |
 | Calendario | mes con su kanji, semana de lunes a domingo, hoy en carmesí |
 | Pétalos | caen despacio con el acento del tema; no bloquean clics (`clickThrough`) |
+| Letras | letra sincronizada de lo que suena, línea a línea (servicio de letras de DMS); se oculta sin letra o en pausa |
 
 **Utilidades** (`=` en el lanzador; el resultado se copia al elegirlo):
 - vacío → selector de color y capturas (zona, ventana, pantalla);

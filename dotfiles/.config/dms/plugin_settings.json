@@ -34,5 +34,8 @@
   },
   "quickCapture": {
     "enabled": true
+  },
+  "truchaLyrics": {
+    "enabled": true
   }
 }

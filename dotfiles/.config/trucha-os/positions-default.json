@@ -78,5 +78,15 @@
       "width": 1706,
       "height": 1066
     }
+  },
+  "trucha_lyrics": {
+    "_synced": {
+      "x": 0.37,
+      "anchorX": "start",
+      "y": 0.17,
+      "anchorY": "end",
+      "width": 760,
+      "height": 96
+    }
   }
 }

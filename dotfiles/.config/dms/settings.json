@@ -628,8 +628,33 @@
         ],
         "clickThrough": true
       }
+    },
+    {
+      "id": "trucha_lyrics",
+      "widgetType": "truchaLyrics",
+      "name": "Letras",
+      "enabled": true,
+      "config": {
+        "syncPositionAcrossScreens": true,
+        "displayPreferences": [
+          "all"
+        ],
+        "clickThrough": true
+      }
     }
   ],
   "wallpaperBackgroundColorMode": "custom",
-  "wallpaperBackgroundCustomColor": "#00000000"
+  "wallpaperBackgroundCustomColor": "#00000000",
+  "desktopWidgetInstancePositions": {
+    "trucha_lyrics": {
+      "_synced": {
+        "x": 0.37,
+        "anchorX": "start",
+        "y": 0.17,
+        "anchorY": "end",
+        "width": 760,
+        "height": 96
+      }
+    }
+  }
 }
