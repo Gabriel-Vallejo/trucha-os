@@ -119,3 +119,12 @@ iso/build-iso.sh          ISO live propia (archiso, experimental)
    - `petals`, opcional (`false` apaga los pétalos en ese tema).
    - `wallpaper_properties`, opcional: propiedades de la escena para `fondo` (p. ej. `{"clock": false}` apaga el reloj que traiga el fondo).
 3. Ejecuta `trucha-theme-assets <id>` (genera el logo, el login y la miniatura) y elige el tema con ⊞+Alt+T.
+
+## Personalizaciones alternativas
+
+[**SekaiPop**](https://github.com/Blapples/SekaiPop): shell de Quickshell para **Hyprland**, inspirada en
+Project Sekai, con barra y dock configurables, dos pantallas de bloqueo y sistema de plugins.
+
+No forma parte de Trucha OS! ni se instala con `install.sh`: necesita Hyprland 0.55 o superior y sustituye
+a niri + DMS, así que los temas y widgets de este repo no funcionan con ella. Su instalador tiene modo
+de prueba y guarda tu configuración de Hyprland en una copia (`./install.sh --restore` la recupera).
