@@ -50,6 +50,7 @@ DesktopPluginComponent {
         Text {
             width: parent.width
             text: root.currentLine
+            textFormat: Text.PlainText
             color: root.theme.bone ?? "#ece8e4"
             font.family: root.pixel
             font.pixelSize: 26
@@ -64,6 +65,7 @@ DesktopPluginComponent {
         Text {
             width: parent.width
             text: root.nextLine
+            textFormat: Text.PlainText
             color: root.theme.ash ?? "#8a8580"
             font.family: root.pixel
             font.pixelSize: 15
