@@ -94,4 +94,7 @@ fi
 
 # 5. Grupo wireshark (capturar sin root)
 getent group wireshark >/dev/null && sudo usermod -aG wireshark "$USER"
+
+# 6. El arranque no espera a la wifi: con eduroam lenta, network-online retrasaba Docker, graphical.target y DMS
+command -v nmcli >/dev/null && sudo systemctl disable NetworkManager-wait-online.service
 echo "✔ Partes de sistema aplicadas"
