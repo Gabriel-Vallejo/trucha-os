@@ -143,3 +143,10 @@ Project Sekai, con barra y dock configurables, dos pantallas de bloqueo y sistem
 No forma parte de Trucha OS! ni se instala con `install.sh`: necesita Hyprland 0.55 o superior y sustituye
 a niri + DMS, así que los temas y widgets de este repo no funcionan con ella. Su instalador tiene modo
 de prueba y guarda tu configuración de Hyprland en una copia (`./install.sh --restore` la recupera).
+
+[![CI](https://github.com/Gabriel-Vallejo/style-scent-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/Gabriel-Vallejo/style-scent-engine/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/Gabriel-Vallejo/style-scent-engine/blob/main/LICENSE)
+
+## Licencia
+
+Este proyecto está distribuido bajo la [Licencia MIT](LICENSE) © 2026 Gabriel Vallejo García.
