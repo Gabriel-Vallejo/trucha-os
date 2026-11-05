@@ -13,8 +13,8 @@ case "${1:-}" in --live) MODE=live ;; --solo-config) MODE=config ;; "") ;; *) se
 
 . /etc/os-release
 FAMILY=""
-[[ "$ID $ID_LIKE" == *arch* ]] && FAMILY=arch
-[[ "$ID $ID_LIKE" == *ubuntu* || "$ID $ID_LIKE" == *debian* ]] && FAMILY=ubuntu
+[[ "$ID ${ID_LIKE:-}" == *arch* ]] && FAMILY=arch
+[[ "$ID ${ID_LIKE:-}" == *ubuntu* || "$ID ${ID_LIKE:-}" == *debian* ]] && FAMILY=ubuntu
 [ -n "$FAMILY" ] || { echo "Distro no soportada: $PRETTY_NAME (Arch/CachyOS o Ubuntu/Pop)"; exit 1; }
 say() { printf '\n\033[1;31m鱒\033[0m \033[1m%s\033[0m\n' "$*"; }
 

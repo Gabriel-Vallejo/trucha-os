@@ -5,7 +5,7 @@ set -euo pipefail
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 SHARE="$HOME/.local/share/trucha-os"
 . /etc/os-release
-FAMILY=ubuntu; [[ "$ID $ID_LIKE" == *arch* ]] && FAMILY=arch
+FAMILY=ubuntu; [[ "$ID ${ID_LIKE:-}" == *arch* ]] && FAMILY=arch
 
 # 1. Marca "Trucha OS!": PRETTY_NAME y logo. NAME/ID no se tocan (los usan el gestor de arranque y los paquetes).
 sudo install -Dm644 "$SHARE/trucha-os.svg" /usr/local/share/icons/hicolor/scalable/apps/trucha-os.svg
