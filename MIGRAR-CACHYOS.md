@@ -24,14 +24,14 @@ Windows **no se toca**. La copia de seguridad está en la partición de Windows:
 
 | Partición | Tamaño | Qué es | Qué hacer |
 |---|---|---|---|
-| `nvme0n1p6` | ~341 GB | Pop!_OS (ext4) | Editar → **Formatear**, sistema **btrfs**, punto de montaje **/** |
-| `nvme0n1p5` | 1024 MB | EFI (vfat) | Editar → **NO formatear**, punto de montaje **/boot/efi** |
-| `nvme0n1p1` · `p2` · `p3` · `p4` | 100 MB · 16 MB · 610 GB · 930 MB | **Windows** | **No tocar** |
+| `nvmeXnYpZ` | ~341 GB | Pop!_OS (ext4) | Editar → **Formatear**, sistema **btrfs**, punto de montaje **/** |
+| `nvmeXnYpZ` | 1024 MB | EFI (vfat) | Editar → **NO formatear**, punto de montaje **/boot/efi** |
+| `nvmeXnYpZ` · `p2` · `p3` · `p4` | 100 MB · 16 MB · 610 GB · 930 MB | **Windows** | **No tocar** |
 
   btrfs permite instantáneas: si una actualización rompe algo, se vuelve atrás.
 - **Cargador de arranque:** **rEFInd**. Es el que ya usas, y así el tema de Trucha OS! sigue.
 - **Escritorio:** **niri** si aparece. Si no aparece, cualquiera (por ejemplo KDE): el instalador de Trucha OS! pondrá niri.
-- **Usuario:** `imtrucha` · equipo: `trucha-os`.
+- **Usuario:** `<tu_usuario>` · equipo: `trucha-os`.
 - Revisa el resumen. Debe decir que **solo formatea nvme0n1p6**. Después, Instalar.
 
 ## 3. Primer arranque en CachyOS
