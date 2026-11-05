@@ -50,6 +50,11 @@ if command -v plymouth >/dev/null && [ -d "$SHARE/plymouth" ]; then
   sudo cp "$SHARE"/plymouth/*.png "$SHARE/plymouth/trucha-os.plymouth" "$P/"
   if [ "$FAMILY" = arch ]; then
     sudo plymouth-set-default-theme -R trucha-os   # regenera el initramfs con mkinitcpio
+    # chwd quita kms del initramfs: Plymouth solo ve simpledrm, lo ignora 8 s y el arranque acaba antes de pintar nada
+    if [ -f /etc/default/grub ] && ! grep -q 'plymouth.use-simpledrm' /etc/default/grub; then
+      sudo sed -i 's/^\(GRUB_CMDLINE_LINUX_DEFAULT=.\)/\1plymouth.use-simpledrm /' /etc/default/grub
+      sudo grub-mkconfig -o /boot/grub/grub.cfg
+    fi
   else
     sudo update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth "$P/trucha-os.plymouth" 300
     sudo update-alternatives --set default.plymouth "$P/trucha-os.plymouth"
