@@ -646,16 +646,14 @@
   ],
   "wallpaperBackgroundColorMode": "custom",
   "wallpaperBackgroundCustomColor": "#00000000",
-  "desktopWidgetInstancePositions": {
-    "trucha_lyrics": {
-      "_synced": {
-        "x": 0.37,
-        "anchorX": "start",
-        "y": 0.17,
-        "anchorY": "end",
-        "width": 760,
-        "height": 96
-      }
+  "mediaLyricsProviders": [
+    {
+      "id": "lrclib",
+      "enabled": true
+    },
+    {
+      "id": "lyricsplus",
+      "enabled": true
     }
-  }
+  ]
 }
