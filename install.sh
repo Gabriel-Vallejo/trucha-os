@@ -63,7 +63,7 @@ say "Configuración"
 done
 grep -rlI "__HOME__" "$HOME/.config" "$HOME/.local/bin" "$HOME/.local/share/trucha-os" "$HOME/.local/share/applications" \
   "$HOME/.local/state/dms" 2>/dev/null | while read -r f; do sed -i "s|__HOME__|$HOME|g" "$f"; done
-chmod +x "$HOME"/.local/bin/{trucha-theme,trucha-ocr,trucha-theme-assets,fondo,trucha-clock,trucha-showcase,cyberchef,discord,niri-nuevo-escritorio}
+chmod +x "$HOME"/.local/bin/{trucha-theme,trucha-ocr,trucha-discord-voice,trucha-theme-assets,fondo,trucha-clock,trucha-showcase,cyberchef,discord,niri-nuevo-escritorio}
 install -Dm644 "$REPO/dotfiles/trucha.bashrc" "$HOME/.config/trucha-os/trucha.bashrc"
 grep -q "trucha-os/trucha.bashrc" "$HOME/.bashrc" 2>/dev/null || \
   printf '\n# Trucha OS!\n[ -f ~/.config/trucha-os/trucha.bashrc ] && . ~/.config/trucha-os/trucha.bashrc\n' >> "$HOME/.bashrc"
@@ -81,6 +81,7 @@ xdg-mime default org.gnome.Nautilus.desktop inode/directory 2>/dev/null || true
 # DMS arranca con niri
 systemctl --user daemon-reload
 systemctl --user add-wants niri.service dms.service 2>/dev/null || true
+systemctl --user add-wants niri.service trucha-discord-voice.service 2>/dev/null || true
 # plugins de terceros del registro de DMS (no se guardan en el repo)
 "$HOME/.local/bin/dms" plugins install quickCapture >/dev/null 2>&1 || echo "  (no se pudo instalar quickCapture; luego: dms plugins install quickCapture)"
 

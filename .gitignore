@@ -2,6 +2,9 @@ iso/work/
 iso/out/
 *.antes-trucha
 __pycache__/
+# credenciales de la aplicación de Discord: nunca al repo
+discord-rpc.json
+discord-token.json
 # plugins de DMS de terceros: los instala install.sh desde el registro
 dotfiles/.config/dms/plugins/quickCapture
 dotfiles/.config/dms/plugins/quickCapture.meta

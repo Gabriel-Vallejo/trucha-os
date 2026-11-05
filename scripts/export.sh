@@ -19,14 +19,14 @@ FILES=(
   .config/fastfetch/config.jsonc .config/fastfetch/torii.txt
   .config/starship.toml .config/mimeapps.list
   .config/trucha-os/themes .config/trucha-os/templates .config/trucha-os/positions-default.json
-  .config/systemd/user/dms.service .config/systemd/user/dms.service.d .config/systemd/user/trucha-fondo.service
+  .config/systemd/user/dms.service .config/systemd/user/dms.service.d .config/systemd/user/trucha-fondo.service .config/systemd/user/trucha-discord-voice.service
   .config/environment.d/90-crimson-ink-cursor.conf .config/environment.d/90-crimson-ink-java.conf
   .config/environment.d/91-crimson-ink-apps.conf
   .config/gtk-3.0/gtk.css .config/gtk-3.0/settings.ini .config/gtk-4.0/gtk.css .config/gtk-4.0/settings.ini
   .config/qt5ct/qt5ct.conf .config/qt6ct/qt6ct.conf
   .config/autostart/nm-applet.desktop .config/autostart/org.gnome.Evolution-alarm-notify.desktop
   .config/autostart/nvidia-settings-autostart.desktop
-  .local/bin/trucha-theme .local/bin/trucha-ocr .local/bin/trucha-theme-assets .local/bin/fondo .local/bin/trucha-clock
+  .local/bin/trucha-theme .local/bin/trucha-ocr .local/bin/trucha-discord-voice .local/bin/trucha-theme-assets .local/bin/fondo .local/bin/trucha-clock
   .local/bin/trucha-showcase .local/bin/cyberchef .local/bin/discord .local/bin/niri-nuevo-escritorio
   .local/share/applications/competis.desktop .local/share/applications/cyberchef-offline.desktop
   .local/share/trucha-os

@@ -110,6 +110,18 @@ iso/build-iso.sh          ISO live propia (archiso, experimental)
 - texto libre → base64, hex, rot13 y url, y lo decodifica si puede;
 - prefijos: `b64` `b64d` `hex` `unhex` `rot13` `url` `urld` `bin` `unbin` `up` `low` `rev` `len`.
 
+## Voz de Discord en la barra
+
+El widget `truchaDiscord` aparece solo en un canal de voz: clic para ver quién habla, clic derecho
+para silenciar. Usa el RPC oficial de Discord, sin parchear el cliente.
+
+1. En el [portal de desarrolladores](https://discord.com/developers/applications) crea una aplicación.
+2. En **OAuth2**, añade la redirección `http://127.0.0.1` y copia el Client ID y el Client Secret.
+3. Ejecuta `trucha-discord-voice setup` (guarda las claves con permisos 600, fuera del repo).
+4. Ejecuta `systemctl --user start trucha-discord-voice` con Discord abierto y acepta la ventana que abre Discord.
+
+Si algo falla: `journalctl --user -u trucha-discord-voice`.
+
 ## Añadir un tema
 
 1. Copia el fondo a `~/.local/share/wallpaperengine/wallpapers/<nombre>`.

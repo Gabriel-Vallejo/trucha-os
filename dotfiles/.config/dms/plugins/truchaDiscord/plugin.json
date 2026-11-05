@@ -1,0 +1,13 @@
+{
+    "id": "truchaDiscord",
+    "name": "Trucha · Voz de Discord",
+    "description": "Quién está en la llamada y quién habla, con silenciar y ensordecer; solo se ve en un canal de voz",
+    "version": "1.0.0",
+    "author": "Gabriel",
+    "type": "widget",
+    "capabilities": ["dankbar-widget"],
+    "component": "./TruchaDiscord.qml",
+    "icon": "headset_mic",
+    "requires_dms": ">=2.0.0",
+    "permissions": ["settings_read"]
+}
