@@ -49,10 +49,19 @@ if command -v plymouth >/dev/null && [ -d "$SHARE/plymouth" ]; then
   sudo install -d "$P"
   sudo cp "$SHARE"/plymouth/*.png "$SHARE/plymouth/trucha-os.plymouth" "$P/"
   if [ "$FAMILY" = arch ]; then
+    # chwd quita kms del initramfs por NVIDIA: se carga solo el driver de la GPU que enciende la pantalla, para que Plymouth pinte
+    KMS=""
+    for d in /sys/class/drm/card?/device; do
+      [ "$(cat "$d/boot_vga" 2>/dev/null)" = 1 ] && KMS=$(basename "$(readlink "$d/driver")")
+    done
+    if [ -n "$KMS" ] && [ "$KMS" != nvidia ]; then
+      echo "MODULES+=($KMS)" | sudo tee /etc/mkinitcpio.conf.d/20-trucha-kms.conf >/dev/null
+    fi
     sudo plymouth-set-default-theme -R trucha-os   # regenera el initramfs con mkinitcpio
-    # chwd quita kms del initramfs: Plymouth solo ve simpledrm, lo ignora 8 s y el arranque acaba antes de pintar nada
-    if [ -f /etc/default/grub ] && ! grep -q 'plymouth.use-simpledrm' /etc/default/grub; then
-      sudo sed -i 's/^\(GRUB_CMDLINE_LINUX_DEFAULT=.\)/\1plymouth.use-simpledrm /' /etc/default/grub
+    # GRUB oculto: 1 s en vez de 0 para que Esc aún abra el menú (snapshots y kernel LTS)
+    if [ -f /etc/default/grub ]; then
+      sudo sed -i -e 's/plymouth\.use-simpledrm //' -e 's/^GRUB_TIMEOUT=.*/GRUB_TIMEOUT=1/' \
+        -e 's/^GRUB_TIMEOUT_STYLE=.*/GRUB_TIMEOUT_STYLE=hidden/' /etc/default/grub
       sudo grub-mkconfig -o /boot/grub/grub.cfg
     fi
   else
