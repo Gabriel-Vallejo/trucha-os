@@ -5,7 +5,7 @@ import qs.Common
 import qs.DCommon.Widgets
 import qs.Modules.Plugins
 
-// Botón de Trucha Copilot en la barra: abre el lanzador (⊞+Espacio) con «¿» ya escrito.
+// Botón de Trucha Copilot en la barra: clic abre la app (chats y Truchi); clic derecho, el lanzador con «¿».
 PluginComponent {
     id: root
 
@@ -19,7 +19,8 @@ PluginComponent {
         }
     }
 
-    pillClickAction: () => Quickshell.execDetached(["dms", "ipc", "call", "spotlight", "toggleQuery", "¿"])
+    pillClickAction: () => Quickshell.execDetached([Quickshell.env("HOME") + "/.local/bin/trucha-copilot-app"])
+    pillRightClickAction: () => Quickshell.execDetached(["dms", "ipc", "call", "spotlight", "toggleQuery", "¿"])
 
     horizontalBarPill: Component {
         DIcon { name: "psychology"; color: root.theme.bone ?? "#ece8e4"; size: Theme.iconSize - 2 }

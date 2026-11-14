@@ -1,7 +1,7 @@
 {
     "id": "truchaCopilotBar",
     "name": "Trucha · Copilot",
-    "description": "Botón de la barra que abre el lanzador con «¿» para preguntar a tus apuntes (Trucha Copilot)",
+    "description": "Botón de la barra que abre Trucha Copilot (clic) o el lanzador con «¿» (clic derecho)",
     "version": "1.0.0",
     "author": "Gabriel",
     "type": "widget",

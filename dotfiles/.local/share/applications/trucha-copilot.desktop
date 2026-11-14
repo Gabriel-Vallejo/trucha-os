@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Trucha Copilot
+Comment=Pregunta a tus apuntes de la carrera, con IA local (Ollama)
+Exec=trucha-copilot-app
+Icon=accessories-dictionary
+Terminal=false
+StartupWMClass=es.trucha.Copilot
+Categories=Education;Utility;
+Keywords=apuntes;ia;copilot;estudiar;obsidian;

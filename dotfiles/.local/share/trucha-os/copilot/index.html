@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<!-- nada de red: solo archivos locales (los estilos en línea son de KaTeX) -->
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src file:; style-src file: 'unsafe-inline'; font-src file:; img-src file: data:">
+<title>Trucha Copilot</title>
+<link rel="stylesheet" href="vendor/katex/katex.min.css">
+<link rel="stylesheet" href="app.css">
+<script src="vendor/marked.min.js"></script>
+<script src="vendor/katex/katex.min.js"></script>
+<script src="render.js"></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<aside id="lateral">
+  <div id="mascota-caja">
+    <!-- Truchi: la trucha de Trucha OS! a pincel (sumi-e). data-mood: idle · searching · thinking · answering · confused -->
+    <svg id="mascota" data-mood="idle" viewBox="0 120 512 260" role="img" aria-label="Truchi, la mascota">
+      <defs>
+        <filter id="tinta" x="-10%" y="-20%" width="120%" height="140%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7" result="ruido"/>
+          <feDisplacementMap in="SourceGraphic" in2="ruido" scale="7" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+        <linearGradient id="lavado" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" class="s-hueso" stop-opacity="0.95"/>
+          <stop offset="0.65" class="s-ceniza" stop-opacity="0.75"/>
+          <stop offset="1" class="s-ceniza" stop-opacity="0.35"/>
+        </linearGradient>
+        <linearGradient id="banda" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" class="s-acento" stop-opacity="0"/>
+          <stop offset="0.2" class="s-acento" stop-opacity="0.85"/>
+          <stop offset="0.9" class="s-acento" stop-opacity="0.35"/>
+          <stop offset="1" class="s-acento" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <g class="pez">
+        <g filter="url(#tinta)">
+          <path class="cola aleta" d="M388,258 C414,236 440,214 482,200 C468,232 462,248 452,258 C462,268 468,284 482,316 C440,302 414,280 388,258 Z"/>
+          <path class="aleta" d="M176,214 C190,176 240,170 262,206 Z"/>
+          <path class="aleta" d="M330,222 C336,208 350,208 354,224 Z"/>
+          <path class="aleta" d="M132,290 C140,316 160,322 168,300 Z"/>
+          <path class="aleta" d="M228,304 C236,328 256,332 262,308 Z"/>
+          <path class="aleta" d="M318,294 C324,314 340,318 344,298 Z"/>
+          <path class="cuerpo" d="M44,262 C84,206 214,190 316,206 C356,212 384,230 400,250 L400,266 C384,284 356,300 316,306 C214,322 84,312 44,262 Z"/>
+          <path d="M78,264 C160,244 300,240 396,256 L396,264 C300,276 160,282 78,274 Z" fill="url(#banda)"/>
+        </g>
+        <g class="motas">
+          <circle cx="170" cy="226" r="3.6"/><circle cx="196" cy="218" r="4.2"/><circle cx="224" cy="214" r="3.4"/>
+          <circle cx="250" cy="220" r="4.4"/><circle cx="276" cy="214" r="3.6"/><circle cx="300" cy="222" r="4.2"/>
+          <circle cx="326" cy="230" r="3.4"/><circle cx="350" cy="238" r="3.8"/><circle cx="212" cy="236" r="2.8"/>
+          <circle cx="262" cy="236" r="3"/><circle cx="314" cy="240" r="2.8"/>
+        </g>
+        <path class="trazo" d="M112,226 C126,248 126,276 112,298" stroke-width="5"/>
+        <path class="trazo boca" d="M46,264 C56,268 66,270 78,268" stroke-width="3.5"/>
+        <circle class="ojo" cx="80" cy="252" r="8.5"/>
+        <circle class="brillo" cx="82.5" cy="249.5" r="2.6"/>
+      </g>
+      <g class="burbujas">
+        <circle cx="40" cy="240" r="7"/><circle cx="30" cy="240" r="5"/><circle cx="48" cy="240" r="4"/>
+      </g>
+      <text class="duda" x="58" y="196">?</text>
+      <g class="hanko" transform="rotate(-6 452 338)">
+        <rect x="430" y="316" width="44" height="44" rx="5"/>
+        <text id="hanko-kanji" x="452" y="349">鱒</text>
+      </g>
+    </svg>
+    <div class="nombre">Truchi</div>
+    <div id="estado" aria-live="polite"></div>
+  </div>
+  <button id="nuevo" type="button">＋ Nuevo chat</button>
+  <nav id="chats" aria-label="Chats"></nav>
+</aside>
+<main>
+  <section id="hilo">
+    <div id="vacio">
+      <div class="kanji" id="vacio-kanji">鱒</div>
+      <h1>¿Qué repasamos hoy?</h1>
+      <p>Respondo con tus apuntes de Truchilla y te digo de qué nota sale cada cosa.<br>
+         Para lo pesado, activa <b>Razonar</b> (o empieza con «!»).</p>
+    </div>
+  </section>
+  <form id="redactor" autocomplete="off">
+    <textarea id="entrada" rows="1" placeholder="Pregunta a tus apuntes…" aria-label="Pregunta"></textarea>
+    <div class="botones">
+      <button type="button" id="razonar" aria-pressed="false" title="Razona antes de responder: más lento, para lo pesado">Razonar</button>
+      <span class="pista">Intro envía · Mayús+Intro salta de línea</span>
+      <button type="submit" id="enviar">Enviar</button>
+    </div>
+  </form>
+</main>
+</body>
+</html>

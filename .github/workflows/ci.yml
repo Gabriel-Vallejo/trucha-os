@@ -31,5 +31,11 @@ jobs:
       - name: Trucha Copilot (Ollama simulado)
         run: python tests/copilot.test.py
 
+      - name: Trucha Copilot, app (chats y memoria)
+        run: python tests/copilot_app.test.py
+
+      - name: Trucha Copilot, Markdown y LaTeX seguros
+        run: node tests/copilot_render.test.mjs
+
       - name: OCR (dms y wl-copy falsos)
         run: bash tests/ocr.test.sh

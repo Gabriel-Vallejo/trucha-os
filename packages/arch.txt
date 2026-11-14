@@ -97,3 +97,6 @@ zbar
 jq
 # gestor de archivos (Win+E)
 nautilus
+# Trucha Copilot (app): ventana GTK con WebKit
+python-gobject
+webkit2gtk-4.1

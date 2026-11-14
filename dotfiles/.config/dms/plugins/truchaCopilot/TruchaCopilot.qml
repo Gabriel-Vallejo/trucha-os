@@ -4,9 +4,8 @@ import qs.Services
 
 // Trucha Copilot: se abre con "¿" en el lanzador (⊞+Espacio) o con su botón de la barra.
 // ("?" no sirve: desde DMS 2.1 es el buscador de ajustes integrado.) Escribe la pregunta y pulsa Intro:
-// se abre una ventana de kitty con la respuesta, sacada de tus apuntes con Ollama en local (trucha-copilot).
+// la pregunta se abre en un chat nuevo de la app Trucha Copilot (trucha-copilot-app), con Ollama en local.
 // Empieza la pregunta por "!" para que el modelo razone antes (más lento, para lo pesado).
-// El lanzador se cierra al pulsar Intro, por eso la respuesta va en su propia ventana.
 Item {
     id: root
 
@@ -41,7 +40,6 @@ Item {
         if (!action.startsWith("ask:"))
             return;
         // la pregunta va como argumento, sin pasar por una shell
-        Quickshell.execDetached([home + "/.local/bin/kitty", "--class", "trucha-copilot", "--title", "Trucha Copilot",
-                                 "--hold", home + "/.local/bin/trucha-copilot", "ask", action.substring(4)]);
+        Quickshell.execDetached([home + "/.local/bin/trucha-copilot-app", "--ask", action.substring(4)]);
     }
 }

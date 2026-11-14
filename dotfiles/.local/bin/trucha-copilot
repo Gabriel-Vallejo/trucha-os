@@ -122,9 +122,17 @@ def ollama(path, body=None, stream=False):
         raise SystemExit(f"No puedo hablar con Ollama en {OLLAMA} ({getattr(e, 'reason', e)}).\n"
                          "¿Está activo?  systemctl status ollama")
     if stream:
-        return (json.loads(line) for line in resp if line.strip())
+        return _lines(resp)
     with resp:
         return json.load(resp)
+
+
+def _lines(resp):
+    """NDJSON del stream; al cerrar el generador se cierra la conexión y Ollama deja de generar."""
+    with resp:
+        for line in resp:
+            if line.strip():
+                yield json.loads(line)
 
 
 def embed(texts):
@@ -202,6 +210,41 @@ def search(db, query, k=TOP_K):
     return heapq.nlargest(k, scored)
 
 
+HISTORY = 4           # mensajes anteriores del chat que ve el modelo (cada uno recortado)
+HISTORY_CHARS = 1500
+
+
+def build_messages(hits, question, history=()):
+    """Prompt: sistema, los últimos turnos del chat y la pregunta con los fragmentos nuevos."""
+    context = "\n\n".join(f"[{i}] {text}" for i, (_, _, _, text) in enumerate(hits, 1))
+    messages = [{"role": "system", "content": SYSTEM}]
+    messages += [{"role": role, "content": text[:HISTORY_CHARS]} for role, text in list(history)[-HISTORY:]]
+    messages.append({"role": "user", "content": f"Fragmentos de mis apuntes:\n\n{context}\n\nPregunta: {question}"})
+    return messages
+
+
+def chat(messages, think=False):
+    """Genera («thinking» | «content», texto) a medida que responde el modelo."""
+    body = {"model": CHAT_MODEL, "stream": True, "think": think,
+            "options": {"num_ctx": THINK_CTX if think else NUM_CTX}, "messages": messages}
+    parts = ollama("/api/chat", body, stream=True)
+    try:
+        for part in parts:
+            if "error" in part:
+                raise SystemExit(f"Ollama: {part['error']}")
+            msg = part.get("message", {})
+            for kind in ("thinking", "content"):
+                if msg.get(kind):
+                    yield kind, msg[kind]
+    finally:
+        parts.close()
+
+
+def cited(answer, n):
+    """Números de fragmento citados como [k] en la respuesta (fuera de fórmulas y código)."""
+    return sorted({int(k) for k in CITE.findall(NOT_PROSE.sub("", answer)) if 1 <= int(k) <= n})
+
+
 def ask(db, question):
     think = question.startswith("!")
     question = question.lstrip("!").strip()
@@ -212,29 +255,22 @@ def ask(db, question):
     if not hits:
         print("El índice está vacío: no hay notas en", VAULT)
         return 1
-    context = "\n\n".join(f"[{i}] {text}" for i, (_, _, _, text) in enumerate(hits, 1))
-    body = {"model": CHAT_MODEL, "stream": True, "think": think, "options": {"num_ctx": THINK_CTX if think else NUM_CTX},
-            "messages": [{"role": "system", "content": SYSTEM},
-                         {"role": "user", "content": f"Fragmentos de mis apuntes:\n\n{context}\n\nPregunta: {question}"}]}
     print(f"\033[1;31m鱒 {question}\033[0m\n", flush=True)
     answer, thinking = "", False
-    for part in ollama("/api/chat", body, stream=True):
-        if "error" in part:
-            raise SystemExit(f"\nOllama: {part['error']}")
-        msg = part.get("message", {})
-        if msg.get("thinking"):
+    for kind, text in chat(build_messages(hits, question), think):
+        if kind == "thinking":
             thinking = True
-            print(f"\033[2m{msg['thinking']}", end="", flush=True)
-        if msg.get("content"):
-            if thinking:
-                print("\033[0m\n")
-                thinking = False
-            answer += msg["content"]
-            print(msg["content"], end="", flush=True)
+            print(f"\033[2m{text}", end="", flush=True)
+            continue
+        if thinking:
+            print("\033[0m\n")
+            thinking = False
+        answer += text
+        print(text, end="", flush=True)
     print("\033[0m")
-    cited = sorted({int(n) for n in CITE.findall(NOT_PROSE.sub("", answer)) if 1 <= int(n) <= len(hits)})
-    print("\n\033[1mFuentes\033[0m" if cited else "\n\033[1mFragmentos consultados\033[0m")
-    for i in cited or range(1, len(hits) + 1):
+    used = cited(answer, len(hits))
+    print("\n\033[1mFuentes\033[0m" if used else "\n\033[1mFragmentos consultados\033[0m")
+    for i in used or range(1, len(hits) + 1):
         _, path, head, _ = hits[i - 1]
         print(f"  [{i}] {head}  \033[2m{path}\033[0m")
     return 0
