@@ -128,6 +128,39 @@ Embeddings con `qwen3-embedding:0.6b`: índice completo en **69 s**, cada búsqu
 
 ---
 
+## 🧪 Trucha Lab
+
+Práctica de CTF con cronómetro. Cada reto acaba como writeup en el vault y como ✅ en mi plan de 8 semanas.
+
+```console
+$ trucha-lab plan
+Semana 4 (9–15 nov): pwn I: 0/11 hechos
+  ⬜ buffer overflow 0  ·  picoCTF · Pwn · Easy
+  ⬜ buffer overflow 1  ·  picoCTF · Pwn (ret2win) · Medium
+  …
+$ trucha-lab start buffer overflow 1
+🎯 buffer overflow 1 · picoCTF · Pwn (ret2win) · Medium (semana 4)
+⏱  Cronómetro en marcha. Al acabar: trucha-lab done
+$ trucha-lab done
+✅ buffer overflow 1 en 37 min → 20_Contexto/Writeups de práctica/Writeup - buffer overflow 1.md
+```
+
+| Orden | Qué hace |
+|---|---|
+| `plan [--semana N]` | Retos pendientes de la semana actual del plan |
+| `start <reto>` | Arranca el cronómetro con un reto del plan, un lab o uno libre |
+| `status` | Reto en curso y tiempo |
+| `done` | Para, crea el writeup con su ficha, cambia ⬜ por ✅ en la tabla del plan y lo apunta en el hub de writeups |
+| `cancel` | Para sin escribir nada |
+| `labs` | Labs web en Docker: Juice Shop (`:3000`), DVWA (`:8081`) y WebGoat (`:8082`) |
+
+- Los labs se publican solo en `127.0.0.1`: son vulnerables a propósito y no se ven desde la red.
+- En el plan solo cambia la fila del reto, y se escribe de forma atómica.
+- La plantilla del writeup recuerda que no se apuntan flags ni credenciales.
+- Sesión en `~/.local/state/trucha-os/lab.json`. Otro vault: `TRUCHA_LAB_VAULT=/ruta`.
+
+---
+
 ## 🚀 Instalar
 
 Funciona sobre **CachyOS / Arch** (recomendado: todo viene de repos y AUR) y **Ubuntu 24.04 / Pop!_OS** (niri y Quickshell se compilan).
