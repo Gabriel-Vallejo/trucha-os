@@ -1,7 +1,7 @@
 {
     "id": "truchaLab",
     "name": "Trucha · Lab",
-    "description": "Cronómetro del reto de CTF en curso (trucha-lab), con terminar, cancelar y abrir el lab; solo se ve con un reto en marcha",
+    "description": "Cronómetro de trucha-lab: sin reto, los pendientes de la semana y los labs para arrancar; con reto, terminar, cancelar y abrir el lab",
     "version": "1.0.0",
     "author": "Gabriel",
     "type": "widget",

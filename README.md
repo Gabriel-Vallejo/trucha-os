@@ -159,15 +159,20 @@ $ trucha-lab done
 - La plantilla del writeup recuerda que no se apuntan flags ni credenciales.
 - Sesión en `~/.local/state/trucha-os/lab.json`. Otro vault: `TRUCHA_LAB_VAULT=/ruta`.
 
-<img src="docs/img/lab-popout.png" width="300" align="right" alt="Popout de Trucha Lab: el reto juice-shop, el cronómetro en carmesí, la URL del lab y los botones Terminar, Cancelar y Abrir lab">
+**En la barra.** El cronómetro está siempre en la barra.
 
-**En la barra.** Con un reto en marcha aparece un cronómetro carmesí. En la barra vertical lleva los minutos debajo y en la horizontal, `mm:ss`. Al pulsarlo se abre el popout:
-- **Terminar** hace `done --abrir`: escribe el writeup y lo abre en Obsidian.
-- **Cancelar** para sin escribir nada.
-- **Abrir lab** lleva al navegador.
+<table>
+  <tr>
+    <td width="50%"><img src="docs/img/lab-plan.png" alt="Popout de Trucha Lab sin reto: los retos pendientes de la semana 4 del plan y los labs juice-shop, dvwa y webgoat"></td>
+    <td width="50%"><img src="docs/img/lab-popout.png" alt="Popout de Trucha Lab con un reto: juice-shop, el cronómetro en carmesí, la URL del lab y los botones Terminar, Cancelar y Abrir lab"></td>
+  </tr>
+</table>
 
-Sin reto en marcha, el widget no ocupa sitio.
-<br clear="right">
+- **Sin reto:** el icono va en gris. El popout lista los retos pendientes de la semana del plan y los labs, y al pulsar uno arranca.
+- **Con reto:** el icono pasa a carmesí con el tiempo (los minutos debajo en la barra vertical, `mm:ss` en la horizontal). El popout tiene tres botones:
+  - **Terminar** hace `done --abrir`: escribe el writeup y lo abre en Obsidian.
+  - **Cancelar** para sin escribir nada.
+  - **Abrir lab** lleva al navegador.
 
 ---
 
@@ -274,7 +279,7 @@ En el lanzador, el primer carácter elige el modo:
 |---|---|
 | 🧠 Trucha Copilot | Abre la app (clic) o el lanzador con `¿` (clic derecho) |
 | 🎧 Voz de Discord | Quién está en la llamada y quién habla, con silenciar y ensordecer |
-| ⏱️ Trucha Lab | Cronómetro del reto de CTF en curso, con terminar (writeup al vault), cancelar y abrir el lab; solo se ve con un reto en marcha |
+| ⏱️ Trucha Lab | Cronómetro del reto de CTF: sin reto, los pendientes de la semana para arrancar uno; con reto, terminar (writeup al vault), cancelar y abrir el lab |
 
 ### 🎧 Voz de Discord
 
