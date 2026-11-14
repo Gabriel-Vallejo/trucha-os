@@ -1,0 +1,14 @@
+{
+    "id": "truchaCopilot",
+    "name": "Trucha Copilot",
+    "description": "Pregunta a tus apuntes de Obsidian: responde Ollama en local y cita la nota de donde lo saca",
+    "version": "1.0.0",
+    "author": "Gabriel",
+    "icon": "school",
+    "type": "launcher",
+    "capabilities": ["command-execution"],
+    "component": "./TruchaCopilot.qml",
+    "trigger": "?",
+    "requires_dms": ">=2.0.0",
+    "permissions": ["settings_read"]
+}

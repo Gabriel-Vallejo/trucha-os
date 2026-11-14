@@ -28,5 +28,8 @@ jobs:
       - name: Voz de Discord (RPC simulado)
         run: python tests/discord_voice.test.py
 
+      - name: Trucha Copilot (Ollama simulado)
+        run: python tests/copilot.test.py
+
       - name: OCR (dms y wl-copy falsos)
         run: bash tests/ocr.test.sh

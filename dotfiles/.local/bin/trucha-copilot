@@ -1,0 +1,243 @@
+#!/usr/bin/env python3
+"""trucha-copilot — responde a partir de tus apuntes de Obsidian, todo en local con Ollama.
+
+  trucha-copilot ask "pregunta"     busca en los apuntes y responde citando las notas
+  trucha-copilot ask "!pregunta"    igual, pero el modelo razona antes (más lento, para lo pesado)
+  trucha-copilot search "texto"     solo la búsqueda, sin modelo (para depurar)
+  trucha-copilot index              rehace el índice entero
+
+En cada pregunta el índice se pone al día solo: vuelve a procesar las notas nuevas o cambiadas
+y quita las borradas. Solo habla con Ollama en 127.0.0.1; ni las notas ni las preguntas salen del equipo.
+Índice en ~/.local/state/trucha-os/copilot.db (SQLite, vectores float32)."""
+import heapq
+import json
+import math
+import operator
+import os
+import re
+import sqlite3
+import sys
+import urllib.error
+import urllib.request
+from array import array
+from pathlib import Path
+
+HOME = Path.home()
+VAULT = Path(os.environ.get("TRUCHA_COPILOT_VAULT") or HOME / "Truchilla")
+DB = HOME / ".local/state/trucha-os/copilot.db"
+OLLAMA = os.environ.get("TRUCHA_COPILOT_OLLAMA") or "http://127.0.0.1:11434"
+CHAT_MODEL = os.environ.get("TRUCHA_COPILOT_MODEL") or "qwen3.5:9b"
+EMBED_MODEL = "qwen3-embedding:0.6b"
+# Qwen3-Embedding recomienda una instrucción delante de la consulta (no de los documentos)
+QUERY_PREFIX = "Instruct: Given a question, retrieve passages from a student's notes that answer it\nQuery: "
+MAX_CHARS = 1500      # tope de cada trozo, sin contar la cabecera «Nota › Sección»
+TOP_K = 6
+NUM_CTX = 8192        # con 16k qwen3.5:9b ya no cabe en los 8 GB de la GPU y baja de 42 a 29 tok/s
+THINK_CTX = 16384     # razonando gasta 2-5k tokens más: mejor algo más lento que cortado
+SKIP = {"graphify-out"}
+ROOT_SKIP = {"CLAUDE.md", "AGENTS.md"}   # instrucciones para asistentes, no apuntes
+HEADING = re.compile(r"^(#{1,6})\s+(.*)")
+
+SYSTEM = """Eres Trucha Copilot, un asistente de estudio que responde a partir de los apuntes de la carrera del usuario.
+Responde en español, de tú a tú y al grano, usando SOLO los fragmentos de sus apuntes que te pasa.
+Cita cada dato con el número del fragmento entre corchetes, por ejemplo [2].
+Si los fragmentos no bastan para responder, dilo claramente («eso no está en tus apuntes») y no te inventes nada.
+Escribe las fórmulas en LaTeX, como en los apuntes."""
+
+
+def notes(vault):
+    """Notas .md del vault → {ruta relativa: «mtime_ns:tamaño»}. Sin carpetas ocultas ni dibujos de Excalidraw."""
+    found = {}
+    for root, dirs, files in os.walk(vault):
+        dirs[:] = [d for d in dirs if not d.startswith(".") and d not in SKIP]
+        for name in files:
+            if not name.endswith(".md") or name.endswith(".excalidraw.md"):
+                continue
+            path = Path(root, name)
+            rel = path.relative_to(vault).as_posix()
+            if rel not in ROOT_SKIP:
+                st = path.stat()
+                found[rel] = f"{st.st_mtime_ns}:{st.st_size}"
+    return found
+
+
+def split(head, body):
+    """Junta párrafos hasta ~MAX_CHARS; un párrafo más largo se corta a pedazos."""
+    pieces = []
+    for para in body.split("\n\n"):
+        pieces += [para[i:i + MAX_CHARS] for i in range(0, len(para), MAX_CHARS)]
+    out, cur = [], ""
+    for piece in pieces:
+        if cur and len(cur) + len(piece) + 2 > MAX_CHARS:
+            out.append(cur)
+            cur = piece
+        else:
+            cur = f"{cur}\n\n{piece}" if cur else piece
+    if cur.strip():
+        out.append(cur)
+    return [f"{head}\n\n{c.strip()}" for c in out]
+
+
+def chunks(rel, text):
+    """Trocea una nota por títulos ## y más; cada trozo empieza por «Nota › Sección»."""
+    text = re.sub(r"\A---\n.*?\n---\n", "", text, flags=re.S)   # frontmatter
+    title = Path(rel).stem
+    out, buf, section, fence = [], [], "", False
+
+    def flush():
+        body = "\n".join(buf).strip()
+        buf.clear()
+        if body:
+            out.extend(split(f"{title} › {section}" if section else title, body))
+
+    for line in text.splitlines():
+        if line.lstrip().startswith(("```", "~~~")):
+            fence = not fence
+        match = None if fence else HEADING.match(line)
+        if match and len(match.group(1)) == 1:
+            continue                              # el H1 repite el título
+        if match:
+            flush()
+            section = match.group(2).strip()
+        elif not line.startswith("🧭"):            # línea de navegación del vault
+            buf.append(line)
+    flush()
+    return out
+
+
+def ollama(path, body, stream=False):
+    req = urllib.request.Request(OLLAMA + path, json.dumps(body).encode(), {"Content-Type": "application/json"})
+    try:
+        resp = urllib.request.urlopen(req, timeout=900)
+    except urllib.error.HTTPError as e:
+        raise SystemExit(f"Ollama respondió {e.code}: {e.read().decode(errors='replace')[:300]}")
+    except (urllib.error.URLError, OSError) as e:
+        raise SystemExit(f"No puedo hablar con Ollama en {OLLAMA} ({getattr(e, 'reason', e)}).\n"
+                         "¿Está activo?  systemctl status ollama")
+    if stream:
+        return (json.loads(line) for line in resp if line.strip())
+    with resp:
+        return json.load(resp)
+
+
+def embed(texts):
+    vecs = ollama("/api/embed", {"model": EMBED_MODEL, "input": texts}).get("embeddings") or []
+    if len(vecs) != len(texts):
+        raise SystemExit(f"Ollama devolvió {len(vecs)} vectores para {len(texts)} textos")
+    return [[x / (math.hypot(*v) or 1) for x in v] for v in vecs]
+
+
+def connect():
+    DB.parent.mkdir(parents=True, exist_ok=True)
+    db = sqlite3.connect(DB)
+    db.executescript("""
+        CREATE TABLE IF NOT EXISTS meta(key TEXT PRIMARY KEY, value TEXT);
+        CREATE TABLE IF NOT EXISTS notes(path TEXT PRIMARY KEY, stamp TEXT);
+        CREATE TABLE IF NOT EXISTS chunks(path TEXT, head TEXT, text TEXT, vec BLOB);
+        CREATE INDEX IF NOT EXISTS chunks_path ON chunks(path);""")
+    return db
+
+
+def update(db, full=False):
+    """Pone el índice al día: procesa las notas nuevas o cambiadas y quita las borradas."""
+    if not VAULT.is_dir():
+        raise SystemExit(f"No encuentro el vault en {VAULT} (cámbialo con TRUCHA_COPILOT_VAULT)")
+    model = db.execute("SELECT value FROM meta WHERE key = 'embed'").fetchone()
+    if full or not model or model[0] != EMBED_MODEL:
+        db.execute("DELETE FROM notes")
+        db.execute("DELETE FROM chunks")
+        db.execute("INSERT OR REPLACE INTO meta VALUES ('embed', ?)", (EMBED_MODEL,))
+    current = notes(VAULT)
+    known = dict(db.execute("SELECT path, stamp FROM notes"))
+    for path in known.keys() - current.keys():
+        db.execute("DELETE FROM notes WHERE path = ?", (path,))
+        db.execute("DELETE FROM chunks WHERE path = ?", (path,))
+    changed = sorted(p for p, stamp in current.items() if known.get(p) != stamp)
+    for i, path in enumerate(changed, 1):
+        print(f"\rIndexando apuntes {i}/{len(changed)}", end="", file=sys.stderr, flush=True)
+        texts = chunks(path, (VAULT / path).read_text(errors="replace"))
+        vecs = embed(texts) if texts else []
+        db.execute("DELETE FROM chunks WHERE path = ?", (path,))
+        db.executemany("INSERT INTO chunks VALUES (?, ?, ?, ?)",
+                       [(path, t.split("\n", 1)[0], t, array("f", v).tobytes()) for t, v in zip(texts, vecs)])
+        db.execute("INSERT OR REPLACE INTO notes VALUES (?, ?)", (path, current[path]))
+        db.commit()   # nota a nota: si se corta, no se pierde lo hecho
+    if changed:
+        print(file=sys.stderr)
+    db.commit()
+    return len(changed)
+
+
+def search(db, query, k=TOP_K):
+    """Los k trozos más parecidos a la consulta: [(similitud, ruta, cabecera, texto)]."""
+    q = embed([QUERY_PREFIX + query])[0]
+    scored = []
+    for path, head, text, blob in db.execute("SELECT path, head, text, vec FROM chunks"):
+        vec = array("f")
+        vec.frombytes(blob)
+        scored.append((sum(map(operator.mul, q, vec)), path, head, text))
+    return heapq.nlargest(k, scored)
+
+
+def ask(db, question):
+    think = question.startswith("!")
+    question = question.lstrip("!").strip()
+    if not question:
+        print(__doc__)
+        return 2
+    hits = search(db, question)
+    if not hits:
+        print("El índice está vacío: no hay notas en", VAULT)
+        return 1
+    context = "\n\n".join(f"[{i}] {text}" for i, (_, _, _, text) in enumerate(hits, 1))
+    body = {"model": CHAT_MODEL, "stream": True, "think": think, "options": {"num_ctx": THINK_CTX if think else NUM_CTX},
+            "messages": [{"role": "system", "content": SYSTEM},
+                         {"role": "user", "content": f"Fragmentos de mis apuntes:\n\n{context}\n\nPregunta: {question}"}]}
+    print(f"\033[1;31m鱒 {question}\033[0m\n", flush=True)
+    answer, thinking = "", False
+    for part in ollama("/api/chat", body, stream=True):
+        if "error" in part:
+            raise SystemExit(f"\nOllama: {part['error']}")
+        msg = part.get("message", {})
+        if msg.get("thinking"):
+            thinking = True
+            print(f"\033[2m{msg['thinking']}", end="", flush=True)
+        if msg.get("content"):
+            if thinking:
+                print("\033[0m\n")
+                thinking = False
+            answer += msg["content"]
+            print(msg["content"], end="", flush=True)
+    print("\033[0m")
+    cited = sorted({int(n) for n in re.findall(r"\[(\d+)\]", answer) if 1 <= int(n) <= len(hits)})
+    print("\n\033[1mFuentes\033[0m" if cited else "\n\033[1mFragmentos consultados\033[0m")
+    for i in cited or range(1, len(hits) + 1):
+        _, path, head, _ = hits[i - 1]
+        print(f"  [{i}] {head}  \033[2m{path}\033[0m")
+    return 0
+
+
+def main(argv):
+    cmd = argv[1] if len(argv) > 1 else ""
+    text = " ".join(argv[2:]).strip()
+    if cmd not in ("ask", "search", "index") or (cmd != "index" and not text):
+        print(__doc__)
+        return 2
+    db = connect()
+    if cmd == "index":
+        n = update(db, full=True)
+        print(f"Índice rehecho: {n} notas, {db.execute('SELECT count(*) FROM chunks').fetchone()[0]} trozos")
+        return 0
+    update(db)
+    if cmd == "search":
+        for score, path, head, _ in search(db, text):
+            print(f"{score:.3f}  {head}  ({path})")
+        return 0
+    return ask(db, text)
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main(sys.argv))
+    except KeyboardInterrupt:
+        sys.exit(130)

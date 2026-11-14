@@ -63,7 +63,7 @@ say "Configuración"
 done
 grep -rlI "__HOME__" "$HOME/.config" "$HOME/.local/bin" "$HOME/.local/share/trucha-os" "$HOME/.local/share/applications" \
   "$HOME/.local/state/dms" 2>/dev/null | while read -r f; do sed -i "s|__HOME__|$HOME|g" "$f"; done
-chmod +x "$HOME"/.local/bin/{trucha-theme,trucha-ocr,trucha-discord-voice,trucha-theme-assets,fondo,trucha-clock,trucha-showcase,cyberchef,discord,niri-nuevo-escritorio}
+chmod +x "$HOME"/.local/bin/{trucha-theme,trucha-ocr,trucha-discord-voice,trucha-theme-assets,fondo,trucha-clock,trucha-showcase,trucha-copilot,cyberchef,discord,niri-nuevo-escritorio}
 install -Dm644 "$REPO/dotfiles/trucha.bashrc" "$HOME/.config/trucha-os/trucha.bashrc"
 grep -q "trucha-os/trucha.bashrc" "$HOME/.bashrc" 2>/dev/null || \
   printf '\n# Trucha OS!\n[ -f ~/.config/trucha-os/trucha.bashrc ] && . ~/.config/trucha-os/trucha.bashrc\n' >> "$HOME/.bashrc"
@@ -101,7 +101,17 @@ if [ "$MODE" = full ]; then
   "$REPO/scripts/system.sh"
 fi
 
-# ── 6. Tema ─────────────────────────────────────────────────────────────────
+# ── 6. Trucha Copilot: Ollama en la GPU, modelos e índice de los apuntes ────
+if [ "$MODE" = full ] && [ "$FAMILY" = arch ]; then
+  say "Trucha Copilot (Ollama)"
+  sudo systemctl enable --now ollama
+  # los modelos son los que fija el script (CHAT_MODEL y EMBED_MODEL)
+  for m in $(sed -nE 's/^(CHAT|EMBED)_MODEL = .*"([^"]+)"$/\2/p' "$HOME/.local/bin/trucha-copilot"); do ollama pull "$m"; done
+  if [ -d "$HOME/Truchilla" ]; then "$HOME/.local/bin/trucha-copilot" index
+  else echo "Clona tu vault de Obsidian en ~/Truchilla y ejecuta:  trucha-copilot index"; fi
+fi
+
+# ── 7. Tema ─────────────────────────────────────────────────────────────────
 say "Tema Crimson Ink"
 if [ -n "${NIRI_SOCKET:-}" ]; then
   "$HOME/.local/bin/trucha-theme" crimson-ink

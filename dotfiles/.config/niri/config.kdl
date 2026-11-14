@@ -234,6 +234,13 @@ window-rule {
     match app-id="zoom"
     open-floating true
 }
+// Trucha Copilot: respuestas en una ventana flotante
+window-rule {
+    match app-id="trucha-copilot"
+    open-floating true
+    default-column-width { proportion 0.5; }
+    default-window-height { proportion 0.7; }
+}
 debug {
     honor-xdg-activation-with-invalid-serial
 }

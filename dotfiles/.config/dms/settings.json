@@ -386,11 +386,15 @@
     },
     "truchaUtils": {
       "allowWithoutTrigger": false
+    },
+    "truchaCopilot": {
+      "allowWithoutTrigger": false
     }
   },
   "launcherPluginOrder": [
     "competis",
-    "truchaUtils"
+    "truchaUtils",
+    "truchaCopilot"
   ],
   "spotlightSectionViewModes": {
     "apps": "list"

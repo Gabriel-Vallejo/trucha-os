@@ -40,5 +40,8 @@
   },
   "truchaDiscord": {
     "enabled": true
+  },
+  "truchaCopilot": {
+    "enabled": true
   }
 }
