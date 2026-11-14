@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 80 512 320" width="512" height="320" role="img" aria-label="Truchi, la mascota de Trucha Copilot">
+  <!-- Truchi: la trucha de Trucha OS! a pincel (sumi-e), pensando. Versión independiente para el README. -->
+  <style>
+    .pez { transform-box: view-box; transform-origin: 256px 260px; animation: flotar 3.4s ease-in-out infinite; }
+    .cola { transform-box: view-box; transform-origin: 392px 258px; animation: cola 1.4s ease-in-out infinite; }
+    .burbuja { transform-box: view-box; fill: none; stroke: #ece8e4; stroke-width: 3; opacity: 0; animation: subir 2.6s ease-in infinite; }
+    .burbuja:nth-of-type(2) { animation-delay: .85s; }
+    .burbuja:nth-of-type(3) { animation-delay: 1.7s; }
+    @keyframes flotar { 0%, 100% { transform: translateY(0) rotate(-5deg); } 50% { transform: translateY(-10px) rotate(-2deg); } }
+    @keyframes cola { 0%, 100% { transform: rotate(-7deg); } 50% { transform: rotate(9deg); } }
+    @keyframes subir { 0% { opacity: 0; transform: translateY(0) scale(.6); } 20% { opacity: .9; } 100% { opacity: 0; transform: translateY(-120px) scale(1.25); } }
+  </style>
+  <defs>
+    <filter id="tinta" x="-10%" y="-20%" width="120%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7" result="ruido"/>
+      <feDisplacementMap in="SourceGraphic" in2="ruido" scale="7" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <linearGradient id="lavado" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ece8e4" stop-opacity="0.95"/>
+      <stop offset="0.65" stop-color="#8a8580" stop-opacity="0.75"/>
+      <stop offset="1" stop-color="#8a8580" stop-opacity="0.35"/>
+    </linearGradient>
+    <linearGradient id="banda" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#e5383b" stop-opacity="0"/>
+      <stop offset="0.2" stop-color="#e5383b" stop-opacity="0.85"/>
+      <stop offset="0.9" stop-color="#e5383b" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#e5383b" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="80" width="512" height="320" rx="28" fill="#0c0c0e"/>
+  <g class="pez">
+    <g filter="url(#tinta)">
+      <path class="cola" fill="#a32a2c" d="M388,258 C414,236 440,214 482,200 C468,232 462,248 452,258 C462,268 468,284 482,316 C440,302 414,280 388,258 Z"/>
+      <g fill="#a32a2c" opacity="0.9">
+        <path d="M176,214 C190,176 240,170 262,206 Z"/><path d="M330,222 C336,208 350,208 354,224 Z"/>
+        <path d="M132,290 C140,316 160,322 168,300 Z"/><path d="M228,304 C236,328 256,332 262,308 Z"/>
+        <path d="M318,294 C324,314 340,318 344,298 Z"/>
+      </g>
+      <path fill="url(#lavado)" stroke="#ece8e4" stroke-width="3" d="M44,262 C84,206 214,190 316,206 C356,212 384,230 400,250 L400,266 C384,284 356,300 316,306 C214,322 84,312 44,262 Z"/>
+      <path fill="url(#banda)" d="M78,264 C160,244 300,240 396,256 L396,264 C300,276 160,282 78,274 Z"/>
+    </g>
+    <g fill="#0c0c0e" opacity="0.85">
+      <circle cx="170" cy="226" r="3.6"/><circle cx="196" cy="218" r="4.2"/><circle cx="224" cy="214" r="3.4"/>
+      <circle cx="250" cy="220" r="4.4"/><circle cx="276" cy="214" r="3.6"/><circle cx="300" cy="222" r="4.2"/>
+      <circle cx="326" cy="230" r="3.4"/><circle cx="350" cy="238" r="3.8"/><circle cx="212" cy="236" r="2.8"/>
+      <circle cx="262" cy="236" r="3"/><circle cx="314" cy="240" r="2.8"/>
+    </g>
+    <g fill="none" stroke="#0c0c0e" stroke-linecap="round" opacity="0.75">
+      <path d="M112,226 C126,248 126,276 112,298" stroke-width="5"/><path d="M46,264 C56,268 66,270 78,268" stroke-width="3.5"/>
+    </g>
+    <circle cx="80" cy="252" r="8.5" fill="#0c0c0e"/><circle cx="82.5" cy="249.5" r="2.6" fill="#ece8e4"/>
+  </g>
+  <circle class="burbuja" cx="40" cy="240" r="8"/>
+  <circle class="burbuja" cx="28" cy="240" r="5.5"/>
+  <circle class="burbuja" cx="50" cy="240" r="4.5"/>
+  <g transform="rotate(-6 452 352)">
+    <rect x="428" y="328" width="48" height="48" rx="6" fill="#e5383b"/>
+    <text x="452" y="364" font-family="Noto Serif JP, serif" font-weight="700" font-size="32" fill="#ece8e4" text-anchor="middle">鱒</text>
+  </g>
+</svg>

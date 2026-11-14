@@ -1,25 +1,136 @@
+<div align="center">
+
+<img src="dotfiles/.local/share/trucha-os/trucha-os.png" width="120" alt="Logo de Trucha OS!: una trucha carmesí">
+
+<h1>Trucha OS! 鱒</h1>
+
+**Mi Linux de autor: niri + DMS, tema Crimson Ink y una IA local que estudia conmigo.**
+
 [![CI](https://github.com/Gabriel-Vallejo/trucha-os/actions/workflows/ci.yml/badge.svg)](https://github.com/Gabriel-Vallejo/trucha-os/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/Gabriel-Vallejo/trucha-os/blob/main/LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-e5383b.svg)](LICENSE)
+![CachyOS / Arch](https://img.shields.io/badge/CachyOS%20%2F%20Arch-1793d1?logo=archlinux&logoColor=white)
+![Ubuntu / Pop!_OS](https://img.shields.io/badge/Ubuntu%20%2F%20Pop!__OS-e95420?logo=ubuntu&logoColor=white)
+![niri](https://img.shields.io/badge/niri-26.04-0c0c0e)
+![DMS](https://img.shields.io/badge/DMS-2.1-a32a2c)
+![Ollama](https://img.shields.io/badge/IA-100%25%20local%20(Ollama)-0c0c0e?logo=ollama&logoColor=white)
 
-# 🐟 Trucha OS!
+<img src="docs/img/escritorio.jpg" alt="Escritorio Crimson Ink: torii bajo la luna, calendario 十一月, tiempo, reloj pixel, monitor del sistema y el kanji 鱒 en vertical" width="100%">
 
-Mi Linux personalizado: **niri** (tiling con scroll) + **DankMaterialShell**, tema **Crimson Ink**
-(negro tinta y carmesí, estética japonesa) y temas intercambiables de anime en modo dark.
+<sub>Crimson Ink: fondo animado, calendario con el mes en kanji, tiempo y reloj en fuente pixel, monitor del sistema, 鱒 en vertical y pétalos de sakura.</sub>
+
+</div>
+
+---
+
+## ⚡ En un vistazo
 
 | | |
 |---|---|
-| Gestor de ventanas | niri v26.04 |
-| Interfaz | DankMaterialShell 2.0 (barra, dock, lanzador, notificaciones, bloqueo) |
-| Terminal | kitty + starship + fastfetch (con el torii) |
-| Temas | Crimson Ink · Miku Dark · Nino Dark · Marin Dark · Resident Evil · Ceniza (`trucha-theme`, ⊞+Alt+T) |
-| Escritorio | fondo animado (linux-wallpaperengine), reloj pixel, kanji vertical, visualizador cava, monitor, tiempo, calendario (十月), pétalos de sakura |
-| Arranque | Plymouth con la trucha · tema de rEFInd |
-| Extras | pestaña **Competis** (ciberseguridad y hackatones, ⊞+Shift+Espacio) · **Utilidades** con `=` en el lanzador · OCR de una zona con ⊞+Shift+X (local, al portapapeles) · tecla ⊞ sola = lanzador |
+| 🪟 **Ventanas** | [niri](https://github.com/YaLTeR/niri) 26.04: tiling con scroll infinito |
+| 🧩 **Interfaz** | DMS 2.1 (paquete `dux-shell`, sobre Quickshell): barra lateral, dock, lanzador, notificaciones, bloqueo |
+| 🎨 **Temas** | Crimson Ink · Miku Dark · Nino Dark · Marin Dark · Resident Evil · Ceniza, con un atajo (⊞+Alt+T) |
+| 🖼️ **Escritorio** | fondo animado (linux-wallpaperengine), reloj pixel, kanji vertical, cava, monitor, tiempo, calendario (十一月), letras, pétalos |
+| 🧠 **Trucha Copilot** | IA local que responde con **mis apuntes** y cita la nota: app con chats y mascota, o `¿` en el lanzador |
+| 🛡️ **CTF** | **Competis** (⊞+Shift+Espacio), **Utilidades** con `=` (base64, hex, rot13, timestamps…) y OCR de una zona (⊞+Shift+X) |
+| 💻 **Terminal** | kitty + starship + fastfetch con el torii |
+| 🚀 **Arranque** | Plymouth con la trucha y tema de rEFInd |
+| ✅ **Calidad** | 6 suites de tests (Python, node y bash) en cada push, en un contenedor de Arch |
 
-## Instalar
+---
 
-Funciona sobre **CachyOS / Arch** (recomendado: todo viene de repos/AUR) y **Ubuntu 24.04 / Pop!_OS**
-(niri y Quickshell se compilan).
+## 🎨 Temas
+
+Cada tema cambia **todo** a la vez: colores, fondo animado, kanji, fetch, login y partículas. Se eligen con ⊞+Alt+T (o `%` en el lanzador) y se aplican con `trucha-theme <id>`.
+
+<table>
+  <tr>
+    <td align="center"><img src="dotfiles/.local/share/trucha-os/thumbs/miku-dark.png" width="250" alt="Tema Miku Dark"><br><b>Miku Dark</b></td>
+    <td align="center"><img src="dotfiles/.local/share/trucha-os/thumbs/nino-dark.png" width="250" alt="Tema Nino Dark"><br><b>Nino Dark</b></td>
+    <td align="center"><img src="dotfiles/.local/share/trucha-os/thumbs/marin-dark.png" width="250" alt="Tema Marin Dark"><br><b>Marin Dark</b></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="dotfiles/.local/share/trucha-os/thumbs/resident-evil.png" width="250" alt="Tema Resident Evil"><br><b>Resident Evil</b> · ceniza en vez de pétalos</td>
+    <td align="center"><img src="dotfiles/.local/share/trucha-os/thumbs/ceniza.png" width="250" alt="Tema Ceniza"><br><b>Ceniza</b> · Crimson Ink oscurecido</td>
+    <td align="center"><b>Crimson Ink</b><br>el de la captura de arriba<br>(negro tinta y carmesí)</td>
+  </tr>
+</table>
+
+---
+
+## 🧠 Trucha Copilot
+
+<img src="docs/img/truchi.svg" width="220" align="right" alt="Truchi, la mascota: una trucha a pincel que flota y echa burbujas">
+
+Un asistente de estudio que responde **solo con mis apuntes de la carrera** (mi vault de Obsidian) y dice de qué nota sale cada dato. Funciona entero en el portátil: ni las notas ni las preguntas salen de él.
+
+◆ **Chats con memoria**: puedo repreguntar («¿y su coste?») y se acuerda de lo anterior.<br>
+◆ **Citas clicables**: cada fuente `[n] Nota › Sección` abre la nota en Obsidian.<br>
+◆ **Fórmulas de verdad**: Markdown y LaTeX con KaTeX, como en los apuntes.<br>
+◆ **Razonar** activado por defecto: más preciso, ~1 min. Sin él, de 3 a 19 s.<br>
+◆ **Truchi**, la mascota sumi-e: flota, busca, echa burbujas al pensar y pone «?» si algo no está en los apuntes.
+
+<br clear="right">
+
+<table>
+  <tr>
+    <td width="60%"><img src="docs/img/copilot.png" alt="Trucha Copilot respondiendo con fórmulas de la distancia de Hamming y la fuente citada"></td>
+    <td width="40%"><img src="docs/img/copilot-pensando.png" alt="Trucha Copilot pensando: Truchi echa burbujas y aparecen tres puntos"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Respuesta con fórmulas y la nota citada</sub></td>
+    <td align="center"><sub>Truchi pensando</sub></td>
+  </tr>
+</table>
+
+### Cómo se abre
+
+| Dónde | Qué hace |
+|---|---|
+| 🧠 Botón de la barra | Clic: abre la app · clic derecho: el lanzador con `¿` |
+| `¿pregunta` en el lanzador (⊞+Espacio) | Abre un chat nuevo con esa pregunta |
+| Menú de aplicaciones | «Trucha Copilot» |
+| Terminal | `trucha-copilot ask "pregunta"` · con `!` delante razona · `search` busca sin modelo · `index` rehace el índice |
+
+### Cómo funciona
+
+```mermaid
+flowchart LR
+    V["📚 Vault de Obsidian<br/>~/Truchilla"] -- "solo las notas cambiadas" --> I[("Índice SQLite<br/>352 notas · 3424 trozos")]
+    P["¿ pregunta"] --> E["qwen3-embedding:0.6b"]
+    E --> I
+    I -- "6 trozos más parecidos" --> M["qwen3.5:9b<br/>Ollama en la GPU"]
+    M --> R["Respuesta con citas [n]<br/>→ nota en Obsidian"]
+```
+
+1. Troceo cada nota por títulos `##`/`###` (sin frontmatter) y cada trozo lleva delante «Nota › Sección».
+2. En cada pregunta el índice se pone al día solo: reprocesa las notas nuevas o cambiadas y quita las borradas. Si Ollama actualiza el modelo de embeddings, lo rehace entero.
+3. Busco los 6 trozos más parecidos (coseno, en Python puro) y se los paso al modelo, que debe responder solo con ellos y citarlos.
+
+### Modelos (medidos en una RTX 5070 Laptop de 8 GB)
+
+| Modelo | Sin razonar | Razonando | Velocidad | |
+|---|---|---|---|---|
+| **qwen3.5:9b** | 3–19 s | 51–105 s | 42 tok/s | ✅ elegido: cabe entero en la GPU (5,7 GB con 8k de contexto) |
+| qwen3.5:35b-a3b | 11–50 s | 49–266 s | 21 tok/s | igual de preciso, 2–3× más lento |
+| gpt-oss:20b | — | 6–77 s | 19 tok/s | 16 % en CPU, no mejora en nada |
+
+Embeddings con `qwen3-embedding:0.6b`: índice completo en **69 s**, cada búsqueda en **0,3 s**. Sin razonar, el 9b llegó a leer al revés un fragmento sobre FNBC; razonando acierta y cita, por eso Razonar viene activado.
+
+### Privacidad
+
+- Ollama escucha solo en `127.0.0.1:11434`.
+- La interfaz es HTML local en una ventana GTK + WebKitGTK, con una CSP que no deja cargar nada de fuera. KaTeX y marked van copiados en el repo.
+- Lo que escribe el modelo se escapa: no puede inyectar HTML ni enlaces `javascript:`.
+- Índice en `~/.local/state/trucha-os/copilot.db` y chats en `copilot-chats.db`, junto a él.
+
+> [!TIP]
+> Otro vault: `TRUCHA_COPILOT_VAULT=/ruta`. Otro modelo: `TRUCHA_COPILOT_MODEL=nombre` (descárgalo antes con `ollama pull`).
+
+---
+
+## 🚀 Instalar
+
+Funciona sobre **CachyOS / Arch** (recomendado: todo viene de repos y AUR) y **Ubuntu 24.04 / Pop!_OS** (niri y Quickshell se compilan).
 
 ```bash
 git clone https://github.com/Gabriel-Vallejo/trucha-os.git ~/trucha-os
@@ -29,7 +140,14 @@ cd ~/trucha-os
 
 Después cierra sesión y entra en **niri**.
 
-### Pasarse a CachyOS
+| Modo | Qué instala |
+|---|---|
+| `./install.sh` | Todo: paquetes, fuentes, configuración, fondos, marca, Plymouth, rEFInd, tecla ⊞ y Trucha Copilot (Ollama, ~7 GB de modelos e índice) |
+| `./install.sh --live` | Todo menos lo que no persiste en un USB live (marca, Plymouth, rEFInd) y sin Ollama |
+| `./install.sh --solo-config` | Solo la configuración, sin paquetes ni `sudo` |
+
+<details>
+<summary><b>Pasarse a CachyOS paso a paso</b></summary>
 
 1. Instala CachyOS (edición **niri**, o cualquiera y el instalador pone niri).
 2. Monta la partición de Windows si tus fondos de Wallpaper Engine están allí:
@@ -40,23 +158,96 @@ Después cierra sesión y entra en **niri**.
    3. Copia tu configuración.
    4. Importa los fondos y regenera los recursos derivados.
    5. Aplica la marca y los temas de Plymouth y rEFInd, y configura la tecla ⊞.
+   6. Activa Ollama, descarga los modelos e indexa `~/Truchilla` si existe.
 
-### USB live
+</details>
+
+<details>
+<summary><b>USB live</b></summary>
 
 **Opción fácil (recomendada):** Ventoy + la ISO oficial de CachyOS.
 1. Graba [Ventoy](https://www.ventoy.net) en el USB y copia dentro la ISO de CachyOS.
 2. Si quieres que los cambios se guarden, añade un fichero de persistencia de Ventoy.
 3. Arranca el USB, conéctate a internet y ejecuta `./install.sh --live`.
-   Instala todo menos lo que no tiene sentido en un live (marca del sistema, Plymouth y rEFInd).
 
 **Opción ISO propia (experimental):** `./iso/build-iso.sh` (en CachyOS/Arch, con `archiso`).
-Genera `iso/out/trucha-os-*.iso`, con los paquetes dentro y un usuario live `trucha`/`trucha`
-que entra directamente en niri.
+Genera `iso/out/trucha-os-*.iso`, con los paquetes dentro y un usuario live `trucha`/`trucha` que entra directamente en niri.
 
-## Fondos de Wallpaper Engine
+</details>
 
-**No están en el repo**, porque son de sus autores. `scripts/import-wallpapers.sh` los copia
-de **tu** Wallpaper Engine: Steam de Linux o la partición de Windows.
+---
+
+## ⌨️ Atajos y lanzador
+
+| Atajo | Acción |
+|---|---|
+| ⊞ (sola) · ⊞+Espacio | Lanzador |
+| ⊞+Alt+T | Cambiar de tema |
+| ⊞+Shift+Espacio | Competis (ciberseguridad y hackatones) |
+| ⊞+Shift+X | OCR de una zona al portapapeles (local) |
+| ⊞+Ctrl+D | Nuevo escritorio |
+| ⊞+E | Archivos |
+| ⊞+T · ⊞+Intro | Terminal |
+| ⊞+Shift+/ | Todos los atajos |
+
+En el lanzador, el primer carácter elige el modo:
+
+| Escribe | Modo |
+|---|---|
+| `¿` | 🧠 Trucha Copilot: pregunta a tus apuntes |
+| `=` | 🧮 Utilidades: calculadora y conversiones (se copia al elegir) |
+| `@` | 🛡️ Competis: apps, herramientas y webs de CTF |
+| `%` | 🎨 Temas |
+
+<details>
+<summary><b>Todo lo que hacen las Utilidades (<code>=</code>)</b></summary>
+
+- vacío → selector de color y capturas (zona, ventana, pantalla);
+- `2^10/3`, `sqrt(2)`, `5!`, `3,5*2` → calculadora (sin `eval`);
+- `255`, `0xff`, `0b1010` → decimal/hex/binario/octal y carácter;
+- `ts` o `ts 1700000000` → timestamp Unix ↔ fecha;
+- `#e5383b` → rgb y hsl;
+- texto libre → base64, hex, rot13 y url, y lo decodifica si puede;
+- prefijos: `b64` `b64d` `hex` `unhex` `rot13` `url` `urld` `bin` `unbin` `up` `low` `rev` `len`.
+
+</details>
+
+---
+
+## 🧩 Widgets
+
+| En el escritorio | |
+|---|---|
+| 📅 Calendario | El mes en kanji, semana de lunes a domingo y hoy en carmesí |
+| ☁️ Tiempo | Temperatura, estado y máx/mín del día en la fuente pixel |
+| 📊 Sistema | CPU, RAM, GPU y temperatura, sin cajas |
+| 鱒 Kanji | 鱒 (trucha) en vertical con su lectura en katakana |
+| 🎵 Música y letras | Reproductor MPRIS y letra sincronizada línea a línea; solo se ven cuando suena algo |
+| 🔊 Visualizador | Barras de audio (cava) en carmesí |
+| 🌸 Pétalos | Caen despacio con el color del tema; no bloquean clics |
+| 🌑 Oscurecer | Capa con viñeta para fondos claros en temas oscuros |
+
+| En la barra | |
+|---|---|
+| 🧠 Trucha Copilot | Abre la app (clic) o el lanzador con `¿` (clic derecho) |
+| 🎧 Voz de Discord | Quién está en la llamada y quién habla, con silenciar y ensordecer |
+
+### 🎧 Voz de Discord
+
+El widget `truchaDiscord` aparece solo en un canal de voz: clic para ver quién habla y clic derecho para silenciar. Usa el RPC oficial de Discord, sin parchear el cliente.
+
+1. En el [portal de desarrolladores](https://discord.com/developers/applications) crea una aplicación.
+2. En **OAuth2**, añade la redirección `http://127.0.0.1` y copia el Client ID y el Client Secret.
+3. Ejecuta `trucha-discord-voice setup` (guarda las claves con permisos 600, fuera del repo).
+4. Ejecuta `systemctl --user start trucha-discord-voice` con Discord abierto y acepta la ventana que abre Discord.
+
+Si algo falla: `journalctl --user -u trucha-discord-voice`.
+
+---
+
+## 🖼️ Fondos de Wallpaper Engine
+
+**No están en el repo**, porque son de sus autores. `scripts/import-wallpapers.sh` los copia de **tu** Wallpaper Engine: Steam de Linux o la partición de Windows.
 
 | Tema | ID del workshop |
 |---|---|
@@ -67,89 +258,97 @@ de **tu** Wallpaper Engine: Steam de Linux o la partición de Windows.
 | Resident Evil (Leon · Requiem) | 3665954520 |
 | Ceniza | usa el de Crimson Ink, oscurecido |
 
-Lo que deriva de ellos lo regenera `scripts/gen-crimson-assets.py`: el login de Crimson,
-su miniatura, el fondo de rEFInd y el logo del fetch.
+Lo que deriva de ellos lo regenera `scripts/gen-crimson-assets.py`: el login de Crimson, su miniatura, el fondo de rEFInd y el logo del fetch.
 
-## Mantener el repo al día
-
-Cuando cambies algo en tu sistema:
-
-```bash
-./scripts/export.sh && git add -A && git commit -m "Actualizar configuración"
-```
-
-Las rutas `/home/<tú>` se guardan como `__HOME__` y el instalador las adapta al usuario de destino.
-Tu ubicación (la del tiempo y la del modo noche) no se exporta: tras instalar, ponla en los ajustes de DMS.
-
-Los tests (`tests/`) se pasan en cada push con GitHub Actions, en un contenedor de Arch.
-
-## Estructura
-
-```
-install.sh                instalador (modo completo, --live, --solo-config)
-packages/                 arch.txt · aur.txt · ubuntu.txt
-dotfiles/                 tu $HOME de Trucha OS! (niri, DMS, kitty, temas, widgets, scripts…)
-system/keyd.conf          tecla ⊞ sola = lanzador
-scripts/export.sh         sistema → repo
-scripts/import-wallpapers.sh   Wallpaper Engine → ~/.local/share/wallpaperengine
-scripts/gen-crimson-assets.py  recursos derivados del torii
-scripts/system.sh         marca, Plymouth, rEFInd, keyd (root)
-scripts/ubuntu-build.sh   compilaciones para Ubuntu/Pop
-iso/build-iso.sh          ISO live propia (archiso, experimental)
-```
-
-## Widgets y utilidades
-
-| Widget | Qué hace |
-|---|---|
-| Tiempo | temperatura, estado y máx/mín del día (servicio del tiempo de DMS) |
-| Calendario | mes con su kanji, semana de lunes a domingo, hoy en carmesí |
-| Pétalos | caen despacio con el acento del tema; no bloquean clics (`clickThrough`) |
-| Letras | letra sincronizada de lo que suena, línea a línea (servicio de letras de DMS); se oculta sin letra o en pausa |
-
-**Utilidades** (`=` en el lanzador; el resultado se copia al elegirlo):
-- vacío → selector de color y capturas (zona, ventana, pantalla);
-- `2^10/3`, `sqrt(2)`, `5!`, `3,5*2` → calculadora (sin `eval`);
-- `255`, `0xff`, `0b1010` → decimal/hex/binario/octal y carácter;
-- `ts` o `ts 1700000000` → timestamp Unix ↔ fecha;
-- `#e5383b` → rgb y hsl;
-- texto libre → base64, hex, rot13 y url, y lo decodifica si puede;
-- prefijos: `b64` `b64d` `hex` `unhex` `rot13` `url` `urld` `bin` `unbin` `up` `low` `rev` `len`.
-
-## Voz de Discord en la barra
-
-El widget `truchaDiscord` aparece solo en un canal de voz: clic para ver quién habla, clic derecho
-para silenciar. Usa el RPC oficial de Discord, sin parchear el cliente.
-
-1. En el [portal de desarrolladores](https://discord.com/developers/applications) crea una aplicación.
-2. En **OAuth2**, añade la redirección `http://127.0.0.1` y copia el Client ID y el Client Secret.
-3. Ejecuta `trucha-discord-voice setup` (guarda las claves con permisos 600, fuera del repo).
-4. Ejecuta `systemctl --user start trucha-discord-voice` con Discord abierto y acepta la ventana que abre Discord.
-
-Si algo falla: `journalctl --user -u trucha-discord-voice`.
-
-## Añadir un tema
+### Añadir un tema
 
 1. Copia el fondo a `~/.local/share/wallpaperengine/wallpapers/<nombre>`.
 2. Crea `~/.config/trucha-os/themes/<id>.json` con estos campos:
-   - `accent_hue`;
-   - `kanji` y `kana`;
-   - `dim`, para oscurecer el fondo;
-   - `positions`, opcional, si el personaje tapa los widgets;
-   - `petals`, opcional (`false` apaga los pétalos en ese tema);
-   - `particles`, opcional (`"ash"` cambia los pétalos por ceniza).
-   - `wallpaper_properties`, opcional: propiedades de la escena para `fondo` (p. ej. `{"clock": false}` apaga el reloj que traiga el fondo).
+
+   | Campo | Para qué |
+   |---|---|
+   | `accent_hue` | Tono del acento |
+   | `kanji`, `kana` | El kanji vertical y su lectura |
+   | `dim` | Oscurecer el fondo |
+   | `positions` | Opcional: mover widgets si el personaje los tapa |
+   | `petals` | Opcional: `false` apaga los pétalos |
+   | `particles` | Opcional: `"ash"` cambia los pétalos por ceniza |
+   | `wallpaper_properties` | Opcional: propiedades de la escena (p. ej. `{"clock": false}` apaga el reloj del fondo) |
+
 3. Ejecuta `trucha-theme-assets <id>` (genera el logo, el login y la miniatura) y elige el tema con ⊞+Alt+T.
 
-## Personalizaciones alternativas
+---
 
-[**SekaiPop**](https://github.com/Blapples/SekaiPop): shell de Quickshell para **Hyprland**, inspirada en
-Project Sekai, con barra y dock configurables, dos pantallas de bloqueo y sistema de plugins.
+## 🔁 Mantener el repo al día
 
-No forma parte de Trucha OS! ni se instala con `install.sh`: necesita Hyprland 0.55 o superior y sustituye
-a niri + DMS, así que los temas y widgets de este repo no funcionan con ella. Su instalador tiene modo
-de prueba y guarda tu configuración de Hyprland en una copia (`./install.sh --restore` la recupera).
+Cuando cambio algo en el sistema:
 
-## Licencia
+```bash
+./scripts/export.sh && git add -A && git commit -m "chore: actualizar configuración"
+```
 
-Este proyecto está distribuido bajo la [Licencia MIT](LICENSE) © 2026 Gabriel Vallejo García.
+- Las rutas `/home/<tú>` se guardan como `__HOME__` y el instalador las adapta al usuario de destino.
+- Mi ubicación (tiempo y modo noche) y el historial del lanzador no se exportan: el repo es público. Tras instalar, pon tu ubicación en los ajustes de DMS.
+
+### Tests
+
+Se pasan en cada push con GitHub Actions, en un contenedor `archlinux:latest`.
+
+| Suite | Qué prueba |
+|---|---|
+| `utils.test.mjs` | Calculadora y conversiones de las Utilidades |
+| `discord_voice.test.py` | Puente de voz de Discord contra un RPC simulado |
+| `copilot.test.py` | Troceado, índice incremental, búsqueda y citas contra un Ollama simulado |
+| `copilot_app.test.py` | Chats, memoria, parar y errores de la app |
+| `copilot_render.test.mjs` | Markdown y LaTeX seguros (sin HTML ni enlaces peligrosos) |
+| `ocr.test.sh` | OCR con `dms` y `wl-copy` falsos |
+
+---
+
+## 🗂️ Estructura
+
+<details>
+<summary><b>Ver el árbol</b></summary>
+
+```
+install.sh                       instalador (completo, --live, --solo-config)
+packages/                        arch.txt · aur.txt · ubuntu.txt
+dotfiles/                        el $HOME de Trucha OS! (niri, DMS, kitty, temas, widgets, scripts…)
+  .config/dms/plugins/           widgets y modos del lanzador (truchaCopilot, truchaUtils, competis…)
+  .local/bin/trucha-copilot      RAG local: índice, búsqueda y respuesta con Ollama
+  .local/bin/trucha-copilot-app  la app de Trucha Copilot (GTK + WebKitGTK)
+  .local/share/trucha-os/copilot interfaz HTML de la app, Truchi y KaTeX/marked
+system/keyd.conf                 tecla ⊞ sola = lanzador
+scripts/export.sh                sistema → repo
+scripts/import-wallpapers.sh     Wallpaper Engine → ~/.local/share/wallpaperengine
+scripts/gen-crimson-assets.py    recursos derivados del torii
+scripts/system.sh                marca, Plymouth, rEFInd, keyd (root)
+scripts/ubuntu-build.sh          compilaciones para Ubuntu/Pop
+iso/build-iso.sh                 ISO live propia (archiso, experimental)
+tests/                           tests de Python, node y bash (CI)
+docs/img/                        capturas de este README
+```
+
+</details>
+
+---
+
+## 🧭 Personalizaciones alternativas
+
+[**SekaiPop**](https://github.com/Blapples/SekaiPop): shell de Quickshell para **Hyprland**, inspirada en Project Sekai, con barra y dock configurables, dos pantallas de bloqueo y sistema de plugins.
+
+No forma parte de Trucha OS! ni se instala con `install.sh`: necesita Hyprland 0.55 o superior y sustituye a niri + DMS, así que los temas y widgets de este repo no funcionan con ella. Su instalador tiene modo de prueba y guarda tu configuración de Hyprland en una copia (`./install.sh --restore` la recupera).
+
+---
+
+## 📜 Licencia
+
+[MIT](LICENSE) © 2026 Gabriel Vallejo García.
+
+Incluye [KaTeX](https://katex.org) 0.16.22 y [marked](https://marked.js.org) 12.0.2, ambos MIT, con sus licencias en `dotfiles/.local/share/trucha-os/copilot/vendor/`.
+
+<div align="center">
+
+**¿Dudas o ideas? Abre un [issue](https://github.com/Gabriel-Vallejo/trucha-os/issues).** 🐟
+
+</div>
