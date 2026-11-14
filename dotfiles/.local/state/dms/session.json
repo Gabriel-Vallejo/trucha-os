@@ -1,7 +1,5 @@
 {
   "wallpaperPath": "__HOME__/.local/share/trucha-os/transparent.png",
-  "weatherLocation": "Salamanca, España",
-  "weatherCoordinates": "40.9701,-5.6635",
   "desktopWidgetInstancePositions": {
     "trucha_clock": {
       "_synced": {
@@ -100,9 +98,6 @@
   "nightModeAutoEnabled": true,
   "nightModeAutoMode": "location",
   "nightModeTransitionMinutes": 45,
-  "latitude": 40.9701,
-  "longitude": -5.6635,
-  "nightModeLocationName": "Salamanca",
   "dockPins": {
     "dock": [
       "competis",

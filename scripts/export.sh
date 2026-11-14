@@ -48,6 +48,13 @@ for f in "${FILES[@]}"; do
 done
 for f in "${EXCLUDE[@]}"; do rm -f "$DOT/$f"; done
 
+# ubicación (tiempo y modo noche): se queda en tu equipo, no va al repo público
+S="$DOT/.local/state/dms/session.json"
+if [ -f "$S" ]; then
+  jq 'del(.weatherLocation, .weatherCoordinates, .latitude, .longitude, .nightModeLocationName)' "$S" > "$S.tmp"
+  mv "$S.tmp" "$S"
+fi
+
 # bloque Crimson Ink: install.sh lo deja en ~/.config/trucha-os/trucha.bashrc; en sistemas antiguos estaba dentro del .bashrc
 if [ -s "$HOME/.config/trucha-os/trucha.bashrc" ]; then
   cp "$HOME/.config/trucha-os/trucha.bashrc" "$DOT/trucha.bashrc"

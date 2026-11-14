@@ -1,5 +1,5 @@
-[![CI](https://github.com/Gabriel-Vallejo/style-scent-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/Gabriel-Vallejo/style-scent-engine/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/Gabriel-Vallejo/style-scent-engine/blob/main/LICENSE)
+[![CI](https://github.com/Gabriel-Vallejo/trucha-os/actions/workflows/ci.yml/badge.svg)](https://github.com/Gabriel-Vallejo/trucha-os/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/Gabriel-Vallejo/trucha-os/blob/main/LICENSE)
 
 # 🐟 Trucha OS!
 
@@ -22,7 +22,7 @@ Funciona sobre **CachyOS / Arch** (recomendado: todo viene de repos/AUR) y **Ubu
 (niri y Quickshell se compilan).
 
 ```bash
-git clone <este-repo> ~/trucha-os
+git clone https://github.com/Gabriel-Vallejo/trucha-os.git ~/trucha-os
 cd ~/trucha-os
 ./install.sh
 ```
@@ -79,6 +79,9 @@ Cuando cambies algo en tu sistema:
 ```
 
 Las rutas `/home/<tú>` se guardan como `__HOME__` y el instalador las adapta al usuario de destino.
+Tu ubicación (la del tiempo y la del modo noche) no se exporta: tras instalar, ponla en los ajustes de DMS.
+
+Los tests (`tests/`) se pasan en cada push con GitHub Actions, en un contenedor de Arch.
 
 ## Estructura
 

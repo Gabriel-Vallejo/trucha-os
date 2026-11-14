@@ -1,0 +1,31 @@
+# Pasa los tests de tests/ en cada push y pull request.
+# Corre en un contenedor de Arch, la misma base que CachyOS (ImageMagick 7 trae `magick`).
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    steps:
+      - name: Dependencias
+        run: >
+          pacman -Syu --noconfirm --needed git nodejs python imagemagick ttf-dejavu
+          tesseract tesseract-data-eng tesseract-data-spa
+
+      - uses: actions/checkout@v4
+
+      - name: Utilidades (calculadora y conversiones)
+        run: node tests/utils.test.mjs
+
+      - name: Voz de Discord (RPC simulado)
+        run: python tests/discord_voice.test.py
+
+      - name: OCR (dms y wl-copy falsos)
+        run: bash tests/ocr.test.sh
