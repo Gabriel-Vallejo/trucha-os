@@ -13,7 +13,10 @@ spec = importlib.util.spec_from_loader("tc", loader)
 tc = importlib.util.module_from_spec(spec)
 loader.exec_module(tc)
 
-embedded, chats = [], []
+embedded, chats, generated = [], [], []
+digest = {"value": "aaa"}   # lo que Ollama dice tener del modelo de embeddings
+loaded = []                 # modelos «en la GPU» según /api/ps
+reply = {"content": "Usa una cola de prioridad [1]."}
 
 
 def vector(text, dims=256):
@@ -28,6 +31,15 @@ class FakeOllama(BaseHTTPRequestHandler):
     def log_message(self, *_):
         pass
 
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        if self.path == "/api/tags":
+            models = [{"name": tc.EMBED_MODEL, "digest": digest["value"]}] if digest["value"] else []
+            self.wfile.write(json.dumps({"models": models}).encode())
+        elif self.path == "/api/ps":
+            self.wfile.write(json.dumps({"models": [{"name": m} for m in loaded]}).encode())
+
     def do_POST(self):
         body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
         self.send_response(200)
@@ -37,9 +49,12 @@ class FakeOllama(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({"embeddings": [vector(t) for t in body["input"]]}).encode())
         elif self.path == "/api/chat":
             chats.append(body)
-            for part in ({"message": {"thinking": "pienso"}}, {"message": {"content": "Usa una cola de prioridad [1]."}},
+            for part in ({"message": {"thinking": "pienso"}}, {"message": reply},
                          {"done": True}):
                 self.wfile.write((json.dumps(part) + "\n").encode())
+        elif self.path == "/api/generate":
+            generated.append(body)
+            self.wfile.write(b"{}")
 
 
 server = ThreadingHTTPServer(("127.0.0.1", 0), FakeOllama)
@@ -113,6 +128,34 @@ assert run("ask", "!", "¿cómo va Dijkstra?")[0] == 0
 assert chats[-1]["think"] is True and chats[-1]["options"]["num_ctx"] == tc.THINK_CTX
 assert chats[-1]["messages"][1]["content"].endswith("Pregunta: ¿cómo va Dijkstra?")
 assert run("ask", "!!")[0] == 2
+
+# citas: no cuentan las de fórmulas, código o índices (a[2]); sí las seguidas [2][1]
+reply["content"] = "Mira $x[2]$, `v[2]` y a[2]; lo dice [1]."
+out = run("ask", "Dijkstra grafo camino")[1].split("Fuentes")[1]
+assert "[1]" in out and "[2]" not in out, out
+reply["content"] = "Lo dicen [2][1]."
+out = run("ask", "Dijkstra grafo camino")[1].split("Fuentes")[1]
+assert "[1]" in out and "[2]" in out, out
+reply["content"] = "Usa una cola de prioridad [1]."
+
+# warm carga el modelo de chat; con muchas notas cambiadas se saca de la GPU antes de indexar
+assert run("warm")[0] == 0 and generated[-1] == {"model": "modelo-falso", "keep_alive": "10m"}
+loaded.append("modelo-falso")
+tc.BULK = 1
+assert run("index")[0] == 0 and generated[-1] == {"model": "modelo-falso", "keep_alive": 0}
+tc.BULK = 20
+
+# si Ollama actualiza el modelo de embeddings (otro digest), se rehace todo; si falta, se avisa
+embedded.clear()
+digest["value"] = "bbb"
+assert tc.update(db) == 2 and len(embedded) == 2
+digest["value"] = ""
+try:
+    tc.update(db)
+    raise AssertionError("debía fallar")
+except SystemExit as e:
+    assert "ollama pull" in str(e), e
+digest["value"] = "bbb"
 
 # index rehace todo; sin pregunta o con orden desconocida enseña la ayuda
 embedded.clear()

@@ -5,9 +5,10 @@
   trucha-copilot ask "!pregunta"    igual, pero el modelo razona antes (más lento, para lo pesado)
   trucha-copilot search "texto"     solo la búsqueda, sin modelo (para depurar)
   trucha-copilot index              rehace el índice entero
+  trucha-copilot warm               carga el modelo de chat en la GPU (lo usa el lanzador al abrirse)
 
 En cada pregunta el índice se pone al día solo: vuelve a procesar las notas nuevas o cambiadas
-y quita las borradas. Solo habla con Ollama en 127.0.0.1; ni las notas ni las preguntas salen del equipo.
+y quita las borradas; si Ollama actualiza el modelo de embeddings, lo rehace entero. Solo habla con Ollama en 127.0.0.1; ni las notas ni las preguntas salen del equipo.
 Índice en ~/.local/state/trucha-os/copilot.db (SQLite, vectores float32)."""
 import heapq
 import json
@@ -36,7 +37,11 @@ NUM_CTX = 8192        # con 16k qwen3.5:9b ya no cabe en los 8 GB de la GPU y ba
 THINK_CTX = 16384     # razonando gasta 2-5k tokens más: mejor algo más lento que cortado
 SKIP = {"graphify-out"}
 ROOT_SKIP = {"CLAUDE.md", "AGENTS.md"}   # instrucciones para asistentes, no apuntes
+BULK = 20             # con más notas que indexar, se saca el chat de la GPU: si no, los embeddings van a la CPU (4x más lentos)
 HEADING = re.compile(r"^(#{1,6})\s+(.*)")
+# [n] solo cuenta como cita fuera de fórmulas y código, y si no va pegado a un nombre (a[1], x_i[2])
+NOT_PROSE = re.compile(r"\$\$.*?\$\$|\$[^$\n]*\$|```.*?```|`[^`\n]*`", re.S)
+CITE = re.compile(r"(?<![\w)])\[(\d+)\]")
 
 SYSTEM = """Eres Trucha Copilot, un asistente de estudio que responde a partir de los apuntes de la carrera del usuario.
 Responde en español, de tú a tú y al grano, usando SOLO los fragmentos de sus apuntes que te pasa.
@@ -105,8 +110,10 @@ def chunks(rel, text):
     return out
 
 
-def ollama(path, body, stream=False):
-    req = urllib.request.Request(OLLAMA + path, json.dumps(body).encode(), {"Content-Type": "application/json"})
+def ollama(path, body=None, stream=False):
+    """POST con cuerpo JSON (GET si no hay cuerpo) a la API de Ollama."""
+    data = None if body is None else json.dumps(body).encode()
+    req = urllib.request.Request(OLLAMA + path, data, {"Content-Type": "application/json"})
     try:
         resp = urllib.request.urlopen(req, timeout=900)
     except urllib.error.HTTPError as e:
@@ -127,6 +134,19 @@ def embed(texts):
     return [[x / (math.hypot(*v) or 1) for x in v] for v in vecs]
 
 
+def embed_version():
+    """«modelo@digest» del modelo de embeddings: si Ollama lo actualiza con el mismo nombre, cambia."""
+    for m in ollama("/api/tags").get("models", []):
+        if m.get("name") == EMBED_MODEL:
+            return f"{EMBED_MODEL}@{m.get('digest', '')}"
+    raise SystemExit(f"Falta el modelo de embeddings. Descárgalo con:  ollama pull {EMBED_MODEL}")
+
+
+def unload_chat():
+    if any(m.get("name") == CHAT_MODEL for m in ollama("/api/ps").get("models", [])):
+        ollama("/api/generate", {"model": CHAT_MODEL, "keep_alive": 0})
+
+
 def connect():
     DB.parent.mkdir(parents=True, exist_ok=True)
     db = sqlite3.connect(DB)
@@ -142,17 +162,20 @@ def update(db, full=False):
     """Pone el índice al día: procesa las notas nuevas o cambiadas y quita las borradas."""
     if not VAULT.is_dir():
         raise SystemExit(f"No encuentro el vault en {VAULT} (cámbialo con TRUCHA_COPILOT_VAULT)")
-    model = db.execute("SELECT value FROM meta WHERE key = 'embed'").fetchone()
-    if full or not model or model[0] != EMBED_MODEL:
+    version = embed_version()
+    stored = db.execute("SELECT value FROM meta WHERE key = 'embed'").fetchone()
+    if full or not stored or stored[0] != version:
         db.execute("DELETE FROM notes")
         db.execute("DELETE FROM chunks")
-        db.execute("INSERT OR REPLACE INTO meta VALUES ('embed', ?)", (EMBED_MODEL,))
+        db.execute("INSERT OR REPLACE INTO meta VALUES ('embed', ?)", (version,))
     current = notes(VAULT)
     known = dict(db.execute("SELECT path, stamp FROM notes"))
     for path in known.keys() - current.keys():
         db.execute("DELETE FROM notes WHERE path = ?", (path,))
         db.execute("DELETE FROM chunks WHERE path = ?", (path,))
     changed = sorted(p for p, stamp in current.items() if known.get(p) != stamp)
+    if len(changed) > BULK:
+        unload_chat()
     for i, path in enumerate(changed, 1):
         print(f"\rIndexando apuntes {i}/{len(changed)}", end="", file=sys.stderr, flush=True)
         texts = chunks(path, (VAULT / path).read_text(errors="replace"))
@@ -209,7 +232,7 @@ def ask(db, question):
             answer += msg["content"]
             print(msg["content"], end="", flush=True)
     print("\033[0m")
-    cited = sorted({int(n) for n in re.findall(r"\[(\d+)\]", answer) if 1 <= int(n) <= len(hits)})
+    cited = sorted({int(n) for n in CITE.findall(NOT_PROSE.sub("", answer)) if 1 <= int(n) <= len(hits)})
     print("\n\033[1mFuentes\033[0m" if cited else "\n\033[1mFragmentos consultados\033[0m")
     for i in cited or range(1, len(hits) + 1):
         _, path, head, _ = hits[i - 1]
@@ -220,6 +243,9 @@ def ask(db, question):
 def main(argv):
     cmd = argv[1] if len(argv) > 1 else ""
     text = " ".join(argv[2:]).strip()
+    if cmd == "warm":
+        ollama("/api/generate", {"model": CHAT_MODEL, "keep_alive": "10m"})
+        return 0
     if cmd not in ("ask", "search", "index") or (cmd != "index" and not text):
         print(__doc__)
         return 2

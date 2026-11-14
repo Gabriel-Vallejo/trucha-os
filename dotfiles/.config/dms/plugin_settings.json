@@ -43,5 +43,8 @@
   },
   "truchaCopilot": {
     "enabled": true
+  },
+  "truchaCopilotBar": {
+    "enabled": true
   }
 }

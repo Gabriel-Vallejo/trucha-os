@@ -97,5 +97,3 @@ zbar
 jq
 # gestor de archivos (Win+E)
 nautilus
-# Trucha Copilot: IA local sobre los apuntes (Ollama con CUDA)
-ollama-cuda

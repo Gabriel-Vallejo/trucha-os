@@ -102,9 +102,16 @@ if [ "$MODE" = full ]; then
 fi
 
 # ── 6. Trucha Copilot: Ollama en la GPU, modelos e índice de los apuntes ────
-if [ "$MODE" = full ] && [ "$FAMILY" = arch ]; then
+# solo en el modo completo: en un live no compensan los ~10 GB de CUDA y modelos
+if [ "$MODE" = full ]; then
   say "Trucha Copilot (Ollama)"
+  if [ "$FAMILY" = arch ]; then
+    sudo pacman -S --needed --noconfirm ollama-cuda
+  elif ! command -v ollama >/dev/null; then
+    curl -fsSL https://ollama.com/install.sh | sh   # instalador oficial: binario, servicio y CUDA
+  fi
   sudo systemctl enable --now ollama
+  for _ in $(seq 30); do ollama list >/dev/null 2>&1 && break; sleep 1; done
   # los modelos son los que fija el script (CHAT_MODEL y EMBED_MODEL)
   for m in $(sed -nE 's/^(CHAT|EMBED)_MODEL = .*"([^"]+)"$/\2/p' "$HOME/.local/bin/trucha-copilot"); do ollama pull "$m"; done
   if [ -d "$HOME/Truchilla" ]; then "$HOME/.local/bin/trucha-copilot" index
