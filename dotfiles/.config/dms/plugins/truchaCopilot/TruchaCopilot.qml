@@ -5,7 +5,6 @@ import qs.Services
 // Trucha Copilot: se abre con "¿" en el lanzador (⊞+Espacio) o con su botón de la barra.
 // ("?" no sirve: desde DMS 2.1 es el buscador de ajustes integrado.) Escribe la pregunta y pulsa Intro:
 // la pregunta se abre en un chat nuevo de la app Trucha Copilot (trucha-copilot-app), con Ollama en local.
-// Empieza la pregunta por "!" para que el modelo razone antes (más lento, para lo pesado).
 Item {
     id: root
 
@@ -28,10 +27,10 @@ Item {
         const q = (query || "").trim();
         if (q === "") {
             warm();
-            return [{ name: "Pregunta a tus apuntes", comment: "Escribe la pregunta y pulsa Intro · con ! delante, razona antes",
+            return [{ name: "Pregunta a tus apuntes", comment: "Escribe la pregunta y pulsa Intro · se abre en Trucha Copilot",
                       icon: "material:school", action: "hint", categories: ["Trucha Copilot"] }];
         }
-        return [{ name: q, comment: q.startsWith("!") ? "Razonar con tus apuntes · Intro (más lento)" : "Preguntar a tus apuntes · Intro", icon: "material:question_answer",
+        return [{ name: q, comment: "Preguntar a tus apuntes · Intro", icon: "material:question_answer",
                   action: "ask:" + q, categories: ["Trucha Copilot"] }];
     }
 
