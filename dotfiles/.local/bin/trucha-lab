@@ -1,0 +1,233 @@
+#!/usr/bin/env python3
+"""trucha-lab — practica CTF con cronómetro y apunta cada reto en el vault.
+
+  trucha-lab plan [--semana N]   retos pendientes de la semana del plan de 8 semanas
+  trucha-lab start <reto>        empieza el cronómetro (un reto del plan, un lab o uno libre)
+  trucha-lab status              qué reto llevas y cuánto tiempo
+  trucha-lab done                para, escribe el writeup en el vault y marca ✅ en el plan
+  trucha-lab cancel              para sin escribir nada
+  trucha-lab labs                laboratorios web en Docker (start juice-shop, dvwa, webgoat)
+
+Los labs solo escuchan en 127.0.0.1. Los writeups van a 20_Contexto/Writeups de práctica/
+y se enlazan desde [[Writeups de práctica - CTF]]. Vault en ~/Truchilla (o TRUCHA_LAB_VAULT).
+Sesión en ~/.local/state/trucha-os/lab.json."""
+import datetime as dt
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import urllib.parse
+from pathlib import Path
+
+HOME = Path.home()
+VAULT = Path(os.environ.get("TRUCHA_LAB_VAULT") or HOME / "Truchilla")
+CTX = VAULT / "20_Contexto"
+PLAN = CTX / "Plan de práctica de 8 semanas - CTF.md"
+HUB_NAME = "Writeups de práctica - CTF"
+HUB = CTX / f"{HUB_NAME}.md"
+WRITEUPS = CTX / "Writeups de práctica"
+STATE = Path(os.environ.get("XDG_STATE_HOME") or HOME / ".local/state") / "trucha-os/lab.json"
+PLAN_INICIO = dt.date(2026, 10, 19)  # lunes de la semana 1 del plan
+SEMANAS = 8
+# nombre: (imagen, puerto local, puerto del contenedor, ruta, descripción)
+LABS = {
+    "juice-shop": ("bkimminich/juice-shop", 3000, 3000, "", "OWASP Juice Shop: tienda con todo el Top 10"),
+    "dvwa": ("vulnerables/web-dvwa", 8081, 80, "", "DVWA: SQLi, XSS, subida de ficheros (admin / password)"),
+    "webgoat": ("webgoat/webgoat", 8082, 8080, "/WebGoat", "WebGoat: lecciones web guiadas"),
+}
+
+
+def now():
+    return dt.datetime.now()
+
+
+def rows(text):
+    """Filas de reto del plan: (nº de línea, semana, celdas). Solo tablas bajo «## Semana N»."""
+    semana = None
+    for i, line in enumerate(text.split("\n")):
+        if line.startswith("## "):
+            m = re.match(r"## Semana (\d+)", line)
+            semana = int(m.group(1)) if m else None
+        elif semana and line.startswith("|"):
+            cells = [c.strip() for c in line.strip().strip("|").split("|")]
+            if len(cells) == 5 and cells[4][:1] in ("⬜", "✅"):
+                yield i, semana, cells
+
+
+def read_plan():
+    if not PLAN.exists():
+        sys.exit(f"No encuentro el plan en {PLAN}")
+    return PLAN.read_text(encoding="utf-8")
+
+
+def find_row(text, reto):
+    return next((r for r in rows(text) if r[2][1].casefold() == reto.casefold()), None)
+
+
+def clock(seconds):
+    h, rest = divmod(int(seconds), 3600)
+    return f"{h}:{rest // 60:02}:{rest % 60:02}" if h else f"{rest // 60:02}:{rest % 60:02}"
+
+
+def load():
+    return json.loads(STATE.read_text()) if STATE.exists() else None
+
+
+def elapsed(s):
+    return (now() - dt.datetime.fromisoformat(s["inicio"])).total_seconds()
+
+
+def lab_url(name):
+    _, port, _, path, _ = LABS[name]
+    return f"http://127.0.0.1:{port}{path}"
+
+
+def cmd_plan(args):
+    text = read_plan()
+    if args[:1] == ["--semana"] and len(args) == 2 and args[1].isdigit():
+        n = int(args[1])
+    else:
+        n = min(max((now().date() - PLAN_INICIO).days // 7 + 1, 1), SEMANAS)
+    titulo = next((l[3:] for l in text.split("\n") if re.match(rf"## Semana {n}\b", l)), f"Semana {n}")
+    week = [c for _, s, c in rows(text) if s == n]
+    hechos = sum(c[4].startswith("✅") for c in week)
+    print(f"{titulo}: {hechos}/{len(week)} hechos")
+    for c in week:
+        if c[4].startswith("⬜"):
+            print(f"  ⬜ {c[1]}  ·  {c[0]} · {c[2]} · {c[3]}")
+    print("Empieza uno con: trucha-lab start <reto>")
+    return 0
+
+
+def cmd_start(args):
+    reto = " ".join(args).strip()
+    if not reto:
+        sys.exit("Falta el reto: trucha-lab start <reto>")
+    s = load()
+    if s:
+        sys.exit(f"Ya estás con «{s['reto']}» ({clock(elapsed(s))}). Termina con trucha-lab done o cancel.")
+    s = {"reto": reto, "plataforma": "", "categoria": "", "dificultad": "", "semana": None, "lab": None}
+    if reto in LABS:
+        image, port, cport, _, desc = LABS[reto]
+        print(f"Arrancando {image} (la primera vez baja la imagen)…", flush=True)
+        r = subprocess.run(["docker", "run", "-d", "--rm", "--name", f"trucha-lab-{reto}",
+                            "-p", f"127.0.0.1:{port}:{cport}", image], capture_output=True, text=True)
+        if r.returncode:
+            sys.exit(f"Docker no pudo arrancar {reto}: {r.stderr.strip()}")
+        s.update(plataforma="Trucha Lab", categoria="Web", lab=reto)
+        print(f"🧪 {desc}\n   {lab_url(reto)}  (tarda unos segundos en responder)")
+    elif row := find_row(read_plan(), reto):
+        _, semana, c = row
+        s.update(reto=c[1], plataforma=c[0], categoria=c[2], dificultad=c[3], semana=semana)
+        print(f"🎯 {c[1]} · {c[0]} · {c[2]} · {c[3]} (semana {semana})")
+    else:
+        print(f"🎯 {reto}: reto fuera del plan, el writeup irá igual al vault")
+    s["inicio"] = now().isoformat(timespec="seconds")
+    STATE.parent.mkdir(parents=True, exist_ok=True)
+    STATE.write_text(json.dumps(s, ensure_ascii=False))
+    print("⏱  Cronómetro en marcha. Al acabar: trucha-lab done")
+    return 0
+
+
+def cmd_status(_):
+    s = load()
+    if not s:
+        print("No hay ninguna sesión en marcha.")
+        return 0
+    extra = f" · {lab_url(s['lab'])}" if s["lab"] else ""
+    print(f"⏱  {clock(elapsed(s))} · {s['reto']}" + (f" · {s['plataforma']}" if s["plataforma"] else "") + extra)
+    return 0
+
+
+def stop(s):
+    STATE.unlink()
+    if s["lab"]:
+        subprocess.run(["docker", "stop", f"trucha-lab-{s['lab']}"], capture_output=True)
+
+
+def cmd_cancel(_):
+    s = load()
+    if not s:
+        sys.exit("No hay ninguna sesión en marcha.")
+    stop(s)
+    print(f"Cancelado «{s['reto']}» ({clock(elapsed(s))}). No he escrito nada.")
+    return 0
+
+
+def yaml(v):
+    return v if re.fullmatch(r"[\w .()–-]+", v) else json.dumps(v, ensure_ascii=False)
+
+
+def note_name(reto, fecha):
+    base = "Writeup - " + " ".join(re.sub(r'[\\/:*?"<>|#^\[\]]', " ", reto).split())
+    name, n = base, 1
+    while (WRITEUPS / f"{name}.md").exists():
+        name = f"{base} ({fecha})" if n == 1 else f"{base} ({fecha} {n})"
+        n += 1
+    return name
+
+
+def cmd_done(_):
+    s = load()
+    if not s:
+        sys.exit("No hay ninguna sesión en marcha.")
+    mins = max(1, round(elapsed(s) / 60))
+    fecha = now().date().isoformat()
+    name = note_name(s["reto"], fecha)
+    ficha = [x for x in (s["plataforma"], s["categoria"], s["dificultad"]) if x] + [f"{mins} min", fecha]
+    if s["semana"]:
+        ficha.append(f"semana {s['semana']} del [[Plan de práctica de 8 semanas - CTF]]")
+    meta = {k: s[k] for k in ("reto", "plataforma", "categoria", "dificultad") if s[k]}
+    front = "".join(f"{k}: {yaml(v)}\n" for k, v in meta.items())
+    if s["semana"]:
+        front += f"semana: {s['semana']}\n"
+    WRITEUPS.mkdir(parents=True, exist_ok=True)
+    (WRITEUPS / f"{name}.md").write_text(
+        f"---\ntipo: contexto\ntags: [contexto, ctf, writeup]\nactualizado: {fecha}\n{front}"
+        f"tiempo: {mins} min\nfecha: {fecha}\n---\n\n# {name}\n\n"
+        f"🧭 [[Inicio]] › Contexto › [[{HUB_NAME}]]\n\n> [!info] Ficha\n> {' · '.join(ficha)}\n\n"
+        "## Enunciado\n\n\n## Qué probé\n\n\n## Solución\n\n%% Sin flags ni credenciales. %%\n\n## Lo aprendido\n\n", encoding="utf-8")
+    # ✅ en el plan: solo se toca la fila del reto, el resto del archivo queda igual
+    if s["semana"] and (row := find_row(text := read_plan(), s["reto"])) and row[2][4].startswith("⬜"):
+        i, _, c = row
+        lines = text.split("\n")
+        lines[i] = "| " + " | ".join(c[:4] + [f"✅ [[{name}]] ({mins} min)"]) + " |"
+        tmp = PLAN.with_name(PLAN.name + ".tmp")  # atómico: un corte a mitad no trunca el plan
+        tmp.write_text("\n".join(lines), encoding="utf-8")
+        os.replace(tmp, PLAN)
+    if not HUB.exists():
+        HUB.write_text(f"---\ntipo: contexto\ntags: [contexto, ctf, writeup]\nactualizado: {fecha}\n---\n\n"
+                       f"# {HUB_NAME}\n\n🧭 [[Inicio]] › Contexto\n\nWriteups de los retos de práctica que "
+                       "apunta `trucha-lab done`, del más antiguo al más reciente.\n\n", encoding="utf-8")
+    with HUB.open("a", encoding="utf-8") as f:
+        f.write(f"- [[{name}]] · {' · '.join(ficha[:-1] if s['semana'] else ficha)}\n")
+    stop(s)
+    print(f"✅ {s['reto']} en {mins} min → {WRITEUPS.relative_to(VAULT)}/{name}.md")
+    if sys.stdout.isatty() and shutil.which("xdg-open"):
+        rel = urllib.parse.quote(str((WRITEUPS / name).relative_to(VAULT)))
+        subprocess.run(["xdg-open", f"obsidian://open?vault={urllib.parse.quote(VAULT.name)}&file={rel}"],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    return 0
+
+
+def cmd_labs(_):
+    for name, (image, *_, desc) in LABS.items():
+        print(f"  {name:<11} {lab_url(name):<32} {desc}  [{image}]")
+    return 0
+
+
+COMMANDS = {"plan": cmd_plan, "start": cmd_start, "status": cmd_status, "done": cmd_done,
+            "cancel": cmd_cancel, "labs": cmd_labs}
+
+
+def main(argv):
+    if not argv or argv[0] not in COMMANDS:
+        print(__doc__)
+        return 2
+    return COMMANDS[argv[0]](argv[1:])
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

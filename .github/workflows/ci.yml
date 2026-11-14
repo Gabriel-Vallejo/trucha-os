@@ -37,5 +37,8 @@ jobs:
       - name: Trucha Copilot, Markdown y LaTeX seguros
         run: node tests/copilot_render.test.mjs
 
+      - name: Trucha Lab (vault de juguete y docker falso)
+        run: python tests/lab.test.py
+
       - name: OCR (dms y wl-copy falsos)
         run: bash tests/ocr.test.sh
