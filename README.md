@@ -301,6 +301,7 @@ Se pasan en cada push con GitHub Actions, en un contenedor `archlinux:latest`.
 | `copilot.test.py` | Troceado, índice incremental, búsqueda y citas contra un Ollama simulado |
 | `copilot_app.test.py` | Chats, memoria, parar y errores de la app |
 | `copilot_render.test.mjs` | Markdown y LaTeX seguros (sin HTML ni enlaces peligrosos) |
+| `lab.test.py` | Plan, cronómetro, writeups y labs de Trucha Lab con un vault de juguete y `docker` falso |
 | `ocr.test.sh` | OCR con `dms` y `wl-copy` falsos |
 
 ---
@@ -317,6 +318,7 @@ dotfiles/                        el $HOME de Trucha OS! (niri, DMS, kitty, temas
   .config/dms/plugins/           widgets y modos del lanzador (truchaCopilot, truchaUtils, competis…)
   .local/bin/trucha-copilot      RAG local: índice, búsqueda y respuesta con Ollama
   .local/bin/trucha-copilot-app  la app de Trucha Copilot (GTK + WebKitGTK)
+  .local/bin/trucha-lab          práctica de CTF: cronómetro, labs en Docker y writeups al vault
   .local/share/trucha-os/copilot interfaz HTML de la app, Truchi y KaTeX/marked
 system/keyd.conf                 tecla ⊞ sola = lanzador
 scripts/export.sh                sistema → repo
