@@ -291,6 +291,7 @@
       "rightWidgets": [
         "truchaCopilotBar",
         "truchaDiscord",
+        "truchaLab",
         "quickCapture",
         "systemTray",
         "notificationButton",

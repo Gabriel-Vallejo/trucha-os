@@ -4,7 +4,8 @@
   trucha-lab plan [--semana N]   retos pendientes de la semana del plan de 8 semanas
   trucha-lab start <reto>        empieza el cronómetro (un reto del plan, un lab o uno libre)
   trucha-lab status              qué reto llevas y cuánto tiempo
-  trucha-lab done                para, escribe el writeup en el vault y marca ✅ en el plan
+  trucha-lab done [--abrir]      para, escribe el writeup en el vault y marca ✅ en el plan
+                                 (lo abre en Obsidian desde una terminal, o siempre con --abrir)
   trucha-lab cancel              para sin escribir nada
   trucha-lab labs                laboratorios web en Docker (start juice-shop, dvwa, webgoat)
 
@@ -169,7 +170,7 @@ def note_name(reto, fecha):
     return name
 
 
-def cmd_done(_):
+def cmd_done(args):
     s = load()
     if not s:
         sys.exit("No hay ninguna sesión en marcha.")
@@ -205,7 +206,7 @@ def cmd_done(_):
         f.write(f"- [[{name}]] · {' · '.join(ficha[:-1] if s['semana'] else ficha)}\n")
     stop(s)
     print(f"✅ {s['reto']} en {mins} min → {WRITEUPS.relative_to(VAULT)}/{name}.md")
-    if sys.stdout.isatty() and shutil.which("xdg-open"):
+    if (sys.stdout.isatty() or "--abrir" in args) and shutil.which("xdg-open"):
         rel = urllib.parse.quote(str((WRITEUPS / name).relative_to(VAULT)))
         subprocess.run(["xdg-open", f"obsidian://open?vault={urllib.parse.quote(VAULT.name)}&file={rel}"],
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)

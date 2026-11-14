@@ -46,5 +46,8 @@
   },
   "truchaCopilotBar": {
     "enabled": true
+  },
+  "truchaLab": {
+    "enabled": true
   }
 }

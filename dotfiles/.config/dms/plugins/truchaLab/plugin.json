@@ -1,0 +1,13 @@
+{
+    "id": "truchaLab",
+    "name": "Trucha · Lab",
+    "description": "Cronómetro del reto de CTF en curso (trucha-lab), con terminar, cancelar y abrir el lab; solo se ve con un reto en marcha",
+    "version": "1.0.0",
+    "author": "Gabriel",
+    "type": "widget",
+    "capabilities": ["dankbar-widget"],
+    "component": "./TruchaLab.qml",
+    "icon": "timer",
+    "requires_dms": ">=2.0.0",
+    "permissions": ["settings_read"]
+}

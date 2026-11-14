@@ -134,6 +134,14 @@ clock["t"] += dt.timedelta(minutes=1)
 assert run("done")[0] == 0
 assert (WU / "Writeup - reto raro feo 1 (2026-11-14).md").exists(), list(WU.iterdir())
 
+# done --abrir (lo usa el widget de la barra, sin terminal) abre el writeup en Obsidian
+XDG_LOG = TMP / "xdg.log"
+(BIN / "xdg-open").write_text(f'#!/bin/sh\necho "$@" >> "{XDG_LOG}"\n')
+(BIN / "xdg-open").chmod(0o755)
+run("start", "otro reto")
+assert run("done", "--abrir")[0] == 0
+assert XDG_LOG.read_text().strip() == "obsidian://open?vault=vault&file=20_Contexto/Writeups%20de%20pr%C3%A1ctica/Writeup%20-%20otro%20reto", XDG_LOG.read_text()
+
 # un lab que falla al arrancar no deja sesión colgada
 (BIN / "docker").write_text("#!/bin/sh\necho 'port is already allocated' >&2\nexit 1\n")
 code, out = run("start", "dvwa")

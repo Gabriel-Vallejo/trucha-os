@@ -150,7 +150,7 @@ $ trucha-lab done
 | `plan [--semana N]` | Retos pendientes de la semana actual del plan |
 | `start <reto>` | Arranca el cronómetro con un reto del plan, un lab o uno libre |
 | `status` | Reto en curso y tiempo |
-| `done` | Para, crea el writeup con su ficha, cambia ⬜ por ✅ en la tabla del plan y lo apunta en el hub de writeups |
+| `done [--abrir]` | Para, crea el writeup con su ficha, cambia ⬜ por ✅ en la tabla del plan y lo apunta en el hub de writeups (`--abrir` lo abre en Obsidian aunque no haya terminal) |
 | `cancel` | Para sin escribir nada |
 | `labs` | Labs web en Docker: Juice Shop (`:3000`), DVWA (`:8081`) y WebGoat (`:8082`) |
 
@@ -158,6 +158,16 @@ $ trucha-lab done
 - En el plan solo cambia la fila del reto, y se escribe de forma atómica.
 - La plantilla del writeup recuerda que no se apuntan flags ni credenciales.
 - Sesión en `~/.local/state/trucha-os/lab.json`. Otro vault: `TRUCHA_LAB_VAULT=/ruta`.
+
+<img src="docs/img/lab-popout.png" width="300" align="right" alt="Popout de Trucha Lab: el reto juice-shop, el cronómetro en carmesí, la URL del lab y los botones Terminar, Cancelar y Abrir lab">
+
+**En la barra.** Con un reto en marcha aparece un cronómetro carmesí. En la barra vertical lleva los minutos debajo y en la horizontal, `mm:ss`. Al pulsarlo se abre el popout:
+- **Terminar** hace `done --abrir`: escribe el writeup y lo abre en Obsidian.
+- **Cancelar** para sin escribir nada.
+- **Abrir lab** lleva al navegador.
+
+Sin reto en marcha, el widget no ocupa sitio.
+<br clear="right">
 
 ---
 
@@ -264,6 +274,7 @@ En el lanzador, el primer carácter elige el modo:
 |---|---|
 | 🧠 Trucha Copilot | Abre la app (clic) o el lanzador con `¿` (clic derecho) |
 | 🎧 Voz de Discord | Quién está en la llamada y quién habla, con silenciar y ensordecer |
+| ⏱️ Trucha Lab | Cronómetro del reto de CTF en curso, con terminar (writeup al vault), cancelar y abrir el lab; solo se ve con un reto en marcha |
 
 ### 🎧 Voz de Discord
 
