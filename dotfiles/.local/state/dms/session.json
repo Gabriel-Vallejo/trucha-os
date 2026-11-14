@@ -102,32 +102,13 @@
     "dock": [
       "competis",
       "kitty",
+      "com.anthropic.Claude",
       "google-chrome",
-      "code",
-      "com.system76.CosmicFiles",
+      "discord",
+      "spotify-launcher",
       "obsidian",
-      "jetbrains-datagrip-8987bc10-d4a9-4655-9157-7f580fe7aa0b",
-      "com.anthropic.Claude"
+      "steam"
     ]
   },
-  "launcherLastQuery": "dis",
-  "launcherQueryHistory": [
-    "dis",
-    "cla",
-    "claude",
-    "%",
-    "d",
-    "vsc",
-    "discord",
-    "stea",
-    "steam",
-    "google",
-    "obsid",
-    "disco",
-    "@",
-    "cyber",
-    "@ cyber",
-    "clad"
-  ],
   "configVersion": 7
 }

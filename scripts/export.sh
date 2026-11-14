@@ -48,10 +48,11 @@ for f in "${FILES[@]}"; do
 done
 for f in "${EXCLUDE[@]}"; do rm -f "$DOT/$f"; done
 
-# ubicación (tiempo y modo noche): se queda en tu equipo, no va al repo público
+# ubicación (tiempo y modo noche) e historial del lanzador: se quedan en tu equipo, no van al repo público
 S="$DOT/.local/state/dms/session.json"
 if [ -f "$S" ]; then
-  jq 'del(.weatherLocation, .weatherCoordinates, .latitude, .longitude, .nightModeLocationName)' "$S" > "$S.tmp"
+  jq 'del(.weatherLocation, .weatherCoordinates, .latitude, .longitude, .nightModeLocationName,
+          .launcherLastQuery, .launcherQueryHistory)' "$S" > "$S.tmp"
   mv "$S.tmp" "$S"
 fi
 
