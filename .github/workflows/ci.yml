@@ -1,5 +1,6 @@
 # Pasa los tests de tests/ en cada push y pull request.
 # Corre en un contenedor de Arch, la misma base que CachyOS (ImageMagick 7 trae `magick`).
+# gsfonts: sin ella ImageMagick no tiene fuente por defecto y el test de OCR no puede dibujar el texto.
 name: CI
 
 on:
@@ -16,7 +17,7 @@ jobs:
     steps:
       - name: Dependencias
         run: >
-          pacman -Syu --noconfirm --needed git nodejs python imagemagick ttf-dejavu
+          pacman -Syu --noconfirm --needed git nodejs python imagemagick gsfonts
           tesseract tesseract-data-eng tesseract-data-spa
 
       - uses: actions/checkout@v4
