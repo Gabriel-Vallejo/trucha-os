@@ -27,7 +27,7 @@ FILES=(
   .config/autostart/nm-applet.desktop .config/autostart/org.gnome.Evolution-alarm-notify.desktop
   .config/autostart/nvidia-settings-autostart.desktop
   .local/bin/trucha-theme .local/bin/trucha-ocr .local/bin/trucha-discord-voice .local/bin/trucha-theme-assets .local/bin/fondo .local/bin/trucha-clock
-  .local/bin/trucha-showcase .local/bin/trucha-copilot .local/bin/trucha-copilot-app .local/bin/cyberchef .local/bin/discord .local/bin/niri-nuevo-escritorio
+  .local/bin/trucha-showcase .local/bin/trucha-copilot .local/bin/trucha-copilot-app .local/bin/trucha-lab .local/bin/cyberchef .local/bin/discord .local/bin/niri-nuevo-escritorio
   .local/share/applications/competis.desktop .local/share/applications/cyberchef-offline.desktop
   .local/share/applications/trucha-copilot.desktop
   .local/share/trucha-os

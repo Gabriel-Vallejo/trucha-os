@@ -31,10 +31,11 @@
 | 🎨 **Temas** | Crimson Ink · Miku Dark · Nino Dark · Marin Dark · Resident Evil · Ceniza, con un atajo (⊞+Alt+T) |
 | 🖼️ **Escritorio** | fondo animado (linux-wallpaperengine), reloj pixel, kanji vertical, cava, monitor, tiempo, calendario (十一月), letras, pétalos |
 | 🧠 **Trucha Copilot** | IA local que responde con **mis apuntes** y cita la nota: app con chats y mascota, o `¿` en el lanzador |
+| 🧪 **Trucha Lab** | Práctica de CTF con cronómetro en la barra, labs web en Docker y writeup al vault al acabar cada reto |
 | 🛡️ **CTF** | **Competis** (⊞+Shift+Espacio), **Utilidades** con `=` (base64, hex, rot13, timestamps…) y OCR de una zona (⊞+Shift+X) |
 | 💻 **Terminal** | kitty + starship + fastfetch con el torii |
 | 🚀 **Arranque** | Plymouth con la trucha y tema de rEFInd |
-| ✅ **Calidad** | 6 suites de tests (Python, node y bash) en cada push, en un contenedor de Arch |
+| ✅ **Calidad** | 7 suites de tests (Python, node y bash) en cada push, en un contenedor de Arch |
 
 ---
 
@@ -158,6 +159,11 @@ $ trucha-lab done
 - En el plan solo cambia la fila del reto, y se escribe de forma atómica.
 - La plantilla del writeup recuerda que no se apuntan flags ni credenciales.
 - Sesión en `~/.local/state/trucha-os/lab.json`. Otro vault: `TRUCHA_LAB_VAULT=/ruta`.
+- Necesita el plan en `20_Contexto/Plan de práctica de 8 semanas - CTF.md` dentro del vault. Para `labs`, Docker activo y tu usuario en el grupo `docker`: `install.sh` instala el paquete, pero no lo activa.
+
+  ```bash
+  sudo systemctl enable --now docker && sudo usermod -aG docker "$USER"   # y vuelve a entrar
+  ```
 
 **En la barra.** El cronómetro está siempre en la barra.
 
@@ -364,7 +370,7 @@ Se pasan en cada push con GitHub Actions, en un contenedor `archlinux:latest`.
 install.sh                       instalador (completo, --live, --solo-config)
 packages/                        arch.txt · aur.txt · ubuntu.txt
 dotfiles/                        el $HOME de Trucha OS! (niri, DMS, kitty, temas, widgets, scripts…)
-  .config/dms/plugins/           widgets y modos del lanzador (truchaCopilot, truchaUtils, competis…)
+  .config/dms/plugins/           widgets y modos del lanzador (truchaCopilot, truchaLab, truchaUtils, competis…)
   .local/bin/trucha-copilot      RAG local: índice, búsqueda y respuesta con Ollama
   .local/bin/trucha-copilot-app  la app de Trucha Copilot (GTK + WebKitGTK)
   .local/bin/trucha-lab          práctica de CTF: cronómetro, labs en Docker y writeups al vault
