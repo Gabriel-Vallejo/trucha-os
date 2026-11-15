@@ -159,10 +159,10 @@ $ trucha-lab done
 - En el plan solo cambia la fila del reto, y se escribe de forma atómica.
 - La plantilla del writeup recuerda que no se apuntan flags ni credenciales.
 - Sesión en `~/.local/state/trucha-os/lab.json`. Otro vault: `TRUCHA_LAB_VAULT=/ruta`.
-- Necesita el plan en `20_Contexto/Plan de práctica de 8 semanas - CTF.md` dentro del vault. Para `labs`, Docker activo y tu usuario en el grupo `docker`: `install.sh` instala el paquete, pero no lo activa.
+- Necesita el plan en `20_Contexto/Plan de práctica de 8 semanas - CTF.md` dentro del vault. Para `labs`, `install.sh` instala Docker, lo activa y te mete en el grupo `docker` (vale al volver a entrar). Con `--solo-config` hazlo tú:
 
   ```bash
-  sudo systemctl enable --now docker && sudo usermod -aG docker "$USER"   # y vuelve a entrar
+  sudo systemctl enable --now docker && sudo usermod -aG docker "$USER"
   ```
 
 **En la barra.** El cronómetro está siempre en la barra.
@@ -196,7 +196,7 @@ Después cierra sesión y entra en **niri**.
 
 | Modo | Qué instala |
 |---|---|
-| `./install.sh` | Todo: paquetes, fuentes, configuración, fondos, marca, Plymouth, rEFInd, tecla ⊞ y Trucha Copilot (Ollama, ~7 GB de modelos e índice) |
+| `./install.sh` | Todo: paquetes, fuentes, configuración, fondos, marca, Plymouth, rEFInd, tecla ⊞, Trucha Copilot (Ollama, ~7 GB de modelos e índice) y Docker para Trucha Lab |
 | `./install.sh --live` | Todo menos lo que no persiste en un USB live (marca, Plymouth, rEFInd) y sin Ollama |
 | `./install.sh --solo-config` | Solo la configuración, sin paquetes ni `sudo` |
 

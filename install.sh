@@ -118,7 +118,15 @@ if [ "$MODE" = full ]; then
   else echo "Clona tu vault de Obsidian en ~/Truchilla y ejecuta:  trucha-copilot index"; fi
 fi
 
-# ── 7. Tema ─────────────────────────────────────────────────────────────────
+# ── 7. Trucha Lab: Docker para los labs web ─────────────────────────────────
+# el paquete viene en el paso 1; aquí se arranca y se da acceso al usuario sin sudo
+if [ "$MODE" != config ]; then
+  say "Trucha Lab (Docker)"
+  sudo systemctl enable --now docker
+  id -nG "$USER" | grep -qw docker || { sudo usermod -aG docker "$USER"; echo "  (el grupo docker vale al volver a entrar)"; }
+fi
+
+# ── 8. Tema ─────────────────────────────────────────────────────────────────
 say "Tema Crimson Ink"
 if [ -n "${NIRI_SOCKET:-}" ]; then
   "$HOME/.local/bin/trucha-theme" crimson-ink
