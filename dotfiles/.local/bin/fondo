@@ -41,7 +41,8 @@ for f in glob.glob(os.path.expanduser("~/.config/trucha-os/themes/*.json")):
             print(f"{k}={int(v) if isinstance(v, bool) else v}")
 ' "${1:-$DEFAULT}" 2>/dev/null)
 
+# fill descentra el fondo en niri con escala 1.5; stretch encaja (deforma ~10 % en 16:10, imperceptible en esta escena)
 pkill -f "^$LWE/linux-wallpaperengine"
 LD_LIBRARY_PATH="$LWE:$LWE/lib" exec "$LWE/linux-wallpaperengine" \
   --assets-dir "$DATA/assets" --silent --fps 30 --disable-mouse \
-  --layer background --screen-root "$OUTPUT" --bg "$bg" --scaling fill "${props[@]}"
+  --layer background --screen-root "$OUTPUT" --bg "$bg" --scaling stretch "${props[@]}"
