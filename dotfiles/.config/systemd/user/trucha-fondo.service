@@ -6,8 +6,8 @@ After=graphical-session.target
 [Service]
 Type=simple
 # sin argumento, fondo usa el fondo del tema activo (~/.config/trucha-os/current.json)
-# al arrancar con el login el monitor aún no tiene su escala y el fondo sale desplazado
-ExecStartPre=/usr/bin/sleep 6
 ExecStart=__HOME__/.local/bin/fondo
+# en el arranque del login el fondo sale desplazado aunque se espere; un reinicio posterior lo centra. Una sola vez por sesión.
+ExecStartPost=/bin/sh -c '[ -e %t/fondo-reiniciado ] || { touch %t/fondo-reiniciado; (sleep 20; systemctl --user restart trucha-fondo.service) >/dev/null 2>&1 & }'
 Restart=on-failure
 RestartSec=2
