@@ -121,30 +121,66 @@ spawn-at-startup "niri-float-sticky" "-disable-auto-stick"
 // Shaders de ventana: corte de katana al abrir, se deshace en brasas al cerrar,
 // aberración roja al redimensionar. Los colores van premultiplicados por alfa.
 animations {
+    // Tajo de katana: la hoja cruza la ventana en el primer 15 %, destello,
+    // y la ventana sale partida en dos mitades que se cierran sobre una grieta al rojo.
     window-open {
-        duration-ms 420
-        curve "ease-out-cubic"
+        duration-ms 560
+        curve "linear"
         custom-shader r#"
-            float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
-
             vec4 open_color(vec3 coords_geo, vec3 size_geo) {
                 float p = niri_clamped_progress;
                 vec3 rojo = vec3(0.898, 0.220, 0.231);
+                vec3 brasa = vec3(1.0, 0.45, 0.30);
 
-                // glitch: bandas horizontales de 14 px que tiemblan al principio
-                float banda = floor(coords_geo.y * size_geo.y / 14.0);
-                float salto = hash(vec2(banda, floor(p * 14.0) + niri_random_seed * 97.0)) - 0.5;
-                vec3 uv = coords_geo + vec3(salto * 0.08 * (1.0 - p) * (1.0 - p), 0.0, 0.0);
-                vec4 color = texture2D(niri_tex, (niri_geo_to_tex * uv).st);
-                if (uv.x < 0.0 || uv.x > 1.0) color = vec4(0.0);
-                color.rgb = mix(color.rgb, rojo * color.a, 0.35 * (1.0 - p));
+                // geometría en píxeles; el tajo sube hacia la derecha y pasa por el centro
+                vec2 centro = size_geo.xy * 0.5;
+                vec2 rel = coords_geo.xy * size_geo.xy - centro;
+                vec2 dir = normalize(vec2(1.0, -0.42));
+                vec2 nor = vec2(-dir.y, dir.x);
+                float largo = length(size_geo.xy);
+                float dist = dot(rel, nor);
+                float lado = dist < 0.0 ? -1.0 : 1.0;
+                float a_lo_largo = clamp(dot(rel, dir) / largo + 0.5, 0.0, 1.0);
 
-                // corte en diagonal de abajo-izquierda a arriba-derecha
-                float d = (coords_geo.x + 1.0 - coords_geo.y) * 0.5;
-                float filo = p * 1.3 - 0.15;
-                float visible = smoothstep(filo + 0.01, filo - 0.01, d);
-                float brillo = exp(-abs(d - filo) * 70.0) * (1.0 - p * p);
-                return min(color * visible + vec4(rojo * brillo, brillo), vec4(1.0));
+                // mitades: separadas 36 px y desplazadas por el tajo; se cierran con ease-out-expo
+                float q = clamp((p - 0.15) / 0.85, 0.0, 1.0);
+                // normalizado para que en q = 1 encajen exactas, sin costura
+                float e = (1.0 - pow(2.0, -9.0 * q)) / (1.0 - pow(2.0, -9.0));
+                float sep = 36.0 * (1.0 - e);
+                vec2 origen = rel - lado * (nor * sep + dir * 0.06 * largo * (1.0 - e));
+                vec2 uv = (origen + centro) / size_geo.xy;
+                float dist_origen = dot(origen, nor);
+                vec4 color = vec4(0.0);
+                if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0 && dist_origen * lado >= 0.0) {
+                    color = texture2D(niri_tex, (niri_geo_to_tex * vec3(uv, 1.0)).st);
+                }
+                float calor = 1.0 - smoothstep(0.15, 0.75, p);
+                // bordes del corte al rojo vivo, se enfrían con el calor
+                float filo = exp(-abs(dist_origen) / 5.0) * calor;
+                color.rgb = mix(color.rgb, brasa * color.a, filo);
+                float destello = exp(-pow((p - 0.15) * 30.0, 2.0)) * 0.25;
+                color.rgb += destello * color.a;
+                color *= smoothstep(0.13, 0.2, p);
+
+                // grieta: luz roja entre las dos mitades
+                float grieta = exp(-abs(dist) / (sep * 0.5 + 2.0)) * calor * step(0.15, p);
+                vec4 luz = vec4(rojo * grieta, grieta * 0.9);
+
+                // hoja: crece de punta a punta, más gruesa en el centro que en los extremos
+                float g = 1.0 - pow(1.0 - clamp(p / 0.15, 0.0, 1.0), 3.0);
+                float grosor = sin(3.14159 * a_lo_largo);
+                float trazo = step(a_lo_largo, g) * (1.0 - smoothstep(0.15, 0.32, p));
+                float nucleo = exp(-abs(dist) / (0.6 + 2.2 * grosor)) * trazo;
+                float halo = exp(-abs(dist) / (4.0 + 12.0 * grosor)) * trazo * 0.9;
+                float punta = exp(-abs(a_lo_largo - g) * 25.0) * exp(-abs(dist) / 5.0) * (1.0 - step(1.0, g));
+                vec3 hoja = vec3(1.0) * (nucleo + punta) + rojo * halo;
+                float a_hoja = clamp(nucleo + halo + punta, 0.0, 1.0);
+                luz = vec4(hoja, a_hoja) + luz * (1.0 - a_hoja);
+
+                vec4 salida = luz + color * (1.0 - luz.a);
+                salida.a = min(salida.a, 1.0);
+                salida.rgb = min(salida.rgb, vec3(salida.a));
+                return salida;
             }
         "#
     }
