@@ -1,0 +1,22 @@
+{
+  "id": "kaito",
+  "label": "Kaitō",
+  "description": "Ladrón fantasma · rojo puro, blanco y negro de cómic",
+  "wallpaper": "torii",
+  "lockscreen": "__HOME__/.local/share/backgrounds/crimson-ink/torii.jpg",
+  "thumbnail": "__HOME__/.local/share/trucha-os/thumbs/kaito.png",
+  "fetch_logo": "__HOME__/.local/share/trucha-os/logos/kaito.png",
+  "kanji": "怪盗",
+  "kana": [
+    "カ",
+    "イ",
+    "ト",
+    "ウ"
+  ],
+  "dim": 0.15,
+  "petals": false,
+  "accent_hue": 0,
+  "neutral_hue": 220,
+  "neutral_sat": 0.03,
+  "greeter": "__HOME__/.local/share/trucha-os/greeter/kaito.jpg"
+}

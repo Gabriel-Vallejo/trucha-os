@@ -85,12 +85,13 @@ def make_mapper(theme):
     acc_h = (hue % 360) / 360.0
     neu_h = (theme.get("neutral_hue", hue) % 360) / 360.0
     neu_s = float(theme.get("neutral_sat", 0.15))
+    acc_s = float(theme.get("accent_sat", 1.0))   # <1 apaga el acento (temas sobrios)
 
     def f(rgb):
         r, g, b = (c / 255.0 for c in rgb)
         h, l, s = colorsys.rgb_to_hls(r, g, b)
         if s > 0.25 and (h < 0.06 or h > 0.93):          # rojos / carmesís → tono del tema
-            h = acc_h
+            h, s = acc_h, s * acc_s
         elif s < 0.2:                                        # grises cálidos → neutros teñidos
             h, s = neu_h, max(s, neu_s * (1.0 if l < 0.5 else 0.6))
         else:

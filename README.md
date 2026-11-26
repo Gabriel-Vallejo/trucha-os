@@ -28,7 +28,7 @@
 |---|---|
 | 🪟 **Ventanas** | [niri](https://github.com/YaLTeR/niri) 26.04: tiling con scroll infinito |
 | 🧩 **Interfaz** | DMS 2.1 (paquete `dux-shell`, sobre Quickshell): barra lateral, dock, lanzador, notificaciones, bloqueo |
-| 🎨 **Temas** | Crimson Ink · Miku Dark · Nino Dark · Marin Dark · Resident Evil · Ceniza, con un atajo (⊞+Alt+T) |
+| 🎨 **Temas** | Crimson Ink · Miku Dark · Nino Dark · Marin Dark · Resident Evil · Ceniza · Kaitō · Sumi, con un atajo (⊞+Alt+T) |
 | 🖼️ **Escritorio** | fondo animado (linux-wallpaperengine), reloj pixel, kanji vertical, cava, monitor, tiempo, calendario (十一月), letras, pétalos |
 | 🧠 **Trucha Copilot** | IA local que responde con **mis apuntes** y cita la nota: app con chats y mascota, o `¿` en el lanzador |
 | 🧪 **Trucha Lab** | Práctica de CTF con cronómetro en la barra, labs web en Docker y writeup al vault al acabar cada reto |
@@ -53,6 +53,10 @@ Cada tema cambia **todo** a la vez: colores, fondo animado, kanji, fetch, login 
     <td align="center"><img src="dotfiles/.local/share/trucha-os/thumbs/resident-evil.png" width="250" alt="Tema Resident Evil"><br><b>Resident Evil</b> · ceniza en vez de pétalos</td>
     <td align="center"><img src="dotfiles/.local/share/trucha-os/thumbs/ceniza.png" width="250" alt="Tema Ceniza"><br><b>Ceniza</b> · Crimson Ink oscurecido</td>
     <td align="center"><b>Crimson Ink</b><br>el de la captura de arriba<br>(negro tinta y carmesí)</td>
+  </tr>
+  <tr>
+    <td align="center"><img src="dotfiles/.local/share/trucha-os/thumbs/kaito.png" width="250" alt="Tema Kaitō"><br><b>Kaitō</b> · rojo puro, blanco y negro de cómic</td>
+    <td align="center"><img src="dotfiles/.local/share/trucha-os/thumbs/sumi.png" width="250" alt="Tema Sumi"><br><b>Sumi</b> · el sobrio: gris pizarra apagado</td>
   </tr>
 </table>
 
@@ -312,6 +316,7 @@ Si algo falla: `journalctl --user -u trucha-discord-voice`.
 | Marin Dark | 3489782387 |
 | Resident Evil (Leon · Requiem) | 3665954520 |
 | Ceniza | usa el de Crimson Ink, oscurecido |
+| Kaitō · Sumi | usan el de Crimson Ink |
 
 Lo que deriva de ellos lo regenera `scripts/gen-crimson-assets.py`: el login de Crimson, su miniatura, el fondo de rEFInd, el logo del fetch y la marca de agua de Plymouth (esta se guarda en el repo).
 
@@ -323,6 +328,7 @@ Lo que deriva de ellos lo regenera `scripts/gen-crimson-assets.py`: el login de 
    | Campo | Para qué |
    |---|---|
    | `accent_hue` | Tono del acento |
+   | `accent_sat` | Opcional: menos de 1 apaga el acento (Sumi usa 0.3) |
    | `kanji`, `kana` | El kanji vertical y su lectura |
    | `dim` | Oscurecer el fondo |
    | `positions` | Opcional: mover widgets si el personaje los tapa |

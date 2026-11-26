@@ -25,6 +25,14 @@ assert b > r, fuera                                   # el carmesí pasa a azul
 # lo que no es un color no se toca
 for linea in ("vec3(s, 0.0, 0.0)\n", "vec3(uv, 1.0)\n", "vec3(1.0)\n", "vec2(1.0, -0.42)\n", "vec3(2.0, 0.5, 0.5)\n", "vec3(1.5, 0.5, 0.5)\n"):
     assert tt.render(linea, azul) == linea, linea
+# accent_sat apaga el acento (tema sobrio) sin tocar su luz
+import colorsys
+apagado = tt.make_mapper({"accent_hue": 210, "accent_sat": 0.3})
+r, g, b = (c / 255 for c in apagado((229, 56, 59)))
+_, l, s = colorsys.rgb_to_hls(r, g, b)
+assert s < 0.35 and abs(l - 0.559) < 0.01, (l, s)
+assert tt.make_mapper({"accent_hue": 210})((229, 56, 59)) != apagado((229, 56, 59))
+
 # fish: el resaltado sigue al tema, pero el error se queda rojo
 fish = (REPO / "dotfiles/.config/trucha-os/templates/fish/conf.d/trucha-tema.fish").read_text(encoding="utf-8")
 fuera = tt.render(fish, azul, tt.PROTECT["fish/conf.d/trucha-tema.fish"]).splitlines()
