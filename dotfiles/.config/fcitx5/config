@@ -1,0 +1,12 @@
+# Trucha OS!: Ctrl+Alt+Espacio alterna español ⇄ japonés (Ctrl+Espacio es de VS Code, Win+Espacio del lanzador)
+[Hotkey]
+EnumerateWithTriggerKeys=True
+EnumerateSkipFirst=False
+
+[Hotkey/TriggerKeys]
+0=Control+Alt+space
+
+[Behavior]
+ActiveByDefault=False
+ShareInputState=All
+ShowInputMethodInformation=True

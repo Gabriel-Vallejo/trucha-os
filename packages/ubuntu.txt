@@ -13,3 +13,10 @@ qt6ct qt5ct python3-pil python3-gi gir1.2-webkit2-4.1 ffmpeg git curl unzip plym
 gdb radare2 binwalk foremost sleuthkit hashcat john sqlmap nmap wireshark tshark gobuster ffuf
 yara libimage-exiftool-perl steghide upx-ucl docker.io python3-pwntools
 jq
+# escribir en japonés (fcitx5 + Mozc)
+fcitx5
+fcitx5-mozc
+fcitx5-frontend-gtk3
+fcitx5-frontend-gtk4
+fcitx5-frontend-qt6
+fcitx5-config-qt

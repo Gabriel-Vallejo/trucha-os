@@ -111,12 +111,18 @@ environment {
     XCURSOR_SIZE "24"
     // Ghidra, Burp, DataGrip… (Java/XWayland) salen en blanco sin esto
     _JAVA_AWT_WM_NONREPARENTING "1"
+    // escribir en japonés (fcitx5 + Mozc): Qt por el protocolo de Wayland, XWayland por XIM;
+    // GTK usa text-input-v3 sin variables (GTK_IM_MODULE no se pone a propósito)
+    QT_IM_MODULES "wayland;fcitx"
+    XMODIFIERS "@im=fcitx"
 }
 
 // Fondo animado (Torii) con linux-wallpaperengine
 spawn-at-startup "systemctl" "--user" "restart" "trucha-fondo.service"
 // ventanas flotantes en todos los escritorios: solo las que fijes con Win+G (Win+Shift+T las pone flotantes)
 spawn-at-startup "niri-float-sticky" "-disable-auto-stick"
+// método de entrada: Ctrl+Alt+Espacio alterna español ⇄ japonés (Mozc)
+spawn-at-startup "fcitx5" "-d" "--replace"
 
 // Shaders de ventana: corte de katana al abrir, se deshace en brasas al cerrar,
 // aberración roja al redimensionar. Los colores van premultiplicados por alfa.

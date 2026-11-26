@@ -1,0 +1,16 @@
+# Trucha OS!: teclado español y japonés (Mozc). Ctrl+Alt+Espacio cambia entre los dos.
+[Groups/0]
+Name=Predeterminado
+Default Layout=es
+DefaultIM=keyboard-es
+
+[Groups/0/Items/0]
+Name=keyboard-es
+Layout=
+
+[Groups/0/Items/1]
+Name=mozc
+Layout=
+
+[GroupOrder]
+0=Predeterminado

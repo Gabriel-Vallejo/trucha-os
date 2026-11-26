@@ -13,6 +13,7 @@ import colorsys
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -215,6 +216,8 @@ def apply(theme_id):
     # el fondo animado es su propio servicio (si lo lanzáramos nosotros, moriría al acabar este script)
     run("systemctl", "--user", "restart", "trucha-fondo.service")
     run("pkill", "-USR1", "-x", "kitty")
+    if shutil.which("fcitx5-remote"):
+        run("fcitx5-remote", "-r")    # recarga la ventana de candidatos con los colores nuevos
     time.sleep(3)
     run("notify-send", "-a", "Trucha OS!", "-i", theme.get("thumbnail", "trucha-os"),
         "Tema: " + theme["label"], theme.get("description", ""))

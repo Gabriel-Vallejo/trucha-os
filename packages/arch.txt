@@ -100,3 +100,9 @@ nautilus
 # Trucha Copilot (app): ventana GTK con WebKit
 python-gobject
 webkit2gtk-4.1
+# escribir en japonés (fcitx5 + Mozc)
+fcitx5
+fcitx5-mozc
+fcitx5-gtk
+fcitx5-qt
+fcitx5-configtool
