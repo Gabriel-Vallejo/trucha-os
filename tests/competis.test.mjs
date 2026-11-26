@@ -28,6 +28,8 @@ const propias = C.desdePropias([
 ]);
 eq(propias.map(e => [e.nombre, e.propia]), [["Talent4Cyber", true]]);
 eq(C.desdePropias("basura"), []);
+eq(C.desdePropias([{ nombre: "x", inicio: iso(ahora), fin: iso(ahora + D), url: "file:///etc/passwd" }])[0].url, "");
+eq(propias[0].url, "https://example.org");
 
 // cola: fuera lo terminado, primero lo que está en marcha, luego por fecha; las propias siempre entran
 const enMarcha = { nombre: "Ya empezó", inicio: ahora - H, fin: ahora + 5 * H, url: "", propia: false };

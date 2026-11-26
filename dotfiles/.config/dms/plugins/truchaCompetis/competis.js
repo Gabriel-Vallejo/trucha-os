@@ -8,7 +8,9 @@ function evento(nombre, inicio, fin, url, propia) {
     const a = Date.parse(inicio), b = Date.parse(fin);
     if (!nombre || isNaN(a) || isNaN(b) || b <= a)
         return null;
-    return { nombre: String(nombre), inicio: a, fin: b, url: String(url ?? ""), propia: propia };
+    // solo webs: un file:// o similar no se abre al hacer clic
+    const web = /^https?:\/\//i.test(String(url ?? "")) ? String(url) : "";
+    return { nombre: String(nombre), inicio: a, fin: b, url: web, propia: propia };
 }
 
 // Respuesta de https://ctftime.org/api/v1/events/ ; los presenciales no interesan

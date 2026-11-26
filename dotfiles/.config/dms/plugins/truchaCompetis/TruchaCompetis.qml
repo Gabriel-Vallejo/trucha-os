@@ -124,6 +124,8 @@ DesktopPluginComponent {
                             anchors.bottom: parent.bottom
                             anchors.bottomMargin: 3
                             text: (fila.modelData.propia ? "◆ " : "") + fila.modelData.nombre.toUpperCase()
+                            // el título viene de CTFtime: nada de HTML
+                            textFormat: Text.PlainText
                             elide: Text.ElideRight
                             color: fila.modelData.propia ? root.bone : root.ash
                             font.family: root.pixel
