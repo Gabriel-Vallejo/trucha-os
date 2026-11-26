@@ -34,7 +34,7 @@
 | 🧪 **Trucha Lab** | Práctica de CTF con cronómetro en la barra, labs web en Docker y writeup al vault al acabar cada reto |
 | 🛡️ **CTF** | **Competis** (⊞+Shift+Espacio), **Utilidades** con `=` (base64, hex, rot13, timestamps…) y OCR de una zona (⊞+Shift+X) |
 | 💻 **Terminal** | kitty + starship + fastfetch con el torii |
-| 🚀 **Arranque** | Plymouth con el kanji 鱒 y tema de rEFInd |
+| 🚀 **Arranque** | Plymouth: la trucha nada y se convierte en 鱒; tema de rEFInd |
 | ✅ **Calidad** | 7 suites de tests (Python, node y bash) en cada push, en un contenedor de Arch |
 
 ---

@@ -2,12 +2,13 @@
 """Regenera los recursos de Crimson Ink derivados del fondo del torii (no se guardan en el repo):
 login/bloqueo, miniatura del selector, fondo de rEFInd y logo de imagen del fetch.
 Necesita ~/.local/share/backgrounds/crimson-ink/torii.jpg (lo crea import-wallpapers.sh), Chrome o Chromium y Pillow."""
+import math
 import os
 import shutil
 import subprocess
 import tempfile
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFilter
 
 HOME = os.path.expanduser("~")
 TORII = f"{HOME}/.local/share/backgrounds/crimson-ink/torii.jpg"
@@ -74,6 +75,53 @@ html,body{{margin:0;width:280px;height:500px;overflow:hidden;background:#0c0c0e}
 </style><div class="k"><b>鱒</b><i></i><div class="kana">{kana_column("トル︱チャ", "#9a948f")}</div>
 <div class="w">Trucha OS<em>!</em><small>crimson ink</small></div></div>'''
 REPO_PLYMOUTH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../dotfiles/.local/share/trucha-os/plymouth")
+TRUCHA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../dotfiles/.local/share/trucha-os/trucha.png")
+NEGRO = (12, 12, 14, 255)       # #0c0c0e, el fondo del tema de Plymouth
+SWIM, MORPH = 48, 36             # fotogramas: nado en bucle (throbber) y paso a kanji (animación final), a 30 fps
+
+
+def nadando(pez, fase, w, h, cy):
+    """La trucha en la fase dada del nado: el cuerpo ondula más hacia la cola (derecha) y sube y baja un poco."""
+    pw, ph = pez.size
+    malla, tiras = [], 32
+    for i in range(tiras):
+        x0, x1 = pw * i // tiras, pw * (i + 1) // tiras
+        dy = lambda x: 26 * (x / pw) ** 1.6 * math.sin(2 * math.pi * fase - 5 * x / pw)
+        malla.append(((x0, 0, x1, ph), (x0, -dy(x0), x0, ph - dy(x0), x1, ph - dy(x1), x1, -dy(x1))))
+    cuerpo = pez.transform(pez.size, Image.MESH, malla, Image.BICUBIC)
+    lienzo = Image.new("RGBA", (w, h), NEGRO)
+    lienzo.alpha_composite(cuerpo, ((w - pw) // 2, int(cy - ph / 2 + 6 * math.sin(2 * math.pi * fase))))
+    d = ImageDraw.Draw(lienzo)
+    for k in range(3):                      # burbujas que salen de la boca y suben
+        p = (fase + k / 3) % 1
+        bx, by, r = (w - pw) // 2 + 30 - 10 * math.sin(6 * p + k), cy - 10 - 150 * p, 4 + 4 * p
+        a = int(220 * (1 - p))
+        d.ellipse((bx - r, by - r, bx + r, by + r), outline=(229, 56, 59, a), width=2)
+    return lienzo
+
+
+def plymouth_frames(kanji_png):
+    """Fotogramas del arranque: la trucha nada (throbber-*) y al acabar se deshace en tinta y aparece 鱒 (animation-*)."""
+    kanji = Image.open(kanji_png).convert("RGBA")
+    w, h = kanji.size
+    pez = Image.open(TRUCHA).convert("RGBA")
+    pez = pez.crop(pez.getbbox())
+    pez = pez.resize((int(w * .8), int(pez.height * w * .8 / pez.width)), Image.LANCZOS)
+    cy = int(h * .19)                       # a la altura del kanji, que es donde va a aparecer
+    for i in range(SWIM):
+        nadando(pez, i / SWIM, w, h, cy).save(f"{REPO_PLYMOUTH}/throbber-{i:04d}.png")
+    for i in range(MORPH):
+        t = i / (MORPH - 1)
+        pez_t = nadando(pez, t * .5, w, h, cy)
+        # la trucha se tiñe de carmesí y se emborrona como tinta; el kanji sale del borrón
+        tinta = Image.new("RGBA", (w, h), (229, 56, 59, 255))
+        tinta.putalpha(pez_t.convert("L").point(lambda v: 255 if v > 20 else 0))
+        pez_t = Image.blend(pez_t, Image.alpha_composite(pez_t, tinta), min(1, t * 2.5))
+        pez_t = pez_t.filter(ImageFilter.GaussianBlur(24 * min(1, t * 1.6)))
+        kan = kanji.filter(ImageFilter.GaussianBlur(14 * (1 - t) ** 2))
+        Image.blend(pez_t, kan, min(1, max(0, (t - .25) / .6))).save(f"{REPO_PLYMOUTH}/animation-{i:04d}.png")
+    # la marca de agua se queda vacía: el kanji ya lo trae el último fotograma de la animación
+    Image.new("RGBA", (1, 1), (0, 0, 0, 0)).save(f"{REPO_PLYMOUTH}/watermark.png")
 
 
 def main():
@@ -89,7 +137,8 @@ def main():
     Image.open(f"{tmp}/login.png").convert("RGB").save(f"{OUT}/greeter/crimson-ink.jpg", quality=92)
     shot(REFIND, 1280, 800, f"{OUT}/refind/background.png")
     # esta sí va al repo: system.sh copia las imágenes de Plymouth desde ahí
-    shot(PLYMOUTH, 280, 500, f"{REPO_PLYMOUTH}/watermark.png")
+    shot(PLYMOUTH, 280, 500, f"{tmp}/kanji.png")
+    plymouth_frames(f"{tmp}/kanji.png")
 
     im = Image.open(TORII).convert("RGB")
     w, h = im.size

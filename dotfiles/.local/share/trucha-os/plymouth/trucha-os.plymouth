@@ -1,6 +1,6 @@
 [Plymouth Theme]
 Name=Trucha OS!
-Description=Arranque de Trucha OS! (Crimson Ink): trucha carmesí sobre negro tinta
+Description=Arranque de Trucha OS! (Crimson Ink): la trucha nada y se convierte en 鱒
 ModuleName=two-step
 
 [two-step]
@@ -10,7 +10,7 @@ ImageDir=/usr/share/plymouth/themes/trucha-os
 WatermarkHorizontalAlignment=.5
 WatermarkVerticalAlignment=.42
 HorizontalAlignment=.5
-VerticalAlignment=.78
+VerticalAlignment=.42
 DialogHorizontalAlignment=.5
 DialogVerticalAlignment=.72
 TitleHorizontalAlignment=.5
@@ -28,7 +28,8 @@ CursorAnimation=breath
 CursorAnimationSpeed=7
 
 [boot-up]
-UseEndAnimation=false
+# al terminar de arrancar, la trucha se deshace en tinta y aparece 鱒 (animation-*.png)
+UseEndAnimation=true
 UseFirmwareBackground=false
 
 [shutdown]
