@@ -13,7 +13,7 @@ HOME = os.path.expanduser("~")
 TORII = f"{HOME}/.local/share/backgrounds/crimson-ink/torii.jpg"
 OUT = f"{HOME}/.local/share/trucha-os"
 FONT = f'@font-face{{font-family:Inter;src:url("file://{HOME}/.local/share/fonts/Inter/InterVariable.ttf");font-weight:100 900}}'
-CHROME = next((c for c in ("google-chrome", "chromium", "chromium-browser") if shutil.which(c)), None)
+CHROME = next((c for c in ("google-chrome", "google-chrome-stable", "chromium", "chromium-browser") if shutil.which(c)), None)
 
 
 def shot(html, w, h, out, scale=2):
@@ -61,6 +61,21 @@ html,body{{margin:0;width:1280px;height:800px;overflow:hidden;background:#0c0c0e
 <div class="k"><b>鳥</b><b>居</b><i></i></div><div class="hanko">鱒</div>'''
 
 
+# marca de agua de Plymouth: el kanji del login sobre el negro del arranque (#0c0c0e, el BackgroundStartColor del tema)
+PLYMOUTH = f'''<!doctype html><meta charset="utf-8"><style>{FONT}
+html,body{{margin:0;width:280px;height:500px;overflow:hidden;background:#0c0c0e}}
+.k{{display:flex;flex-direction:column;align-items:center;gap:14px;padding-top:16px}}
+.k b{{font:900 140px "Noto Serif JP";color:#e5383b;line-height:1;text-shadow:0 0 30px rgba(229,56,59,.45)}}
+.k i{{width:2px;height:40px;background:#e5383b;opacity:.6}}
+.k .kana{{font:500 24px "Noto Serif JP";line-height:1.2;display:flex;flex-direction:column;align-items:center}}
+.w{{margin-top:14px;text-align:center;font:800 26px Inter;color:#ece8e4}}
+.w em{{font-style:normal;color:#e5383b}}
+.w small{{display:block;font:500 10px Inter;color:#6a6a72;letter-spacing:6px;text-transform:uppercase;margin-top:5px}}
+</style><div class="k"><b>鱒</b><i></i><div class="kana">{kana_column("トル︱チャ", "#9a948f")}</div>
+<div class="w">Trucha OS<em>!</em><small>crimson ink</small></div></div>'''
+REPO_PLYMOUTH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../dotfiles/.local/share/trucha-os/plymouth")
+
+
 def main():
     if not os.path.exists(TORII):
         raise SystemExit(f"Falta {TORII}: ejecuta antes scripts/import-wallpapers.sh")
@@ -73,6 +88,8 @@ def main():
     shot(LOGIN, 1280, 800, f"{tmp}/login.png")
     Image.open(f"{tmp}/login.png").convert("RGB").save(f"{OUT}/greeter/crimson-ink.jpg", quality=92)
     shot(REFIND, 1280, 800, f"{OUT}/refind/background.png")
+    # esta sí va al repo: system.sh copia las imágenes de Plymouth desde ahí
+    shot(PLYMOUTH, 280, 500, f"{REPO_PLYMOUTH}/watermark.png")
 
     im = Image.open(TORII).convert("RGB")
     w, h = im.size
