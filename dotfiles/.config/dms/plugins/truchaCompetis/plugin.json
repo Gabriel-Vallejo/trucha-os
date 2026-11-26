@@ -1,0 +1,13 @@
+{
+    "id": "truchaCompetis",
+    "name": "Trucha · Competis",
+    "description": "Cola de CTF (CTFtime) y tus competis con cuenta atrás, en estilo HUD",
+    "version": "1.0.0",
+    "author": "Gabriel",
+    "type": "desktop",
+    "capabilities": ["desktop-widget"],
+    "component": "./TruchaCompetis.qml",
+    "icon": "flag",
+    "requires_dms": ">=2.0.0",
+    "permissions": ["settings_read"]
+}

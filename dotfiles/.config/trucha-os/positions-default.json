@@ -88,5 +88,15 @@
       "width": 760,
       "height": 96
     }
+  },
+  "trucha_competis": {
+    "_synced": {
+      "x": 0.13,
+      "anchorX": "end",
+      "y": 0,
+      "anchorY": "center",
+      "width": 300,
+      "height": 240
+    }
   }
 }

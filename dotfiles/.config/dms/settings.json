@@ -652,6 +652,18 @@
         ],
         "clickThrough": true
       }
+    },
+    {
+      "id": "trucha_competis",
+      "widgetType": "truchaCompetis",
+      "name": "Competis",
+      "enabled": true,
+      "config": {
+        "syncPositionAcrossScreens": true,
+        "displayPreferences": [
+          "all"
+        ]
+      }
     }
   ],
   "wallpaperBackgroundColorMode": "custom",

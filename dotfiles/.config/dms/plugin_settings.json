@@ -49,5 +49,8 @@
   },
   "truchaLab": {
     "enabled": true
+  },
+  "truchaCompetis": {
+    "enabled": true
   }
 }
