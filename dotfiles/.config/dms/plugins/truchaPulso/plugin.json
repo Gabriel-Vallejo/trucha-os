@@ -1,0 +1,13 @@
+{
+    "id": "truchaPulso",
+    "name": "Trucha · Pulso",
+    "description": "El fondo late con los graves de la música: viñeteado del color del tema que sigue a cava",
+    "version": "1.0.0",
+    "author": "Gabriel",
+    "type": "desktop",
+    "capabilities": ["desktop-widget"],
+    "component": "./TruchaPulso.qml",
+    "icon": "graphic_eq",
+    "requires_dms": ">=2.0.0",
+    "permissions": ["settings_read"]
+}

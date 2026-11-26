@@ -535,6 +535,19 @@
   "displayPreviousRefreshModes": {},
   "desktopWidgetInstances": [
     {
+      "id": "trucha_pulso",
+      "widgetType": "truchaPulso",
+      "name": "Pulso",
+      "enabled": true,
+      "config": {
+        "syncPositionAcrossScreens": true,
+        "displayPreferences": [
+          "all"
+        ],
+        "clickThrough": true
+      }
+    },
+    {
       "id": "trucha_clock",
       "widgetType": "desktopClock",
       "name": "Reloj Trucha",

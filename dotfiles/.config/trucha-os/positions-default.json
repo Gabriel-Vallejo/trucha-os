@@ -98,5 +98,15 @@
       "width": 300,
       "height": 240
     }
+  },
+  "trucha_pulso": {
+    "_synced": {
+      "x": 0,
+      "anchorX": "start",
+      "y": 0,
+      "anchorY": "start",
+      "width": 1706,
+      "height": 1066
+    }
   }
 }
