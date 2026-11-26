@@ -55,8 +55,8 @@ Cada tema cambia **todo** a la vez: colores, fondo animado, kanji, fetch, login 
     <td align="center"><b>Crimson Ink</b><br>el de la captura de arriba<br>(negro tinta y carmesí)</td>
   </tr>
   <tr>
-    <td align="center"><img src="dotfiles/.local/share/trucha-os/thumbs/kaito.png" width="250" alt="Tema Kaitō"><br><b>Kaitō</b> · rojo puro, blanco y negro de cómic</td>
-    <td align="center"><img src="dotfiles/.local/share/trucha-os/thumbs/sumi.png" width="250" alt="Tema Sumi"><br><b>Sumi</b> · el sobrio: gris pizarra apagado</td>
+    <td align="center"><img src="dotfiles/.local/share/trucha-os/thumbs/kaito.png" width="250" alt="Tema Kaitō"><br><b>Kaitō</b> · oro robado sobre negro de cómic</td>
+    <td align="center"><img src="dotfiles/.local/share/trucha-os/thumbs/sumi.png" width="250" alt="Tema Sumi"><br><b>Sumi</b> · el sobrio: jade apagado</td>
   </tr>
 </table>
 
@@ -328,7 +328,7 @@ Lo que deriva de ellos lo regenera `scripts/gen-crimson-assets.py`: el login de 
    | Campo | Para qué |
    |---|---|
    | `accent_hue` | Tono del acento |
-   | `accent_sat` | Opcional: menos de 1 apaga el acento (Sumi usa 0.3) |
+   | `accent_sat` | Opcional: menos de 1 apaga el acento (Sumi usa 0.45) |
    | `kanji`, `kana` | El kanji vertical y su lectura |
    | `dim` | Oscurecer el fondo |
    | `positions` | Opcional: mover widgets si el personaje los tapa |

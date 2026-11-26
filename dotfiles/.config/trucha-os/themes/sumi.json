@@ -1,7 +1,7 @@
 {
   "id": "sumi",
   "label": "Sumi",
-  "description": "Tinta sumi · gris pizarra, sin estridencias",
+  "description": "Tinta sumi · jade apagado, sin estridencias",
   "wallpaper": "torii",
   "lockscreen": "__HOME__/.local/share/backgrounds/crimson-ink/torii.jpg",
   "thumbnail": "__HOME__/.local/share/trucha-os/thumbs/sumi.png",
@@ -13,9 +13,9 @@
   ],
   "dim": 0.45,
   "particles": "ash",
-  "accent_hue": 210,
-  "accent_sat": 0.3,
-  "neutral_hue": 210,
-  "neutral_sat": 0.04,
+  "accent_hue": 160,
+  "accent_sat": 0.45,
+  "neutral_hue": 170,
+  "neutral_sat": 0.05,
   "greeter": "__HOME__/.local/share/trucha-os/greeter/sumi.jpg"
 }
