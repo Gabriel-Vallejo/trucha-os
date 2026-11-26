@@ -316,7 +316,8 @@ Si algo falla: `journalctl --user -u trucha-discord-voice`.
 | Marin Dark | 3489782387 |
 | Resident Evil (Leon · Requiem) | 3665954520 |
 | Ceniza | usa el de Crimson Ink, oscurecido |
-| Kaitō · Sumi | usan el de Crimson Ink |
+| Kaitō (Katana Girl with Hologram) | 3238423642 |
+| Sumi (Black and White) | 3337507151 |
 
 Lo que deriva de ellos lo regenera `scripts/gen-crimson-assets.py`: el login de Crimson, su miniatura, el fondo de rEFInd, el logo del fetch y la marca de agua de Plymouth (esta se guarda en el repo).
 

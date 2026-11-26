@@ -4,7 +4,7 @@
 # Busca steamapps en: el argumento, Steam de Linux, Steam en una partición de Windows montada.
 set -euo pipefail
 DATA="$HOME/.local/share/wallpaperengine"
-declare -A WALLS=( [torii]=3404531656 [miku]=2397088460 [nino]=2376540588 [marin]=3489782387 [requiem]=3665954520 )
+declare -A WALLS=( [torii]=3404531656 [miku]=2397088460 [nino]=2376540588 [marin]=3489782387 [requiem]=3665954520 [katana]=3238423642 [sumie]=3337507151 )
 
 find_steamapps() {
   local c
@@ -34,6 +34,12 @@ for name in "${!WALLS[@]}"; do
   rm -rf "$DATA/wallpapers/$name"; cp -r "$WS/$id" "$DATA/wallpapers/$name"
   echo "  ✔ $name ($id)"
 done
+
+# katana (Kaitō): su reproductor de música sale como un cuadrado blanco en linux-wallpaperengine; se oculta
+[ -f "$DATA/wallpapers/katana/scene.pkg" ] && python3 -I "$(dirname "$0")/wpe-ocultar.py" "$DATA/wallpapers/katana/scene.pkg" \
+  "Media Info (ROUND)" "Holder (hide before publish)" "Album Cover" "Albuim Art" "Album Shadow" "Album Border" \
+  "Vinyl Shadow" "Vinyl Disc" "Vinyl Cover" "Vinyl Dot" "Artist Name" "Song Title" "Artist Title" \
+  "Artist Title Shadow" "Song Title Shadow" "Play Icon" "Pause Icon" "Settings button" "Progress Bar"
 
 # torii: vídeo 4K → 2844x1600 (menos GPU) y fotograma fijo para bloqueo/login
 T="$DATA/wallpapers/torii"

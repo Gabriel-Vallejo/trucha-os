@@ -2,8 +2,8 @@
   "id": "kaito",
   "label": "Kaitō",
   "description": "Ladrón fantasma · oro robado sobre negro de cómic",
-  "wallpaper": "torii",
-  "lockscreen": "__HOME__/.local/share/backgrounds/crimson-ink/torii.jpg",
+  "wallpaper": "katana",
+  "lockscreen": "__HOME__/.local/share/trucha-os/greeter/kaito.jpg",
   "thumbnail": "__HOME__/.local/share/trucha-os/thumbs/kaito.png",
   "fetch_logo": "__HOME__/.local/share/trucha-os/logos/kaito.png",
   "kanji": "怪盗",
@@ -13,10 +13,35 @@
     "ト",
     "ウ"
   ],
-  "dim": 0.15,
+  "dim": 0.1,
   "petals": false,
   "accent_hue": 44,
   "neutral_hue": 40,
   "neutral_sat": 0.05,
-  "greeter": "__HOME__/.local/share/trucha-os/greeter/kaito.jpg"
+  "greeter": "__HOME__/.local/share/trucha-os/greeter/kaito.jpg",
+  "wallpaper_properties": {
+    "clock": "3",
+    "mediaintegration": "3",
+    "matrixcode": "3",
+    "butterfly": false,
+    "moveablebutterfly": false
+  },
+  "positions": {
+    "trucha_calendar": {
+      "x": 0.2,
+      "anchorX": "end",
+      "y": 0.07,
+      "anchorY": "start",
+      "width": 230,
+      "height": 235
+    },
+    "trucha_weather": {
+      "x": 0.2,
+      "anchorX": "end",
+      "y": 0.33,
+      "anchorY": "start",
+      "width": 230,
+      "height": 115
+    }
+  }
 }
