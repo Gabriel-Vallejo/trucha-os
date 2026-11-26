@@ -657,7 +657,7 @@
       "id": "trucha_competis",
       "widgetType": "truchaCompetis",
       "name": "Competis",
-      "enabled": true,
+      "enabled": false,
       "config": {
         "syncPositionAcrossScreens": true,
         "displayPreferences": [
