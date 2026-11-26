@@ -690,5 +690,8 @@
       "id": "lyricsplus",
       "enabled": true
     }
-  ]
+  ],
+  "soundsEnabled": true,
+  "useSystemSoundTheme": true,
+  "soundLogin": true
 }

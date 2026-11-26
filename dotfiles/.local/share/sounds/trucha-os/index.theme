@@ -1,0 +1,7 @@
+[Sound Theme]
+Name=Trucha OS!
+Comment=Sonidos de Trucha OS!: koto, taiko y katana (sintetizados por gen-sonidos.py)
+Directories=stereo
+
+[stereo]
+OutputProfile=stereo

@@ -1,0 +1,11 @@
+[Unit]
+Description=Trucha OS! — sonidos al abrir y cerrar ventanas en niri
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/trucha-sonidos
+Restart=always
+RestartSec=3
+NoNewPrivileges=true

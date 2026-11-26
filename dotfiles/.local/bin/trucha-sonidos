@@ -1,0 +1,66 @@
+#!/usr/bin/env python3
+"""trucha-sonidos — sonidos al abrir y cerrar ventanas en niri, con el tema de sonido trucha-os.
+Escucha `niri msg -j event-stream`. Se calla si apagas los sonidos en DMS (Ajustes → Sonidos).
+Lo arranca el servicio de usuario trucha-sonidos.service."""
+import json
+import os
+import subprocess
+import time
+
+TEMA = os.path.expanduser("~/.local/share/sounds/trucha-os/stereo")
+AJUSTES_DMS = os.path.expanduser("~/.config/dms/settings.json")
+HUECO = 0.08  # segundos mínimos entre dos sonidos iguales (cerrar varias ventanas de golpe)
+
+
+def sonidos(lineas):
+    """Por cada evento de niri que toca sonar, el nombre del sonido. Las ventanas que ya había no suenan."""
+    vivas = set()
+    for linea in lineas:
+        try:
+            ev = json.loads(linea)
+        except ValueError:
+            continue
+        if "WindowsChanged" in ev:
+            vivas = {w["id"] for w in ev["WindowsChanged"]["windows"]}
+        elif "WindowOpenedOrChanged" in ev:
+            wid = ev["WindowOpenedOrChanged"]["window"]["id"]
+            if wid not in vivas:
+                vivas.add(wid)
+                yield "window-new"
+        elif "WindowClosed" in ev:
+            wid = ev["WindowClosed"]["id"]
+            if wid in vivas:
+                vivas.discard(wid)
+                yield "window-close"
+
+
+def activados(texto_ajustes):
+    """El interruptor general de sonidos de DMS (activado si no se puede leer)."""
+    try:
+        return json.loads(texto_ajustes).get("soundsEnabled", True) is not False
+    except ValueError:
+        return True
+
+
+def main():
+    niri = subprocess.Popen(["niri", "msg", "-j", "event-stream"], stdout=subprocess.PIPE, text=True)
+    ultimo = {}
+    for nombre in sonidos(niri.stdout):
+        ahora = time.monotonic()
+        if ahora - ultimo.get(nombre, 0) < HUECO:
+            continue
+        ultimo[nombre] = ahora
+        try:
+            with open(AJUSTES_DMS, encoding="utf-8") as fh:
+                if not activados(fh.read()):
+                    continue
+        except OSError:
+            pass
+        subprocess.Popen(["pw-play", os.path.join(TEMA, nombre + ".oga")],
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    # si niri se reinicia el flujo se corta: systemd vuelve a lanzarnos
+    raise SystemExit(niri.wait() or 1)
+
+
+if __name__ == "__main__":
+    main()
