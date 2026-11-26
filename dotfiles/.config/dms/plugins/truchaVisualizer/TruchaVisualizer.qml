@@ -50,7 +50,7 @@ mono_option=average
 noise_reduction=60
 monstercat=1
 CAVA
-exec cava -p "$conf" < /dev/null`]
+exec __HOME__/.local/bin/trucha-cava "$conf"`]
 
         stdout: SplitParser {
             splitMarker: "\n"

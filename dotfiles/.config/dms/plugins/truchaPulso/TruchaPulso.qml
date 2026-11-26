@@ -23,7 +23,9 @@ DesktopPluginComponent {
     minWidth: 300
     minHeight: 200
 
-    // envolvente de los graves: sube de golpe con cada golpe y cae poco a poco
+    // graves relativos a su pico reciente (así cada bombo llega cerca de 1 con cualquier canción y volumen);
+    // la envolvente sube de golpe y cae poco a poco
+    property real pico: 0.15
     property real nivel: 0
 
     Process {
@@ -45,7 +47,7 @@ ascii_max_range=1000
 channels=mono
 mono_option=average
 CAVA
-exec cava -p "$conf" < /dev/null`]
+exec __HOME__/.local/bin/trucha-cava "$conf"`]
 
         stdout: SplitParser {
             splitMarker: "\n"
@@ -53,7 +55,8 @@ exec cava -p "$conf" < /dev/null`]
                 const v = data.split(";");
                 // las dos primeras barras son los graves (bombo y bajo)
                 const graves = Math.max(parseInt(v[0], 10) || 0, parseInt(v[1], 10) || 0) / 1000;
-                root.nivel = Math.max(graves, root.nivel * 0.86);
+                root.pico = Math.max(graves, root.pico * 0.995, 0.15);
+                root.nivel = Math.max(graves / root.pico, root.nivel * 0.86);
             }
         }
     }
@@ -62,8 +65,9 @@ exec cava -p "$conf" < /dev/null`]
 
     Shape {
         anchors.fill: parent
-        // el borde solo se nota con golpes fuertes: curva cuadrática y tope de 0.7
-        opacity: Math.min(0.7, root.nivel * root.nivel * 0.9)
+        // por debajo del 45 % del pico no se ve nada; los golpes llegan a 0.85
+        readonly property real t: Math.max(0, Math.min(1, (root.nivel - 0.45) / 0.55))
+        opacity: 0.85 * t * t * (3 - 2 * t)
         preferredRendererType: Shape.CurveRenderer
 
         ShapePath {
@@ -74,8 +78,8 @@ exec cava -p "$conf" < /dev/null`]
                 focalX: centerX; focalY: centerY
                 centerRadius: Math.hypot(root.width, root.height) / 2
                 focalRadius: 0
-                GradientStop { position: 0.55; color: "transparent" }
-                GradientStop { position: 0.85; color: Qt.alpha(root.acento, 0.35) }
+                GradientStop { position: 0.45; color: "transparent" }
+                GradientStop { position: 0.8; color: Qt.alpha(root.acento, 0.45) }
                 GradientStop { position: 1.0; color: root.acento }
             }
             PathLine { x: root.width; y: 0 }

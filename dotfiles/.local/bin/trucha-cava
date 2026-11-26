@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# trucha-cava <config> — cava que escucha siempre la salida de audio por defecto (altavoces, buds, HDMI…).
+# cava se engancha al monitor de la salida que había al arrancar; si cambias de salida, aquí se relanza
+# con el monitor de la nueva. Lo usan los widgets Pulso y Visualizador.
+# shortcut: comprueba la salida cada 2 s en vez de escuchar eventos con pactl subscribe; basta para cambiar de cascos.
+conf="$1"
+tmp=$(mktemp --suffix=.trucha-cava)
+pid=""
+trap '[ -n "$pid" ] && kill "$pid" 2>/dev/null; rm -f "$tmp"' EXIT
+trap 'exit 0' TERM INT HUP
+
+actual=""
+while :; do
+  sink=$(pactl get-default-sink 2>/dev/null)
+  if [ "$sink" != "$actual" ] || [ -z "$pid" ] || ! kill -0 "$pid" 2>/dev/null; then
+    [ -n "$pid" ] && kill "$pid" 2>/dev/null && wait "$pid" 2>/dev/null
+    actual="$sink"
+    { cat "$conf"; [ -n "$sink" ] && printf '\n[input]\nmethod=pulse\nsource=%s.monitor\n' "$sink"; } > "$tmp"
+    cava -p "$tmp" < /dev/null &
+    pid=$!
+  fi
+  sleep "${TRUCHA_CAVA_POLL:-2}"
+done
