@@ -31,6 +31,7 @@
 | 🎨 **Temas** | Crimson Ink · Miku Dark · Nino Dark · Marin Dark · Resident Evil · Ceniza · Kaitō · Sumi, con un atajo (⊞+Alt+T) |
 | 🖼️ **Escritorio** | fondo animado (linux-wallpaperengine), reloj pixel, kanji vertical, cava, monitor, tiempo, calendario (十一月), letras, pétalos |
 | 🧠 **Trucha Copilot** | IA local que responde con **mis apuntes** y cita la nota: app con chats y mascota, o `¿` en el lanzador |
+| 🎮 **Fangames** | Launcher de fangames nativos (Pokémon Añil con mkxp-z, Pokémon Reloaded con OpenGMK), sin Wine; un `.toml` por juego |
 | 🧪 **Trucha Lab** | Práctica de CTF con cronómetro en la barra, labs web en Docker y writeup al vault al acabar cada reto |
 | 🛡️ **CTF** | **Competis** (⊞+Shift+Espacio), **Utilidades** con `=` (base64, hex, rot13, timestamps…) y OCR de una zona (⊞+Shift+X) |
 | 💻 **Terminal** | kitty + starship + fastfetch con el torii |
@@ -132,6 +133,35 @@ Embeddings con `qwen3-embedding:0.6b`: índice completo en **69 s**, cada búsqu
 > Otro vault: `TRUCHA_COPILOT_VAULT=/ruta`. Otro modelo: `TRUCHA_COPILOT_MODEL=nombre` (descárgalo antes con `ollama pull`).
 
 ---
+
+## 🎮 Fangames
+
+`trucha-fangames` (o **Fangames** en el lanzador) es una biblioteca de fangames que corren **nativos** en Linux: nada de Wine.
+Cada juego es un manifiesto `.toml`, así que añadir otro es escribir un archivo.
+
+| Motor | Para qué | Dónde va |
+|---|---|---|
+| `mkxp-z` | RPG Maker XP/VX/VX Ace y Pokémon Essentials (Añil) | `~/Juegos/fangames/_runtimes/mkxp-z/` (build Linux x86_64 de las Actions de mkxp-z) |
+| `opengmk` | Game Maker 8 (Reloaded) | `~/Juegos/fangames/_runtimes/opengmk/gm8emulator` |
+| `wine` | último recurso | el `wine` del sistema |
+
+Los juegos se descomprimen en `~/Juegos/fangames/<carpeta>`. Un juego nuevo va en `~/.config/trucha-os/fangames/<id>.toml`:
+
+```toml
+id = "mi-fangame"            # letras, números y guiones
+nombre = "Mi Fangame"
+motor = "mkxp-z"             # mkxp-z · opengmk · wine
+carpeta = "mi-fangame"       # dentro de ~/Juegos/fangames (o ruta absoluta)
+ejecutable = "Juego.exe"     # solo opengmk y wine
+logo = "Graphics/Titles/logo.png"            # opcional, dentro de la carpeta del juego
+fondo = "Graphics/Titles/Backgrounds/a.png"  # opcional
+color = "#3b6fe0"            # color de la ficha
+estado = "jugable"           # jugable · beta · en pruebas
+etiquetas = ["RPG Maker XP"]
+```
+
+`trucha-fangames lista` dice qué falta para cada juego, `trucha-fangames jugar <id>` lo arranca sin ventana y
+`trucha-fangames accesos` añade cada juego listo al lanzador. Guarda la última partida y el tiempo jugado.
 
 ## 🧪 Trucha Lab
 

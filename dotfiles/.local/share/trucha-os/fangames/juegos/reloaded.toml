@@ -1,0 +1,13 @@
+# Pokémon Reloaded · Game Maker 8, sobre OpenGMK (reimplementación nativa del runner en Rust).
+# Descomprime el .zip en ~/Juegos/fangames/reloaded (la carpeta que tiene el .exe y data/).
+id = "reloaded"
+nombre = "Pokémon Reloaded"
+motor = "opengmk"
+carpeta = "reloaded"
+ejecutable = "Proyecto Reloaded The Last Beta 1.9.2.2 Full.exe"
+autor = "F3R Productions"
+version = "The Last Beta 1.9.2.2"
+descripcion = "Fangame en español con todas las regiones, megas propias y la Región Star."
+color = "#e0663b"
+estado = "beta"
+etiquetas = ["Game Maker 8"]

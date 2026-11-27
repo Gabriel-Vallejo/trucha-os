@@ -1,0 +1,384 @@
+#!/usr/bin/env python3
+"""trucha-fangames — biblioteca de fangames que corren nativos en Linux, sin Wine.
+
+  trucha-fangames              abre el launcher (o lo trae al frente si ya está abierto)
+  trucha-fangames lista        juegos del catálogo y si están listos para jugar
+  trucha-fangames jugar <id>   arranca un juego sin abrir la ventana
+  trucha-fangames accesos      crea un acceso en el lanzador para cada juego listo
+
+Cada juego es un .toml en ~/.local/share/trucha-os/fangames/juegos (los que trae Trucha OS!)
+o en ~/.config/trucha-os/fangames (los tuyos; con el mismo id, el tuyo gana).
+Los juegos viven en ~/Juegos/fangames/<carpeta> y los motores en ~/Juegos/fangames/_runtimes.
+Motores: mkxp-z (RPG Maker XP/VX/VX Ace y Pokémon Essentials), opengmk (Game Maker 8)
+y wine como último recurso. Última partida y tiempo jugado en ~/.local/state/trucha-os/fangames.json."""
+import json
+import os
+import shutil
+import subprocess
+import sys
+import threading
+import time
+import tomllib
+from pathlib import Path
+
+HOME = Path.home()
+SHARE = HOME / ".local/share/trucha-os/fangames"
+CATALOGOS = [SHARE / "juegos", HOME / ".config/trucha-os/fangames"]
+JUEGOS = Path(os.environ.get("TRUCHA_FANGAMES_DIR") or HOME / "Juegos/fangames")
+RUNTIMES = JUEGOS / "_runtimes"
+ESTADO = HOME / ".local/state/trucha-os/fangames.json"
+LOGS = HOME / ".local/state/trucha-os/fangames"
+WEB = SHARE / "web"
+THEME = HOME / ".config/trucha-os/current.json"
+ACCESOS = HOME / ".local/share/applications"
+APP_ID = "es.trucha.Fangames"
+DEFAULT_THEME = {"accent": "#e5383b", "accentBright": "#ff5a5f", "accentDark": "#a32a2c", "bone": "#ece8e4",
+                 "ash": "#8a8580", "surface": "#0c0c0e", "card": "#1c1c20", "track": "#2a2a30", "kanji": "鱒"}
+
+OBLIGATORIOS = ("id", "nombre", "motor", "carpeta")
+TEXTOS = ("nombre", "motor", "carpeta", "ejecutable", "autor", "version", "descripcion", "color",
+          "logo", "fondo", "estado", "web")
+RUTAS_DEL_JUEGO = ("ejecutable", "logo", "fondo")   # relativas a la carpeta del juego
+ESTADOS = ("jugable", "beta", "en pruebas")
+
+
+# ── motores ────────────────────────────────────────────────────────────────
+def _preparar_mkxp(carpeta):
+    """mkxp-z toma como juego la carpeta de su ejecutable: se enlaza dentro del juego sin copiar nada."""
+    base = RUNTIMES / "mkxp-z"
+    origen, destino = base / "mkxp-z.x86_64", carpeta / "mkxp-z.x86_64"
+    if not destino.exists() or destino.stat().st_ino != origen.stat().st_ino:
+        destino.unlink(missing_ok=True)
+        try:
+            os.link(origen, destino)          # enlace duro: /proc/self/exe apunta a la carpeta del juego
+        except OSError:
+            shutil.copy2(origen, destino)     # en otro disco no queda otra que copiarlo
+    for sub in ("stdlib", "scripts"):
+        enlace = carpeta / sub
+        if not enlace.exists() and (base / sub).is_dir():
+            enlace.symlink_to(base / sub)
+
+
+MOTORES = {
+    "mkxp-z": {
+        "nombre": "mkxp-z",
+        "runtime": lambda: RUNTIMES / "mkxp-z/mkxp-z.x86_64",
+        "preparar": _preparar_mkxp,
+        "orden": lambda juego, carpeta: [str(carpeta / "mkxp-z.x86_64")],
+    },
+    "opengmk": {
+        "nombre": "OpenGMK",
+        "runtime": lambda: RUNTIMES / "opengmk/gm8emulator",
+        "preparar": None,
+        "orden": lambda juego, carpeta: [str(RUNTIMES / "opengmk/gm8emulator"), str(carpeta / juego["ejecutable"])],
+    },
+    "wine": {
+        "nombre": "Wine",
+        "runtime": lambda: Path(shutil.which("wine") or "/nonexistent/wine"),
+        "preparar": None,
+        "orden": lambda juego, carpeta: ["wine", str(carpeta / juego["ejecutable"])],
+    },
+}
+
+
+# ── catálogo ───────────────────────────────────────────────────────────────
+def ruta_segura(relativa):
+    """Ruta relativa que no sale de la carpeta del juego."""
+    p = Path(relativa)
+    return bool(relativa) and not p.is_absolute() and ".." not in p.parts
+
+
+def validar(datos):
+    """Errores del manifiesto, en español (lista vacía si está bien)."""
+    errores = [f"falta «{c}»" for c in OBLIGATORIOS if not datos.get(c)]
+    for c in TEXTOS:
+        if c in datos and not isinstance(datos[c], str):
+            errores.append(f"«{c}» tiene que ser texto")
+    if errores:
+        return errores
+    if not str(datos["id"]).replace("-", "").isalnum():
+        errores.append("el id solo admite letras, números y guiones")
+    if datos["motor"] not in MOTORES:
+        errores.append(f"motor desconocido «{datos['motor']}» (hay {', '.join(MOTORES)})")
+    elif datos["motor"] != "mkxp-z" and not datos.get("ejecutable"):
+        errores.append(f"el motor {datos['motor']} necesita «ejecutable»")
+    for c in RUTAS_DEL_JUEGO:
+        if datos.get(c) and not ruta_segura(datos[c]):
+            errores.append(f"«{c}» tiene que ser una ruta dentro de la carpeta del juego")
+    if datos.get("estado", "jugable") not in ESTADOS:
+        errores.append(f"estado desconocido «{datos['estado']}» (hay {', '.join(ESTADOS)})")
+    if not isinstance(datos.get("etiquetas", []), list):
+        errores.append("«etiquetas» tiene que ser una lista")
+    return errores
+
+
+def carpeta_de(juego):
+    p = Path(juego["carpeta"]).expanduser()
+    return p if p.is_absolute() else JUEGOS / p
+
+
+def leer_catalogo():
+    """Juegos válidos por id (los de ~/.config pisan a los de serie) y avisos de los que no lo son."""
+    juegos, avisos = {}, []
+    for directorio in CATALOGOS:
+        for archivo in sorted(directorio.glob("*.toml")):
+            try:
+                datos = tomllib.loads(archivo.read_text(encoding="utf-8"))
+            except (OSError, UnicodeDecodeError, tomllib.TOMLDecodeError) as e:
+                avisos.append(f"{archivo.name}: no se puede leer ({e})")
+                continue
+            errores = validar(datos)
+            if errores:
+                avisos.append(f"{archivo.name}: {'; '.join(errores)}")
+                continue
+            juegos[datos["id"]] = datos
+    return juegos, avisos
+
+
+def estado():
+    try:
+        return json.loads(ESTADO.read_text())
+    except (OSError, ValueError):
+        return {}
+
+
+def ficha(juego, registro=None):
+    """Lo que la interfaz necesita de un juego: el manifiesto más su estado real en disco."""
+    carpeta = carpeta_de(juego)
+    motor = MOTORES[juego["motor"]]
+    instalado = carpeta.is_dir() \
+        and (juego["motor"] != "mkxp-z" or (carpeta / "Game.ini").exists()) \
+        and (not juego.get("ejecutable") or (carpeta / juego["ejecutable"]).is_file())
+    motor_listo = motor["runtime"]().exists()
+    r = (registro or {}).get(juego["id"], {})
+
+    def imagen(campo):
+        p = carpeta / juego[campo] if juego.get(campo) else None
+        return p.as_uri() if p and p.is_file() else None
+
+    return {
+        **{k: v for k, v in juego.items() if k not in RUTAS_DEL_JUEGO},
+        "estado": juego.get("estado", "jugable"),
+        "etiquetas": juego.get("etiquetas", []),
+        "motor_nombre": motor["nombre"],
+        "ruta": str(carpeta),
+        "logo": imagen("logo"),
+        "fondo": imagen("fondo"),
+        "instalado": instalado,
+        "motor_listo": motor_listo,
+        "listo": instalado and motor_listo,
+        "ultima_vez": r.get("ultima_vez"),
+        "minutos": r.get("minutos", 0),
+    }
+
+
+def biblioteca():
+    juegos, avisos = leer_catalogo()
+    registro = estado()
+    fichas = [ficha(j, registro) for j in juegos.values()]
+    fichas.sort(key=lambda f: (not f["listo"], -(f["ultima_vez"] or 0), f["nombre"].lower()))
+    return {"juegos": fichas, "avisos": avisos}
+
+
+# ── jugar ──────────────────────────────────────────────────────────────────
+def por_que_no(juego):
+    f = ficha(juego)
+    if not f["instalado"]:
+        return f"no encuentro el juego en {f['ruta']}"
+    if not f["motor_listo"]:
+        return f"falta el motor {f['motor_nombre']} en {MOTORES[juego['motor']]['runtime']()}"
+    return None
+
+
+def lanzar(juego):
+    """Arranca el juego en su propia sesión y devuelve el proceso; la salida va a un log por juego."""
+    problema = por_que_no(juego)
+    if problema:
+        raise RuntimeError(problema)
+    carpeta = carpeta_de(juego)
+    motor = MOTORES[juego["motor"]]
+    if motor["preparar"]:
+        motor["preparar"](carpeta)
+    LOGS.mkdir(parents=True, exist_ok=True)
+    with open(LOGS / f"{juego['id']}.log", "w") as log:
+        return subprocess.Popen(motor["orden"](juego, carpeta), cwd=carpeta, stdout=log, stderr=subprocess.STDOUT,
+                                stdin=subprocess.DEVNULL, start_new_session=True)
+
+
+def apuntar_partida(id_juego, inicio, fin):
+    registro = estado()
+    r = registro.setdefault(id_juego, {})
+    r["ultima_vez"] = int(inicio)
+    r["minutos"] = r.get("minutos", 0) + max(0, round((fin - inicio) / 60))
+    ESTADO.parent.mkdir(parents=True, exist_ok=True)
+    tmp = ESTADO.with_suffix(".tmp")
+    tmp.write_text(json.dumps(registro, ensure_ascii=False, indent=2))
+    tmp.replace(ESTADO)
+
+
+def jugar(juego, al_terminar=None):
+    """Lanza y, en un hilo, espera a que acabe para apuntar el tiempo jugado."""
+    inicio = time.time()
+    proceso = lanzar(juego)
+
+    def esperar():
+        codigo = proceso.wait()
+        apuntar_partida(juego["id"], inicio, time.time())
+        if al_terminar:
+            al_terminar(juego["id"], codigo)
+
+    hilo = threading.Thread(target=esperar, daemon=al_terminar is not None)
+    hilo.start()
+    return hilo
+
+
+def escribir_accesos():
+    """Un .desktop por juego listo, para abrirlo desde el lanzador de DMS."""
+    ACCESOS.mkdir(parents=True, exist_ok=True)
+    juegos, _ = leer_catalogo()
+    hechos = []
+    for juego in juegos.values():
+        f = ficha(juego)
+        if not f["listo"]:
+            continue
+        icono = carpeta_de(juego) / juego["logo"] if juego.get("logo") else None
+        texto = "\n".join([
+            "[Desktop Entry]", "Type=Application", f"Name={juego['nombre']}",
+            f"Comment={juego.get('descripcion', 'Fangame')} · {f['motor_nombre']}",
+            f"Exec=trucha-fangames jugar {juego['id']}",
+            f"Icon={icono if icono and icono.is_file() else 'applications-games'}",
+            "Terminal=false", "Categories=Game;", f"Keywords=fangame;{juego['id']};", ""])
+        destino = ACCESOS / f"trucha-fangame-{juego['id']}.desktop"
+        destino.write_text(texto)
+        hechos.append(destino)
+    return hechos
+
+
+# ── ventana ────────────────────────────────────────────────────────────────
+def theme():
+    try:
+        return {**DEFAULT_THEME, **json.loads(THEME.read_text())}
+    except (OSError, ValueError):
+        return dict(DEFAULT_THEME)
+
+
+def gui(argv):
+    import gi
+    gi.require_version("Gtk", "3.0")
+    gi.require_version("Gdk", "3.0")
+    gi.require_version("WebKit2", "4.1")
+    from gi.repository import Gdk, Gio, GLib, Gtk, WebKit2
+
+    page = (WEB / "index.html").as_uri()
+
+    class App(Gtk.Application):
+        def __init__(self):
+            super().__init__(application_id=APP_ID, flags=Gio.ApplicationFlags.HANDLES_COMMAND_LINE)
+            self.window = self.view = None
+            self.en_juego = set()
+
+        def do_command_line(self, _cmdline):
+            if self.window is None:
+                self.build()
+            self.window.present()
+            return 0
+
+        def build(self):
+            manager = WebKit2.UserContentManager()
+            manager.register_script_message_handler("fangames")
+            manager.connect("script-message-received::fangames", self.on_message)
+            self.view = WebKit2.WebView.new_with_user_content_manager(manager)
+            self.view.get_settings().set_enable_developer_extras(False)
+            rgba = Gdk.RGBA()
+            rgba.parse(theme()["surface"])
+            self.view.set_background_color(rgba)   # sin destello blanco al abrir
+            self.view.connect("decide-policy", self.on_policy)
+            self.view.connect("context-menu", lambda *_: True)
+            self.view.load_uri(page)
+            self.window = Gtk.ApplicationWindow(application=self, title="Fangames")
+            self.window.set_default_size(1180, 720)
+            self.window.add(self.view)
+            self.window.show_all()
+
+        def js(self, fn, *args):
+            code = f"{fn}({', '.join(json.dumps(a, ensure_ascii=False) for a in args)})"
+            self.view.evaluate_javascript(code, -1, None, None, None, None, None)
+
+        def on_policy(self, _view, decision, kind):
+            if kind == WebKit2.PolicyDecisionType.RESPONSE:
+                return False
+            uri = decision.get_navigation_action().get_request().get_uri()
+            if kind == WebKit2.PolicyDecisionType.NAVIGATION_ACTION and uri.split("#")[0] == page:
+                return False
+            if uri.startswith(("http://", "https://")):
+                Gio.AppInfo.launch_default_for_uri(uri, None)
+            decision.ignore()
+            return True
+
+        def refrescar(self):
+            self.js("Fangames.cargar", {**biblioteca(), "tema": theme(), "en_juego": sorted(self.en_juego)})
+
+        def on_message(self, _manager, result):
+            value = result.get_js_value() if hasattr(result, "get_js_value") else result
+            msg = json.loads(value.to_string())
+            cmd = msg.get("cmd")
+            juegos, _ = leer_catalogo()
+            juego = juegos.get(msg.get("id", ""))
+            if cmd in ("ready", "recargar"):
+                self.refrescar()
+            elif cmd == "jugar" and juego and juego["id"] not in self.en_juego:
+                try:
+                    jugar(juego, lambda i, c: GLib.idle_add(self.terminado, i, c))
+                except (RuntimeError, OSError) as e:
+                    self.js("Fangames.aviso", f"{juego['nombre']}: {e}")
+                    return
+                self.en_juego.add(juego["id"])
+                self.refrescar()
+            elif cmd == "carpeta" and juego:
+                Gio.AppInfo.launch_default_for_uri(carpeta_de(juego).as_uri(), None)
+            elif cmd == "log" and juego and (LOGS / f"{juego['id']}.log").exists():
+                Gio.AppInfo.launch_default_for_uri((LOGS / f"{juego['id']}.log").as_uri(), None)
+
+        def terminado(self, id_juego, codigo):
+            self.en_juego.discard(id_juego)
+            if codigo not in (0, None):
+                self.js("Fangames.aviso", f"El juego se cerró con código {codigo}. Tienes el log en la ficha.")
+            self.refrescar()
+
+    GLib.set_prgname(APP_ID)
+    return App().run(argv)
+
+
+def main(argv):
+    orden = argv[1] if len(argv) > 1 else ""
+    if orden in ("-h", "--help"):
+        print(__doc__)
+        return 0
+    if orden == "lista":
+        juegos, avisos = leer_catalogo()
+        for f in biblioteca()["juegos"]:
+            detalle = "" if f["listo"] else f"  ({por_que_no(juegos[f['id']])})"
+            print(f"{'✔' if f['listo'] else '✘'} {f['id']:<12} {f['nombre']}  [{f['motor_nombre']}]{detalle}")
+        for aviso in avisos:
+            print(f"! {aviso}", file=sys.stderr)
+        return 0
+    if orden == "jugar":
+        juegos, _ = leer_catalogo()
+        if len(argv) < 3 or argv[2] not in juegos:
+            print(f"Uso: trucha-fangames jugar <id>   (hay: {', '.join(juegos) or 'ninguno'})", file=sys.stderr)
+            return 2
+        try:
+            jugar(juegos[argv[2]]).join()
+        except RuntimeError as e:
+            print(f"No puedo arrancarlo: {e}", file=sys.stderr)
+            return 1
+        return 0
+    if orden == "accesos":
+        for destino in escribir_accesos():
+            print(destino)
+        return 0
+    return gui(argv[:1])
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

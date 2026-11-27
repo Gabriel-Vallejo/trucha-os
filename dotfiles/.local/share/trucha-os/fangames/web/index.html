@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<!-- nada de red: solo archivos locales (portadas incluidas, que salen de la carpeta de cada juego) -->
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src file:; style-src file: 'unsafe-inline'; font-src file:; img-src file: data:">
+<title>Fangames</title>
+<link rel="stylesheet" href="app.css">
+<script src="app.js" defer></script>
+</head>
+<body>
+<aside id="lateral">
+  <header>
+    <span class="kanji" id="kanji">遊</span>
+    <div><div class="marca">Fangames</div><div class="sub">nativos en Linux</div></div>
+  </header>
+  <nav id="lista" aria-label="Biblioteca"></nav>
+  <footer>
+    <button id="recargar" title="Volver a leer los manifiestos (F5)">↻ Recargar</button>
+    <span class="atajos">↑↓ elegir · Intro jugar</span>
+  </footer>
+</aside>
+<main id="ficha" aria-live="polite">
+  <div id="fondo"></div>
+  <section id="contenido"></section>
+</main>
+<div id="aviso" role="status"></div>
+</body>
+</html>
