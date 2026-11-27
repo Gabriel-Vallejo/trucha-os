@@ -141,7 +141,7 @@ Tiene tres pestañas:
 
 - **Biblioteca**: portada, banner, descripción, características, información general (autor, versión, género, idioma, web…), última partida y tiempo jugado. Se maneja con teclado o mando (↑↓ e Intro/A).
 - **＋ Añadir**: eliges un `.zip` o una carpeta, lo descomprime en tu biblioteca y detecta el motor solo. Si marcas *Que Claude lo integre*, se lo pasa a Claude Code (`claude -p`, con permisos acotados), que busca la información del juego, le hace portada y banner con sus propios gráficos y lo prueba hasta que arranca.
-- **Ajustes**: carpeta de juegos, orden, minimizar al jugar, motores instalados y accesos en el lanzador.
+- **Ajustes**: carpeta de juegos, orden, minimizar al jugar, pantalla completa adaptada al monitor y filtro de escalado (nítido, suave o xBRZ) para los juegos de RPG Maker, motores instalados y accesos en el lanzador.
 
 | Motor | Para qué | Dónde va |
 |---|---|---|

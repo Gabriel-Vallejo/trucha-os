@@ -45,7 +45,9 @@ APP_ID = "es.trucha.Fangames"
 DEFAULT_THEME = {"accent": "#e5383b", "accentBright": "#ff5a5f", "accentDark": "#a32a2c", "bone": "#ece8e4",
                  "ash": "#8a8580", "surface": "#0c0c0e", "card": "#1c1c20", "track": "#2a2a30", "kanji": "鱒"}
 AJUSTES_POR_DEFECTO = {"carpeta_juegos": str(HOME / "Juegos/fangames"), "minimizar_al_jugar": True,
-                       "orden": "recientes", "mostrar_no_listos": True, "integrar_con_claude": True}
+                       "orden": "recientes", "mostrar_no_listos": True, "integrar_con_claude": True,
+                       "pantalla_completa": True, "escalado": "nitido"}
+ESCALADOS = {"nitido": 0, "suave": 2, "xbrz": 4}   # smoothScaling de mkxp-z: vecino, bicúbico, xBRZ (pixel art)
 
 OBLIGATORIOS = ("id", "nombre", "motor", "carpeta")
 TEXTOS = ("nombre", "motor", "carpeta", "ejecutable", "autor", "version", "descripcion", "color", "logo",
@@ -74,6 +76,8 @@ def guardar_ajustes(nuevos):
             actuales[clave] = valor
     if actuales["orden"] not in ("recientes", "nombre"):
         actuales["orden"] = "recientes"
+    if actuales["escalado"] not in ESCALADOS:
+        actuales["escalado"] = "nitido"
     AJUSTES.parent.mkdir(parents=True, exist_ok=True)
     escribir_atomico(AJUSTES, json.dumps(actuales, ensure_ascii=False, indent=2))
     configurar()
@@ -105,25 +109,30 @@ COMPAT = {   # parches de precarga de mkxp-z para juegos de RPG Maker que no nac
 
 
 def _mkxp_json(juego, carpeta):
-    """Si el manifiesto pide `compat`, reescribe mkxp.json con las precargas y el soundfont (guarda el original)."""
-    compat = juego.get("compat", [])
+    """Reescribe mkxp.json desde el original del autor (guardado como mkxp.json.original) con la pantalla y el
+    escalado de los ajustes y, si el manifiesto pide `compat`, las precargas y el soundfont."""
+    compat, prefs = juego.get("compat", []), ajustes()
     actual, original = carpeta / "mkxp.json", carpeta / "mkxp.json.original"
-    if not compat:
-        if original.exists():
-            shutil.copy2(original, actual)
-        return
     if actual.exists() and not original.exists():
         shutil.copy2(actual, original)
     base = original.read_text(encoding="utf-8", errors="replace") if original.exists() else "{\n}"
-    precargas = ["scripts/preload/mkxp_wrap.rb"]
-    for nombre in compat:
-        precargas += [str(SHARE / "compat" / p[1:]) if p.startswith("@") else p for p in COMPAT[nombre]]
-    extra = [f'    "preloadScript": {json.dumps(list(dict.fromkeys(precargas)))},']
+    # se adapta al monitor: pantalla completa (o ventana redimensionable) sin deformar y con el filtro elegido
+    extra = [f'    "fullscreen": {json.dumps(prefs["pantalla_completa"])},', '    "winResizable": true,',
+             '    "fixedAspectRatio": true,', f'    "smoothScaling": {ESCALADOS[prefs["escalado"]]},']
+    if compat:
+        precargas = ["scripts/preload/mkxp_wrap.rb"]
+        for nombre in compat:
+            precargas += [str(SHARE / "compat" / p[1:]) if p.startswith("@") else p for p in COMPAT[nombre]]
+        extra.append(f'    "preloadScript": {json.dumps(list(dict.fromkeys(precargas)))},')
     soundfont = RUNTIMES / "soundfont/soundfont.sf2"
     if not re.search(r'^\s*"midiSoundFont"', base, re.M) and soundfont.exists():
         extra.append(f'    "midiSoundFont": {json.dumps(str(soundfont))},')
-    llave = base.index("{") + 1   # mkxp-z admite comentarios y comas sobrantes: se inyecta tras la primera llave
-    escribir_atomico(actual, "// Generado por trucha-fangames (compat: " + ", ".join(compat) + "); el original es mkxp.json.original\n"
+    # lo del autor que choca con lo nuestro se comenta, y lo nuestro va tras la primera llave
+    # (mkxp-z admite comentarios y comas sobrantes)
+    for clave in re.findall(r'"(\w+)":', "\n".join(extra)):
+        base = re.sub(rf'^(\s*)("{clave}"\s*:)', r"\1// (trucha-fangames) \2", base, flags=re.M)
+    llave = base.index("{") + 1
+    escribir_atomico(actual, "// Generado por trucha-fangames a partir de mkxp.json.original\n"
                      + base[:llave] + "\n" + "\n".join(extra) + base[llave:])
 
 
@@ -148,13 +157,16 @@ MOTORES = {
     "mkxp-z": {
         "nombre": "mkxp-z", "para": "RPG Maker XP/VX/VX Ace y Pokémon Essentials",
         "runtime": lambda: RUNTIMES / "mkxp-z/mkxp-z.x86_64",
-        "preparar": _preparar_mkxp,
+        "preparar": _preparar_mkxp, "app_id": r"^mkxp-z",
+        # con escala fraccionaria (1.5) el SDL de mkxp-z pinta el juego en una esquina y choca con wp_viewport:
+        # sin HiDPI pinta a tamaño lógico y niri lo escala a la pantalla entera
+        "entorno": {"SDL_VIDEO_HIGHDPI_DISABLED": "1"},
         "orden": lambda juego, carpeta: [str(carpeta / "mkxp-z.x86_64")],
     },
     "opengmk": {
         "nombre": "OpenGMK", "para": "Game Maker 8",
         "runtime": lambda: RUNTIMES / "opengmk/gm8emulator",
-        "preparar": None,
+        "preparar": None, "app_id": r"(?i)opengmk|gm8emulator",
         "orden": lambda juego, carpeta: [str(RUNTIMES / "opengmk/gm8emulator"), str(carpeta / juego["ejecutable"])],
     },
     "wine": {
@@ -335,11 +347,14 @@ def ventanas_niri():
         return []
 
 
-def ventana_de(pid, previas=()):
-    """Ventana de niri del juego: la de su pid o, si va por XWayland (otro pid), la primera que no estaba antes."""
+def ventana_de(pid, previas=(), app_id=None):
+    """Ventana de niri del juego: la de su pid o, si va por XWayland (otro pid), una nueva con el app_id del motor.
+    Nunca otra ventana cualquiera: la captura no debe sacar lo que tengas abierto."""
     ventanas = ventanas_niri()
     propia = next((v["id"] for v in ventanas if v.get("pid") == pid), None)
-    return propia or next((v["id"] for v in ventanas if v["id"] not in previas), None)
+    if propia or not app_id:
+        return propia
+    return next((v["id"] for v in ventanas if v["id"] not in previas and re.search(app_id, v.get("app_id") or "")), None)
 
 
 def probar(juego, segundos=15):
@@ -350,7 +365,7 @@ def probar(juego, segundos=15):
     ventana = None
     while time.time() < limite and proceso.poll() is None:
         time.sleep(1)
-        ventana = ventana or ventana_de(proceso.pid, previas)
+        ventana = ventana or ventana_de(proceso.pid, previas, MOTORES[juego["motor"]].get("app_id"))
     captura = None
     if ventana and proceso.poll() is None:
         destino = ARTE / juego["id"] / "captura.png"
@@ -429,9 +444,11 @@ def compat_necesaria(scripts):
     except OSError:
         return []
     texto = bytearray()
-    for m in re.finditer(rb"\x78[\x01\x5e\x9c\xda]", datos):
+    for n, m in enumerate(re.finditer(rb"\x78[\x01\x5e\x9c\xda]", datos)):
+        if n >= 5000 or len(texto) >= 64_000_000:       # tope: un archivo hostil no puede inflarse sin fin
+            break
         try:
-            texto += zlib.decompressobj().decompress(datos[m.start():m.start() + 4_000_000])
+            texto += zlib.decompressobj().decompress(datos[m.start():m.start() + 4_000_000], 4_000_000)
         except zlib.error:
             continue
     compat = []

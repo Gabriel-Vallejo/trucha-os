@@ -178,6 +178,8 @@ const Fangames = (() => {
     $("#aj-carpeta").value = a.carpeta_juegos ?? "";
     $("#aj-orden").value = a.orden ?? "recientes";
     $("#aj-minimizar").checked = !!a.minimizar_al_jugar;
+    $("#aj-completa").checked = !!a.pantalla_completa;
+    $("#aj-escalado").value = a.escalado ?? "nitido";
     $("#aj-no-listos").checked = !!a.mostrar_no_listos;
     $("#aj-claude").checked = !!a.integrar_con_claude;
   }
@@ -223,6 +225,7 @@ const Fangames = (() => {
     carpeta_juegos: $("#aj-carpeta").value.trim(), orden: $("#aj-orden").value,
     minimizar_al_jugar: $("#aj-minimizar").checked, mostrar_no_listos: $("#aj-no-listos").checked,
     integrar_con_claude: $("#aj-claude").checked,
+    pantalla_completa: $("#aj-completa").checked, escalado: $("#aj-escalado").value,
   } }));
   $("#crear-accesos").addEventListener("click", () => enviar("accesos"));
 

@@ -196,14 +196,25 @@ escribir(scripts_nuevos, "")
 scripts_nuevos.write_bytes(b"\x04\x08[" + _zlib.compress(b"puts 'hola'\n"))
 comprobar("un Essentials moderno no necesita parches", fg.compat_necesaria(scripts_nuevos) == [])
 comprobar("compat desconocido se rechaza", fg.validar({**bueno, "compat": ["dos"]}) != [])
-escribir(carpeta / "mkxp.json", '{\n  // del autor\n  "windowTitle": "Mio",\n}\n')
+escribir(carpeta / "mkxp.json", '{\n  // del autor\n  "windowTitle": "Mio",\n  "smoothScaling": 3,\n}\n')
 fg._mkxp_json({**mio, "compat": ["win32"]}, carpeta)
 generado = (carpeta / "mkxp.json").read_text()
 comprobar("con compat, mkxp.json lleva las precargas y conserva lo del autor",
           "win32_wrap.rb" in generado and "win32_ventana.rb" in generado and '"windowTitle": "Mio"' in generado
           and (carpeta / "mkxp.json.original").exists())
 fg._mkxp_json(mio, carpeta)
-comprobar("sin compat vuelve el mkxp.json original", (carpeta / "mkxp.json").read_text().startswith("{\n  // del autor"))
+generado = (carpeta / "mkxp.json").read_text()
+comprobar("sin compat no hay precargas pero sí pantalla completa y escalado de los ajustes",
+          "preloadScript" not in generado and '"fullscreen": true' in generado and '"smoothScaling": 0' in generado
+          and '"fixedAspectRatio": true' in generado)
+comprobar("el valor del autor que choca queda comentado", '// (trucha-fangames) "smoothScaling": 3' in generado)
+fg.guardar_ajustes({"pantalla_completa": False, "escalado": "xbrz"})
+fg._mkxp_json(mio, carpeta)
+generado = (carpeta / "mkxp.json").read_text()
+comprobar("los ajustes de pantalla llegan a mkxp.json", '"fullscreen": false' in generado and '"smoothScaling": 4' in generado)
+fg.guardar_ajustes({"escalado": "inventado"})
+comprobar("un escalado desconocido vuelve a nítido", fg.ajustes()["escalado"] == "nitido")
+comprobar("el original del autor sigue intacto", (carpeta / "mkxp.json.original").read_text().startswith("{\n  // del autor"))
 
 print(f"\n{'Todo bien' if not fallos else f'{fallos} fallos'}")
 sys.exit(1 if fallos else 0)

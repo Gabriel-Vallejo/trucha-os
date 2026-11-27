@@ -4,6 +4,9 @@
 #  · regex con bytes sueltos, /[\x7f-\x9f]/ («invalid multibyte escape»): se les añade /n, que es lo que eran.
 #  · un `next` suelto en un método («Invalid next»): en 1.8 salía del método, así que pasa a `return`.
 #  · `io.read(1)[0]`: en 1.8 daba el byte (un número); en Ruby 3 da un String, así que pasa a getbyte(0).
+#  · el script de Peter O. para cambiar el tamaño de pantalla (pbSetResizeFactor) agranda la pantalla interna
+#    del juego y mkxp-z la pinta en una esquina (en Windows recortaba la ventana): se fija a 1×, la pantalla
+#    interna pasa a la resolución real del juego (DEFAULTSCREENWIDTH×HEIGHT) y el escalado lo hace mkxp-z.
 # No toca nada más del script.
 module Kernel
   alias_method :__trucha_eval_original, :eval
@@ -14,11 +17,21 @@ module Kernel
     if src.is_a?(String)
       src = src.gsub(REGEX_BYTES) { $2.include?("n") ? $& : "#{$1}#{$2}n" } if src.include?('\x')
       src = src.gsub(/\.read\(1\)\[0\]/, ".read(1).getbyte(0)")
+      src = src.sub(/^(\s*def pbSetResizeFactor\(factor\s*=\s*1\s*,\s*norecalc\s*=\s*false\)[^\n]*\n)/) {
+        "#{$1}  factor, norecalc = 1, false   # trucha-fangames: 1×, mkxp-z escala al monitor\n" \
+        "  Graphics.resize_screen(DEFAULTSCREENWIDTH, DEFAULTSCREENHEIGHT) if defined?(DEFAULTSCREENWIDTH)\n"
+      }
     end
     intentos = 0
     begin
       # sin binding, el script tiene que vivir en el nivel superior y no dentro de este método
-      __trucha_eval_original(src, binding || TOPLEVEL_BINDING, *rest)
+      resultado = __trucha_eval_original(src, binding || TOPLEVEL_BINDING, *rest)
+      # en cuanto el juego define su resolución, la pantalla interna se pone a ese tamaño desde el principio
+      if !$trucha_resolucion && Object.const_defined?(:DEFAULTSCREENWIDTH) && Object.const_defined?(:DEFAULTSCREENHEIGHT)
+        $trucha_resolucion = true
+        Graphics.resize_screen(DEFAULTSCREENWIDTH, DEFAULTSCREENHEIGHT) rescue nil
+      end
+      resultado
     rescue SyntaxError => e
       linea = e.message[NEXT_SUELTO, 1]
       raise unless linea && src.is_a?(String) && (intentos += 1) <= 50
