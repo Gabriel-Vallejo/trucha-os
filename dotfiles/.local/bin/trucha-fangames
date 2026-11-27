@@ -8,6 +8,8 @@
   trucha-fangames importar <zip|carpeta> [--nombre N] [--claude]
                                         lo descomprime, detecta el motor y crea su manifiesto
                                         (con --claude, Claude rellena la info, el arte y lo prueba)
+  trucha-fangames parchear <parche> <rom> <nombre>
+                                        aplica un parche .ups a tu ROM de GBA y lo añade (mGBA)
   trucha-fangames accesos               crea un acceso en el lanzador para cada juego listo
 
 Cada juego es un .toml en ~/.local/share/trucha-os/fangames/juegos (los que trae Trucha OS!)
@@ -20,6 +22,7 @@ import os
 import re
 import shutil
 import signal
+import struct
 import subprocess
 import sys
 import tempfile
@@ -664,6 +667,70 @@ def importar(origen, nombre=None, avisar=print):
     return id_juego
 
 
+# ── parches de ROM (UPS) ───────────────────────────────────────────────────
+def aplicar_ups(parche, rom):
+    """Aplica un parche UPS; comprueba con sus CRC que la ROM es la base que pide y que el resultado es bueno."""
+    if parche[:4] != b"UPS1" or len(parche) < 18:
+        raise ValueError("no es un parche UPS")
+    crc_base, crc_final, crc_parche = struct.unpack("<III", parche[-12:])
+    if zlib.crc32(parche[:-4]) != crc_parche:
+        raise ValueError("el parche está dañado")
+    if zlib.crc32(rom) != crc_base:
+        raise ValueError("esta ROM no es la base que pide el parche (versión o idioma distintos)")
+    pos = 4
+
+    def numero():
+        nonlocal pos
+        valor, desplazamiento = 0, 1
+        while True:
+            byte = parche[pos]
+            pos += 1
+            valor += (byte & 0x7F) * desplazamiento
+            if byte & 0x80:
+                return valor
+            desplazamiento <<= 7
+            valor += desplazamiento
+
+    numero()                                   # tamaño de la base (ya comprobada por su CRC)
+    tamano = numero()
+    salida = bytearray(rom[:tamano].ljust(tamano, b"\0"))
+    i, fin = 0, len(parche) - 12
+    while pos < fin:
+        i += numero()
+        while parche[pos] != 0:
+            if i < tamano:
+                salida[i] ^= parche[pos]
+            i += 1
+            pos += 1
+        pos += 1
+        i += 1
+    if zlib.crc32(salida) != crc_final:
+        raise ValueError("el resultado no cuadra con el parche")
+    return bytes(salida)
+
+
+def leer_de(ruta, extension):
+    """Bytes de `ruta` o, si es un .zip, del primer archivo con esa extensión que lleve dentro."""
+    ruta = Path(ruta).expanduser()
+    if zipfile.is_zipfile(ruta):
+        with zipfile.ZipFile(ruta) as z:
+            nombre = next((n for n in z.namelist() if n.lower().endswith(extension)), None)
+            if not nombre:
+                raise ValueError(f"{ruta.name} no trae ningún {extension}")
+            return z.read(nombre)
+    return ruta.read_bytes()
+
+
+def parchear(parche, rom, nombre, avisar=print):
+    """Parchea una ROM con un .ups (sueltos o dentro de un .zip) e importa el resultado como juego de GBA."""
+    resultado = aplicar_ups(leer_de(parche, ".ups"), leer_de(rom, ".gba"))
+    with tempfile.TemporaryDirectory() as tmp:
+        destino = Path(tmp) / f"{slug(nombre)}.gba"
+        destino.write_bytes(resultado)
+        avisar("Parche aplicado y comprobado.")
+        return importar(destino, nombre, avisar)
+
+
 # ── integrar con Claude ────────────────────────────────────────────────────
 PROMPT_INTEGRAR = """Integra el fangame «{id}» en el launcher trucha-fangames de Trucha OS! para que corra nativo en Linux.
 Responde y escribe todo en español.
@@ -971,6 +1038,16 @@ def main(argv):
                 integrar_con_claude(id_juego)
         except (ValueError, RuntimeError, OSError, zipfile.BadZipFile) as e:
             print(f"No puedo importarlo: {e}", file=sys.stderr)
+            return 1
+        return 0
+    if orden == "parchear":
+        if len(argv) < 5:
+            print("Uso: trucha-fangames parchear <parche.ups|zip> <rom.gba|zip> <nombre>", file=sys.stderr)
+            return 2
+        try:
+            parchear(argv[2], argv[3], argv[4])
+        except (ValueError, OSError, zipfile.BadZipFile) as e:
+            print(f"No puedo parchearlo: {e}", file=sys.stderr)
             return 1
         return 0
     if orden == "accesos":

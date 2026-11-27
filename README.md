@@ -179,7 +179,7 @@ Juegos de RPG Maker viejos (Essentials de la era Ruby 1.8, con llamadas a la API
 `~/.local/share/trucha-os/fangames/compat/` (guarda el original como `mkxp.json.original`). Al importar se detecta solo.
 
 La portada y el banner van por convención en `~/Juegos/fangames/_arte/<id>/portada.png` y `banner.png`; `trucha-fangames-arte` los monta con un fondo, el logo y unos sprites del propio juego.
-En la terminal: `trucha-fangames lista`, `jugar <id>`, `probar <id>` (lo arranca, saca captura y lo cierra), `importar <zip> [--claude]` y `accesos`.
+En la terminal: `trucha-fangames lista`, `jugar <id>`, `probar <id>` (lo arranca, saca captura y lo cierra), `importar <zip> [--claude]`, `parchear <parche.ups> <rom> <nombre>` (hacks de GBA: comprueba que la ROM sea la base correcta) y `accesos`.
 
 ## 🧪 Trucha Lab
 

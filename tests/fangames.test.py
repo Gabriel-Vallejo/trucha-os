@@ -297,5 +297,59 @@ comprobar("una ROM .gba suelta se importa con mGBA", juego_gba["motor"] == "gba"
 comprobar("el motor gba exige una ROM .gba", fg.validar({**bueno, "motor": "gba", "ejecutable": "x.exe"}) != [])
 comprobar("descendientes de un proceso", os.getpid() in fg.descendientes(os.getppid()))
 
+# ── parches UPS ──
+import struct as _struct, zlib as _z
+
+
+def _num(v):
+    out = bytearray()
+    while True:
+        x = v & 0x7F
+        v >>= 7
+        if v == 0:
+            out.append(0x80 | x)
+            return bytes(out)
+        out.append(x)
+        v -= 1
+
+
+def crear_ups(base, final):
+    cuerpo, i, anterior = bytearray(b"UPS1" + _num(len(base)) + _num(len(final))), 0, 0
+    while i < len(final):
+        b = base[i] if i < len(base) else 0
+        if final[i] == b:
+            i += 1
+            continue
+        cuerpo += _num(i - anterior)
+        while i < len(final) and final[i] != (base[i] if i < len(base) else 0):
+            cuerpo.append(final[i] ^ (base[i] if i < len(base) else 0))
+            i += 1
+        cuerpo.append(0)
+        i += 1
+        anterior = i
+    cuerpo += _struct.pack("<II", _z.crc32(base), _z.crc32(final))
+    return bytes(cuerpo + _struct.pack("<I", _z.crc32(cuerpo)))
+
+
+base_rom = bytes(range(256)) * 4
+final_rom = bytearray(base_rom)
+final_rom[10:14] = b"HACK"
+final_rom[700] = 0
+final_rom += b"extra"
+ups = crear_ups(base_rom, bytes(final_rom))
+comprobar("aplica un parche UPS", fg.aplicar_ups(ups, base_rom) == bytes(final_rom))
+try:
+    fg.aplicar_ups(ups, base_rom[:-1] + b"x")
+    comprobar("rechaza una ROM base distinta", False)
+except ValueError as e:
+    comprobar("rechaza una ROM base distinta", "no es la base" in str(e))
+(TMP / "hack.ups").write_bytes(ups)
+with zipfile.ZipFile(TMP / "rom.zip", "w") as z:
+    z.writestr("Juego (USA).gba", base_rom)
+id_hack = fg.parchear(TMP / "hack.ups", TMP / "rom.zip", "Mi Hack", avisar=lambda *_: None)
+juego_hack = fg.leer_catalogo()[0][id_hack]
+comprobar("parchear importa el resultado con mGBA", juego_hack["motor"] == "gba"
+          and (fg.carpeta_de(juego_hack) / juego_hack["ejecutable"]).read_bytes() == bytes(final_rom))
+
 print(f"\n{'Todo bien' if not fallos else f'{fallos} fallos'}")
 sys.exit(1 if fallos else 0)
