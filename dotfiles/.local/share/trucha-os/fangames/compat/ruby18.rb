@@ -23,6 +23,7 @@ module Kernel
       src = src.b unless src.valid_encoding?
       src = src.gsub(REGEX_BYTES) { $2.include?("n") ? $& : "#{$1}#{$2}n" } if src.include?('\x')
       src = src.gsub(/\.read\(1\)\[0\]/, ".read(1).getbyte(0)")
+      src = src.gsub(/\byield getc\b/, "yield((c = getc).is_a?(String) ? c.ord : c)")   # StringInput#each_byte: getc ya no da un número
       src = src.gsub(/^(\s*when\s+[^\n#]*?[^:\s]):(?=\s|$)/) { "#{$1} then" }
       src = src.gsub(/\b(_INTL|_ISPRINTF|_MAPINTL) +\(/) { "#{$1}(" }
       src = src.sub(/^(\s*def pbSetResizeFactor\(factor\s*=\s*1\s*,\s*norecalc\s*=\s*false\)[^\n]*\n)/) {

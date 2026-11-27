@@ -235,6 +235,10 @@ anidado = TMP / "anidado"
 escribir(anidado / "Juego v1/Juego/Game.ini", "[Game]\n")
 escribir(anidado / "Juego v1/Juego/Data/Scripts.rxdata", "x")
 escribir(anidado / "Juego v1/Léeme.txt", "hola")
+repetida = TMP / "repetida"
+escribir(repetida / "Juego/Juego/Game.ini", "[Game]\n")
+fg.aplanar(repetida)
+comprobar("aplana aunque dentro haya otra carpeta con el mismo nombre", (repetida / "Juego/Game.ini").exists())
 comprobar("encuentra el juego dentro de una subcarpeta", fg.raiz_del_juego(anidado) == anidado / "Juego v1/Juego")
 comprobar("sin Game.ini se queda la carpeta tal cual", fg.raiz_del_juego(fuente / "gm8") == fuente / "gm8")
 zip_win = TMP / "windows.zip"
@@ -259,6 +263,20 @@ if _shutil.which("bsdtar"):
         comprobar("un .rar roto da un error claro", False)
     except ValueError as e:
         comprobar("un .rar roto da un error claro", "no he podido descomprimirlo" in str(e))
+
+# ── juegos que ya traen versión para Linux ──
+linux = TMP / "linux_juego"
+escribir(linux / "Game.ini", "[Game]\n")
+escribir(linux / "Data/Scripts.rxdata", "x")
+(linux / "Juego.AppImage").write_bytes(b"\x7fELF" + b"\0" * 100)
+(linux / "libalgo.so").write_bytes(b"\x7fELF")
+d = fg.detectar_motor(linux)
+comprobar("con AppImage del autor usa el motor nativo", d["motor"] == "nativo" and d["ejecutable"] == "Juego.AppImage")
+appimage = TMP / "Suelto.AppImage"
+appimage.write_bytes(b"\x7fELF" + b"\0" * 100)
+id_ai = fg.importar(appimage, nombre="Juego Suelto", avisar=lambda *_: None)
+comprobar("importa una AppImage suelta como juego nativo", fg.leer_catalogo()[0][id_ai]["motor"] == "nativo")
+comprobar("descendientes de un proceso", os.getpid() in fg.descendientes(os.getppid()))
 
 print(f"\n{'Todo bien' if not fallos else f'{fallos} fallos'}")
 sys.exit(1 if fallos else 0)

@@ -176,6 +176,15 @@ MOTORES = {
         "preparar": None, "app_id": r"(?i)opengmk|gm8emulator",
         "orden": lambda juego, carpeta: [str(RUNTIMES / "opengmk/gm8emulator"), str(carpeta / juego["ejecutable"])],
     },
+    "nativo": {
+        "nombre": "Linux nativo", "para": "juegos que ya traen su versión para Linux (AppImage o binario)",
+        "runtime": lambda: Path("/bin/sh"),   # no hace falta motor: el juego es el ejecutable
+        "app_id": r"^mkxp-z",               # para reconocer su ventana si la abre un proceso nieto
+        "preparar": lambda juego, carpeta: (carpeta / juego["ejecutable"]).chmod(0o755),
+        # casi todos son mkxp-z empaquetado por su autor, con el mismo choque de HiDPI en Wayland
+        "entorno": {"SDL_VIDEO_HIGHDPI_DISABLED": "1"},
+        "orden": lambda juego, carpeta: [str(carpeta / juego["ejecutable"])],
+    },
     "wine": {
         "nombre": "Wine", "para": "último recurso, para lo que no tiene motor nativo",
         "runtime": lambda: Path(shutil.which("wine") or "/usr/bin/wine"),
@@ -354,11 +363,30 @@ def ventanas_niri():
         return []
 
 
+def descendientes(pid):
+    """Pids de los procesos hijos, nietos… de `pid` (leyendo /proc)."""
+    hijos = {}
+    for stat in Path("/proc").glob("[0-9]*/stat"):
+        try:
+            campos = stat.read_text().rsplit(")", 1)[1].split()
+            hijos.setdefault(int(campos[1]), []).append(int(stat.parent.name))
+        except (OSError, IndexError, ValueError):
+            continue
+    vistos, pendientes = set(), [pid]
+    while pendientes:
+        for hijo in hijos.get(pendientes.pop(), []):
+            if hijo not in vistos:
+                vistos.add(hijo)
+                pendientes.append(hijo)
+    return vistos
+
+
 def ventana_de(pid, previas=(), app_id=None):
     """Ventana de niri del juego: la de su pid o, si va por XWayland (otro pid), una nueva con el app_id del motor.
     Nunca otra ventana cualquiera: la captura no debe sacar lo que tengas abierto."""
     ventanas = ventanas_niri()
-    propia = next((v["id"] for v in ventanas if v.get("pid") == pid), None)
+    familia = {pid} | descendientes(pid)   # una AppImage o un lanzador abren el juego como proceso hijo
+    propia = next((v["id"] for v in ventanas if v.get("pid") in familia), None)
     if propia or not app_id:
         return propia
     return next((v["id"] for v in ventanas if v["id"] not in previas and re.search(app_id, v.get("app_id") or "")), None)
@@ -462,7 +490,7 @@ def aplanar(carpeta):
     """Si todo vino dentro de una única subcarpeta, sube su contenido un nivel."""
     hijos = [h for h in carpeta.iterdir() if h.name != "__MACOSX"]
     if len(hijos) == 1 and hijos[0].is_dir():
-        unica = hijos[0]
+        unica = hijos[0].rename(carpeta / f".aplanando-{os.getpid()}")   # por si dentro hay otra con su mismo nombre
         for h in list(unica.iterdir()):
             h.rename(carpeta / h.name)
         unica.rmdir()
@@ -471,7 +499,7 @@ def aplanar(carpeta):
 def compat_necesaria(*archivos):
     """Mira los scripts (zlib dentro de Marshal) buscando lo que en Linux/Ruby 3 rompe un juego de RPG Maker."""
     datos = b"".join(a.read_bytes() for a in archivos if a.is_file())
-    texto = bytearray()
+    texto = bytearray(datos[:64_000_000])   # los .rb sueltos van en claro; los .rxdata, comprimidos dentro
     for n, m in enumerate(re.finditer(rb"\x78[\x01\x5e\x9c\xda]", datos)):
         if n >= 5000 or len(texto) >= 64_000_000:       # tope: un archivo hostil no puede inflarse sin fin
             break
@@ -497,16 +525,34 @@ def raiz_del_juego(carpeta):
     return min(candidatas, key=lambda c: len(c.parts)) if candidatas else carpeta
 
 
+def es_ejecutable_linux(ruta):
+    """AppImage o binario ELF (lo que trae un juego que ya tiene versión para Linux)."""
+    try:
+        with open(ruta, "rb") as f:
+            return ruta.is_file() and f.read(4) == b"\x7fELF"
+    except OSError:
+        return False
+
+
 def detectar_motor(carpeta):
     """Mira los archivos (sin ejecutar nada) y propone motor, ejecutable y pistas."""
     pistas = []
+    # si el autor ya trae versión para Linux, se usa esa (AppImage o binario en la raíz del juego)
+    propio = RUNTIMES / "mkxp-z/mkxp-z.x86_64"   # el mkxp-z que enlaza el launcher no cuenta como versión del autor
+    nativos = sorted((p for p in carpeta.iterdir() if p.suffix.lower() not in (".so", ".dll") and es_ejecutable_linux(p)
+                      and not (propio.exists() and p.stat().st_ino == propio.stat().st_ino)),
+                     key=lambda p: (p.suffix.lower() != ".appimage", -p.stat().st_size))
+    if nativos:
+        pistas.append(f"trae versión para Linux ({nativos[0].name}): se ejecuta tal cual")
+        return {"motor": "nativo", "ejecutable": nativos[0].name, "pistas": pistas}
     rgss = [p for p in ("Data/Scripts.rxdata", "Data/Scripts.rvdata", "Data/Scripts.rvdata2",
                         "Game.rgssad", "Game.rgss2a", "Game.rgss3a") if (carpeta / p).exists()]
     if (carpeta / "Game.ini").exists() and rgss:
         pistas.append(f"RPG Maker (Game.ini + {rgss[0]})")
         if (carpeta / "mkxp.json").exists():
             pistas.append("ya trae mkxp.json (preparado para mkxp-z)")
-        compat = compat_necesaria(carpeta / rgss[0], carpeta / "Data/PluginScripts.rxdata")
+        compat = compat_necesaria(carpeta / rgss[0], carpeta / "Data/PluginScripts.rxdata",
+                                  *sorted(carpeta.glob("Data/**/*.rb"))[:2000])
         if compat:
             pistas.append(f"necesita parches de compatibilidad: {', '.join(compat)}")
         return {"motor": "mkxp-z", "ejecutable": None, "pistas": pistas, "compat": compat}
@@ -557,6 +603,9 @@ def importar(origen, nombre=None, avisar=print):
         if origen.is_dir():
             avisar(f"Copiando {origen.name}…")
             shutil.copytree(origen, temporal, dirs_exist_ok=True, symlinks=True)
+        elif es_ejecutable_linux(origen):
+            avisar(f"Copiando {origen.name} (juego para Linux)…")
+            shutil.copy2(origen, temporal / origen.name)
         elif zipfile.is_zipfile(origen):
             avisar(f"Descomprimiendo {origen.name}…")
             extraer_zip(origen, temporal)
@@ -579,7 +628,8 @@ def importar(origen, nombre=None, avisar=print):
         avisar(f"· {pista}")
     if not deteccion["motor"]:
         raise ValueError(f"no reconozco el juego (lo he dejado en {carpeta})")
-    logos = sorted(carpeta.glob("Graphics/Titles/*ogo*.png")) or sorted(carpeta.glob("Graphics/Titles/*.png"))
+    # custom_pokelogo es la silueta de la plantilla de Essentials, no el logo del juego
+    logos = sorted(l for l in carpeta.glob("Graphics/Titles/*ogo*.png") if not l.name.startswith("custom_pokelogo"))
     datos = {"id": id_juego, "nombre": nombre, "motor": deteccion["motor"], "carpeta": str(carpeta.relative_to(JUEGOS)),
              "ejecutable": deteccion["ejecutable"], "logo": str(logos[0].relative_to(carpeta)) if logos else None,
              "color": COLORES[sum(map(ord, id_juego)) % len(COLORES)], "estado": "en pruebas",

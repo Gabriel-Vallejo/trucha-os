@@ -57,3 +57,22 @@ SETBYTE_ORIGINAL = String.instance_method(:setbyte)
 def memcpy_string(dst, src)
   src.each_byte.with_index { |b, i| SETBYTE_ORIGINAL.bind_call(dst, i, b) }
 end
+
+# Algunos juegos redefinen Input.press? con GetAsyncKeyState; el ratón de win32_wrap llama a Input.press? y se
+# metía en el del juego (bucle o nil). Se usa el Input.press? nativo de mkxp-z, guardado antes de los scripts.
+INPUT_PRESS_NATIVO = Input.method(:press?)
+alias __trucha_common_keystate_original common_keystate
+def common_keystate(vkey)
+  raton = { LBUTTON: Input::MOUSELEFT, RBUTTON: Input::MOUSERIGHT, MBUTTON: Input::MOUSEMIDDLE }[Scancodes::WIN32INV[vkey]]
+  return INPUT_PRESS_NATIVO.call(raton) ? 1 : 0 if raton
+  __trucha_common_keystate_original(vkey)
+end
+
+module Win32API_Impl
+  module User32
+    class GetForegroundWindow
+      def call(_args) = 42   # la ventana del juego es la que tiene el foco: si no, el juego ignora el teclado
+    end
+    GetActiveWindow = GetForegroundWindow
+  end
+end

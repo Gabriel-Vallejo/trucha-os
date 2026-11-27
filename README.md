@@ -147,6 +147,7 @@ Tiene tres pestañas:
 |---|---|---|
 | `mkxp-z` | RPG Maker XP/VX/VX Ace y Pokémon Essentials (Añil) | `~/Juegos/fangames/_runtimes/mkxp-z/` (build Linux x86_64 de las Actions de mkxp-z) |
 | `opengmk` | Game Maker 8 (Reloaded) | `~/Juegos/fangames/_runtimes/opengmk/gm8emulator` |
+| `nativo` | juegos que ya traen versión para Linux (AppImage o binario: Insurgence, Reborn, Rejuvenation…) | dentro del propio juego |
 | `wine` | último recurso | el `wine` del sistema |
 
 Cada juego es un manifiesto `.toml`, así que añadir otro a mano es escribir un archivo en `~/.config/trucha-os/fangames/<id>.toml`:
