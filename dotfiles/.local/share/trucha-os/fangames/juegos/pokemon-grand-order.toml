@@ -1,0 +1,16 @@
+# Pokémon/Grand Order · RPG Maker XP + Pokémon Essentials v21.1, ya preparado para mkxp-z.
+# Su plugin de Discord no aguanta que falte la DLL: lleva el parche «discord».
+id = "pokemon-grand-order"
+nombre = "Pokémon Grand Order"
+motor = "mkxp-z"
+carpeta = "pokemon-grand-order"
+version = "Demo 0.1.7 Hotfix 3"
+descripcion = "Fangame que adapta la primera parte de Fate/Grand Order a las mecánicas de Pokémon, con clases de servants y su sistema de combate por turnos."
+genero = "RPG de Pokémon · crossover con Fate"
+idioma = "Español"
+web = "https://pokemongrandorder.blogspot.com/p/pokemongrand-order.html"
+color = "#5b6ee0"
+estado = "beta"
+etiquetas = ["RPG Maker XP", "Essentials v21"]
+compat = ["discord"]
+notas = "Demo. Funciona con mkxp-z; el estado en Discord queda desactivado en Linux."

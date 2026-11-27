@@ -1,0 +1,17 @@
+id = "pokemon-titan"
+nombre = "Pokémon Titán Legacy"
+motor = "mkxp-z"
+carpeta = "pokemon-titan"
+autor = "Eric Lostie"
+version = "2.10"
+descripcion = "El fangame más extenso de Lostie: 580 mapas entre las regiones de Titán y Arjes, con el Tártaro esperando al final."
+genero = "RPG de Pokémon"
+idioma = "Español"
+region = "Titán, Arjes y el Tártaro"
+web = "https://lostiefangames.com/juegos/pokemon-titan-legacy/"
+color = "#8a4fd9"
+estado = "beta"
+etiquetas = ["RPG Maker XP", "Essentials antiguo"]
+caracteristicas = ["580 mapas", "Iniciales oficiales o exclusivos de Titán", "Modo Shinylocke"]
+compat = ["win32", "ruby18"]
+notas = "Su autor avisa de que es su primer fangame: largo y con errores propios de su edad."

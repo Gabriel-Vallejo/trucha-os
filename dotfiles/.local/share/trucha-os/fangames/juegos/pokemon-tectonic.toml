@@ -1,0 +1,16 @@
+# Bajado de su repositorio oficial (Pokemon-Tectonic-Team/Pokemon-Tectonic). Hay que compilarlo una vez:
+#   cd ~/Juegos/fangames/pokemon-tectonic && SDL_VIDEO_HIGHDPI_DISABLED=1 "./Game Linux.x86_64" debug compile
+id = "pokemon-tectonic"
+nombre = "Pokémon Tectonic"
+motor = "nativo"
+carpeta = "pokemon-tectonic"
+ejecutable = "Game Linux.x86_64"
+autor = "Pokémon Tectonic Team"
+descripcion = "Fangame en inglés centrado en la dificultad y la estrategia, con mecánicas de combate rediseñadas. Trae ejecutable oficial para Linux."
+genero = "RPG de Pokémon"
+idioma = "Inglés"
+web = "https://github.com/Pokemon-Tectonic-Team/Pokemon-Tectonic"
+color = "#c2622f"
+estado = "jugable"
+etiquetas = ["Versión Linux oficial", "Essentials v20"]
+notas = "Viene del repositorio de desarrollo: ya compilado; si actualizas el juego, vuelve a compilarlo (comentario del manifiesto)."

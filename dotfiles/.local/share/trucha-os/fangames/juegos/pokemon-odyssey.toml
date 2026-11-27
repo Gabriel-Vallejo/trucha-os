@@ -1,0 +1,14 @@
+# Pokémon Odyssey · hack de ROM de Pokémon Rojo Fuego (GBA). Hecho con:
+# trucha-fangames parchear "Pokemon Odyssey COMPLETE v4.0.3.zip" "Pokemon - FireRed Version (USA).zip" "Pokémon Odyssey"
+id = "pokemon-odyssey"
+nombre = "Pokémon Odyssey"
+motor = "gba"
+carpeta = "pokemon-odyssey"
+ejecutable = "pokemon-odyssey.gba"
+version = "COMPLETE 4.0.3"
+descripcion = "Hack de Rojo Fuego con historia y región propias, formas regionales y límite de nivel; versión completa."
+genero = "Hack de ROM de GBA"
+idioma = "Inglés"
+color = "#3b6fe0"
+estado = "jugable"
+etiquetas = ["GBA", "mGBA"]

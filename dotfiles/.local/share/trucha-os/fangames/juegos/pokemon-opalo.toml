@@ -1,0 +1,16 @@
+id = "pokemon-opalo"
+nombre = "Pokémon Ópalo"
+motor = "mkxp-z"
+carpeta = "pokemon-opalo"
+autor = "Eric Lostie"
+version = "2.11"
+descripcion = "Una historia de temática western junto al Profesor Ébano: dos regiones, 16 gimnasios y un objetivo, impedir la destrucción del Mundo Pokémon."
+genero = "RPG de Pokémon · western"
+idioma = "Español"
+region = "Céfira (Este y Oeste)"
+web = "https://lostiefangames.com/juegos/pokemon-opalo/"
+color = "#2fb3a3"
+estado = "beta"
+etiquetas = ["RPG Maker XP", "Essentials antiguo"]
+caracteristicas = ["473 mapas y 16 gimnasios", "Pokérider: monta a tus Pokémon", "Postgame", "Base Gatling"]
+compat = ["win32", "ruby18"]

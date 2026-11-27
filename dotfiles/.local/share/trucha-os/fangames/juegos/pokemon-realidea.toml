@@ -1,0 +1,17 @@
+# Pokémon Realidea System · RPG Maker XP + Pokémon Essentials de la era Ruby 1.8.
+# Importado con trucha-fangames; necesita los parches win32 y ruby18 de mkxp-z.
+id = "pokemon-realidea"
+nombre = "Pokémon Realidea"
+motor = "mkxp-z"
+carpeta = "pokemon-realidea"
+autor = "PhionGames"
+version = "4.1"
+descripcion = "Fangame en español muy elogiado por su apartado artístico, con una trama propia y un tono narrativo cercano al anime."
+genero = "RPG de Pokémon"
+idioma = "Español"
+web = "https://phiongames.blogspot.com/"
+color = "#3bc4e0"
+estado = "beta"
+etiquetas = ["RPG Maker XP", "Essentials antiguo"]
+compat = ["win32", "ruby18"]
+notas = "Corre con mkxp-z y los parches de compatibilidad de trucha-fangames (API de Windows y Ruby 1.8). Arranca y llega a la pantalla de carga; queda por comprobar una partida completa."

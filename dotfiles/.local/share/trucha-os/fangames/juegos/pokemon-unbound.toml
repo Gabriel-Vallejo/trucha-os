@@ -1,0 +1,15 @@
+# Pokémon Unbound · hack de ROM de Pokémon Rojo Fuego (GBA), ya parcheado; va con mGBA.
+id = "pokemon-unbound"
+nombre = "Pokémon Unbound"
+motor = "gba"
+carpeta = "pokemon-unbound"
+ejecutable = "Pokemon Unbound v2.0.3.2.gba"
+autor = "Skeli"
+version = "2.0.3.2"
+descripcion = "Hack de Rojo Fuego con una región nueva, Borrius, historia propia y modos de dificultad; uno de los hacks de GBA más completos."
+genero = "Hack de ROM de GBA"
+idioma = "Inglés"
+region = "Borrius"
+color = "#7b4fd9"
+estado = "jugable"
+etiquetas = ["GBA", "mGBA"]

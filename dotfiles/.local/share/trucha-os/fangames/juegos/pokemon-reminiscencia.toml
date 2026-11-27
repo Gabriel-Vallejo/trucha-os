@@ -1,0 +1,14 @@
+id = "pokemon-reminiscencia"
+nombre = "Pokémon Reminiscencia"
+motor = "mkxp-z"
+carpeta = "pokemon-reminiscencia/ReminiscenciaV2_3"
+autor = "PhionGames"
+version = "2.3"
+descripcion = "Fangame de PhionGames, los autores de Realidea, con su apartado artístico propio."
+genero = "RPG de Pokémon"
+idioma = "Español, inglés"
+web = "https://phiongames.blogspot.com/2023/10/descargar-pokemon-reminiscencia.html"
+color = "#e0a03b"
+estado = "beta"
+etiquetas = ["RPG Maker XP", "Essentials antiguo"]
+compat = ["win32", "ruby18"]
