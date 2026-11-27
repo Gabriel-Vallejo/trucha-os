@@ -141,7 +141,6 @@ def main(argv):
     p.add_argument("--sprite", action="append", default=[])
     p.add_argument("--titulo", default="")
     p.add_argument("--color", default="#e5383b")
-    p.add_argument("--salida", help="carpeta de destino (por defecto ~/Juegos/fangames/_arte/<id>)")
     a = p.parse_args(argv)
     if not a.id.replace("-", "").isalnum():
         p.error("el id solo admite letras, números y guiones")
@@ -153,7 +152,7 @@ def main(argv):
         print(f"No puedo abrir una imagen: {e}", file=sys.stderr)
         return 1
     color = color_rgb(a.color)
-    destino = Path(a.salida) if a.salida else JUEGOS / "_arte" / a.id
+    destino = JUEGOS / "_arte" / a.id   # sin --salida: solo escribe en el arte de ese juego
     destino.mkdir(parents=True, exist_ok=True)
     hacer_banner(fondo, sprites, color).convert("RGB").save(destino / "banner.png", optimize=True)
     hacer_portada(fondo, logo, sprites, a.titulo or a.id, color).convert("RGB").save(destino / "portada.png", optimize=True)

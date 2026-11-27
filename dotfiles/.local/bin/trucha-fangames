@@ -494,9 +494,14 @@ Pasos:
 
 Al final escribe un resumen de 3-5 líneas: motor, si arranca y qué has rellenado."""
 
-HERRAMIENTAS_CLAUDE = ["Read", "Glob", "Grep", "Write", "Edit", "WebSearch", "WebFetch",
-                       "Bash(trucha-fangames:*)", "Bash(trucha-fangames-arte:*)", "Bash(strings:*)",
-                       "Bash(file:*)", "Bash(ls:*)", "Bash(identify:*)", "Bash(head:*)"]
+def herramientas_claude(id_juego, carpeta):
+    """Permisos mínimos y por ruta: leer el juego y los ejemplos, escribir solo su manifiesto y su arte.
+    Sin WebFetch ni shell genérica, para que un juego con instrucciones escondidas no pueda sacar ni tocar nada más."""
+    manifiesto, arte = PROPIOS / f"{id_juego}.toml", ARTE / id_juego
+    return [f"Read(/{carpeta}/**)", f"Read(/{arte}/**)", f"Read(/{manifiesto})", f"Read(/{SHARE / 'juegos'}/**)",
+            f"Edit(/{manifiesto})", f"Edit(/{arte}/**)", "Glob", "Grep", "WebSearch",
+            f"Bash(trucha-fangames probar {id_juego}:*)", "Bash(trucha-fangames lista)",
+            f"Bash(trucha-fangames-arte {id_juego}:*)"]
 
 
 def orden_claude(id_juego):
@@ -507,8 +512,8 @@ def orden_claude(id_juego):
         runtimes=RUNTIMES, arte=ARTE / id_juego,
         motores=", ".join(f"{k} ({m['para']})" for k, m in MOTORES.items()))
     return ["claude", "-p", prompt, "--output-format", "stream-json", "--verbose",
-            "--permission-mode", "acceptEdits", "--allowedTools", *HERRAMIENTAS_CLAUDE,
-            "--add-dir", str(carpeta_de(juego)), "--add-dir", str(ARTE), "--add-dir", str(PROPIOS)]
+            "--permission-mode", "default", "--allowedTools", *herramientas_claude(id_juego, carpeta_de(juego)),
+            "--add-dir", str(carpeta_de(juego)), "--add-dir", str(ARTE / id_juego), "--add-dir", str(PROPIOS)]
 
 
 def resumen_evento(linea):

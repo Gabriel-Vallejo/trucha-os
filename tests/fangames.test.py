@@ -171,8 +171,13 @@ except ValueError:
 # ── Claude ──
 orden = fg.orden_claude(nuevo_id)
 comprobar("la orden de Claude es headless, acotada y con el manifiesto",
-          orden[:2] == ["claude", "-p"] and "--allowedTools" in orden and "Bash(trucha-fangames:*)" in orden
-          and "Bash" not in orden and str(fg.PROPIOS / f"{nuevo_id}.toml") in orden[2])
+          orden[:2] == ["claude", "-p"] and "--allowedTools" in orden and str(fg.PROPIOS / f"{nuevo_id}.toml") in orden[2])
+permisos = fg.herramientas_claude(nuevo_id, fg.JUEGOS / nuevo_id)
+comprobar("Claude no tiene shell genérica, ni WebFetch, ni escritura fuera de su manifiesto y su arte",
+          not any(h in ("Bash", "Write", "Edit", "Read", "WebFetch") or h.startswith(("Bash(head", "Bash(strings", "Bash(trucha-fangames:"))
+                  for h in permisos)
+          and all(str(fg.PROPIOS / f"{nuevo_id}.toml") in h or str(fg.ARTE / nuevo_id) in h
+                  for h in permisos if h.startswith("Edit(")))
 comprobar("resume eventos de herramienta", fg.resumen_evento(json.dumps({"type": "assistant", "message": {"content": [
     {"type": "tool_use", "name": "Bash", "input": {"command": "trucha-fangames lista"}}]}})) == "→ Bash trucha-fangames lista")
 comprobar("resume el resultado final", fg.resumen_evento(json.dumps({"type": "result", "result": "Listo"})) == "✔ Listo")
