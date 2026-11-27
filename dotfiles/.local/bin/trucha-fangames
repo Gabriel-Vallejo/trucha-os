@@ -105,6 +105,7 @@ configurar()
 COMPAT = {   # parches de precarga de mkxp-z para juegos de RPG Maker que no nacieron para él
     "win32": ["scripts/preload/win32_wrap.rb", "@win32_ventana.rb"],   # llamadas a la API de Windows
     "ruby18": ["scripts/preload/ruby_classic_wrap.rb", "@ruby18.rb"],  # Essentials antiguos, de Ruby 1.8
+    "discord": ["@discord.rb"],                                         # plugin de Discord sin rescue
 }
 
 
@@ -374,6 +375,11 @@ def probar(juego, segundos=15):
                        capture_output=True, timeout=10)
         time.sleep(1.5)                                      # niri escribe la captura en segundo plano
         captura = str(destino) if destino.exists() else None
+        portada = ARTE / juego["id"] / "portada.png"
+        if captura and not portada.exists() and shutil.which("trucha-fangames-arte"):
+            # sin arte propio, la pantalla de título hace de portada y de banner
+            subprocess.run(["trucha-fangames-arte", juego["id"], "--fondo", captura, "--titulo", " ",
+                            "--color", juego.get("color", "#e5383b")], capture_output=True, timeout=60)
     sigue_vivo = proceso.poll() is None
     if sigue_vivo:
         os.killpg(proceso.pid, signal.SIGTERM)
@@ -420,11 +426,27 @@ def slug(texto):
 def extraer_zip(zip_path, destino):
     """Descomprime rechazando rutas que salgan de `destino` (zip slip)."""
     with zipfile.ZipFile(zip_path) as z:
-        for nombre in z.namelist():
+        for info in z.infolist():
+            if not info.flag_bits & 0x800:   # zip de Windows sin UTF-8: los nombres van en cp850, no en cp437
+                try:
+                    info.filename = info.filename.encode("cp437").decode("cp850", errors="replace")
+                except UnicodeEncodeError:
+                    pass                     # ya vino bien (campo extra de ruta Unicode)
+            nombre = info.filename
             partes = Path(nombre.replace("\\", "/")).parts
             if not nombre or nombre.startswith(("/", "\\")) or ".." in partes or ":" in (partes[0] if partes else ""):
                 raise ValueError(f"el zip trae una ruta peligrosa: {nombre}")
-        z.extractall(destino)
+        for info in z.infolist():
+            z.extract(info, destino)
+
+
+def extraer_otro(archivo, destino):
+    """.rar y .7z con bsdtar (libarchive), que por defecto no escribe fuera del destino ni sigue rutas absolutas."""
+    if not shutil.which("bsdtar"):
+        raise ValueError("para .rar o .7z hace falta bsdtar (paquete libarchive)")
+    r = subprocess.run(["bsdtar", "-xf", str(archivo), "-C", str(destino)], capture_output=True, text=True)
+    if r.returncode:
+        raise ValueError(f"no he podido descomprimirlo: {r.stderr.strip()[:200]}")
 
 
 def aplanar(carpeta):
@@ -437,12 +459,9 @@ def aplanar(carpeta):
         unica.rmdir()
 
 
-def compat_necesaria(scripts):
+def compat_necesaria(*archivos):
     """Mira los scripts (zlib dentro de Marshal) buscando lo que en Linux/Ruby 3 rompe un juego de RPG Maker."""
-    try:
-        datos = scripts.read_bytes()
-    except OSError:
-        return []
+    datos = b"".join(a.read_bytes() for a in archivos if a.is_file())
     texto = bytearray()
     for n, m in enumerate(re.finditer(rb"\x78[\x01\x5e\x9c\xda]", datos)):
         if n >= 5000 or len(texto) >= 64_000_000:       # tope: un archivo hostil no puede inflarse sin fin
@@ -456,7 +475,17 @@ def compat_necesaria(scripts):
         compat.append("win32")
     if b"Thread.critical" in texto:   # señal clara de un Essentials de la era Ruby 1.8
         compat.append("ruby18")
+    if re.search(rb"MiniFFI\.new\(\s*DLL", texto) and b"DiscordAPI" in texto and b"rescue" not in texto[texto.find(b"MiniFFI.new"):texto.find(b"MiniFFI.new") + 600]:
+        compat.append("discord")
     return compat
+
+
+def raiz_del_juego(carpeta):
+    """La carpeta con Game.ini más cercana a la raíz (hasta 3 niveles); si no hay, la propia carpeta."""
+    if (carpeta / "Game.ini").exists():
+        return carpeta
+    candidatas = [g.parent for g in carpeta.rglob("Game.ini") if len(g.relative_to(carpeta).parts) <= 4]
+    return min(candidatas, key=lambda c: len(c.parts)) if candidatas else carpeta
 
 
 def detectar_motor(carpeta):
@@ -468,7 +497,7 @@ def detectar_motor(carpeta):
         pistas.append(f"RPG Maker (Game.ini + {rgss[0]})")
         if (carpeta / "mkxp.json").exists():
             pistas.append("ya trae mkxp.json (preparado para mkxp-z)")
-        compat = compat_necesaria(carpeta / rgss[0])
+        compat = compat_necesaria(carpeta / rgss[0], carpeta / "Data/PluginScripts.rxdata")
         if compat:
             pistas.append(f"necesita parches de compatibilidad: {', '.join(compat)}")
         return {"motor": "mkxp-z", "ejecutable": None, "pistas": pistas, "compat": compat}
@@ -522,21 +551,24 @@ def importar(origen, nombre=None, avisar=print):
         elif zipfile.is_zipfile(origen):
             avisar(f"Descomprimiendo {origen.name}…")
             extraer_zip(origen, temporal)
+        elif origen.suffix.lower() in (".rar", ".7z"):
+            avisar(f"Descomprimiendo {origen.name}…")
+            extraer_otro(origen, temporal)
         else:
-            raise ValueError("solo sé importar un .zip o una carpeta")
+            raise ValueError("solo sé importar un .zip, .rar, .7z o una carpeta")
         aplanar(temporal)
         temporal.rename(JUEGOS / id_juego)
     except BaseException:
         shutil.rmtree(temporal, ignore_errors=True)
         raise
-    carpeta = JUEGOS / id_juego
+    carpeta = raiz_del_juego(JUEGOS / id_juego)   # hay zips que meten el juego en una subcarpeta
     deteccion = detectar_motor(carpeta)
     for pista in deteccion["pistas"]:
         avisar(f"· {pista}")
     if not deteccion["motor"]:
         raise ValueError(f"no reconozco el juego (lo he dejado en {carpeta})")
     logos = sorted(carpeta.glob("Graphics/Titles/*ogo*.png")) or sorted(carpeta.glob("Graphics/Titles/*.png"))
-    datos = {"id": id_juego, "nombre": nombre, "motor": deteccion["motor"], "carpeta": id_juego,
+    datos = {"id": id_juego, "nombre": nombre, "motor": deteccion["motor"], "carpeta": str(carpeta.relative_to(JUEGOS)),
              "ejecutable": deteccion["ejecutable"], "logo": str(logos[0].relative_to(carpeta)) if logos else None,
              "color": COLORES[sum(map(ord, id_juego)) % len(COLORES)], "estado": "en pruebas",
              "compat": deteccion.get("compat", []),
@@ -759,9 +791,11 @@ def gui(argv, vista="biblioteca"):
             dialogo = Gtk.FileChooserNative.new("Elige el juego", self.window, accion, "Elegir", "Cancelar")
             if not carpeta:
                 filtro = Gtk.FileFilter()
-                filtro.set_name("Juego comprimido (.zip)")
+                filtro.set_name("Juego comprimido (.zip, .rar, .7z)")
                 filtro.add_pattern("*.zip")
                 filtro.add_pattern("*.ZIP")
+                filtro.add_pattern("*.rar")
+                filtro.add_pattern("*.7z")
                 dialogo.add_filter(filtro)
             if dialogo.run() == Gtk.ResponseType.ACCEPT:
                 self.js("Fangames.origen", dialogo.get_filename())

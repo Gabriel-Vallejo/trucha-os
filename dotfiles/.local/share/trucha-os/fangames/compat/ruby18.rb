@@ -2,7 +2,10 @@
 # mkxp-z evalúa cada script con Kernel#eval; aquí se arreglan, antes de evaluarlos, dos cosas que Ruby 1.8
 # aceptaba y Ruby 3 no:
 #  · regex con bytes sueltos, /[\x7f-\x9f]/ («invalid multibyte escape»): se les añade /n, que es lo que eran.
-#  · un `next` suelto en un método («Invalid next»): en 1.8 salía del método, así que pasa a `return`.
+#  · un `next`/`break`/`retry`/`redo` suelto en un método («Invalid next»…): en 1.8 salía del método, así que
+#    pasa a `return`.
+#  · `_INTL ("texto")` con espacio antes del paréntesis, que Ruby 3 lee distinto dentro de una lista.
+#  · `when 0: algo`: la sintaxis de 1.8 para `when 0 then algo`.
 #  · `io.read(1)[0]`: en 1.8 daba el byte (un número); en Ruby 3 da un String, así que pasa a getbyte(0).
 #  · el script de Peter O. para cambiar el tamaño de pantalla (pbSetResizeFactor) agranda la pantalla interna
 #    del juego y mkxp-z la pinta en una esquina (en Windows recortaba la ventana): se fija a 1×, la pantalla
@@ -11,16 +14,22 @@
 module Kernel
   alias_method :__trucha_eval_original, :eval
   REGEX_BYTES = %r{(/(?:[^/\n\\]|\\.)*\\x[89a-fA-F][0-9a-fA-F](?:[^/\n\\]|\\.)*/)([imx]*)}
-  NEXT_SUELTO = /:(\d+): Invalid next/
+  SALTO_SUELTO = /:(\d+): Invalid (next|break|retry|redo)/
 
   def eval(src, binding = nil, *rest)
     if src.is_a?(String)
+      # scripts con bytes sueltos (Latin-1): se reescriben como binario y luego recuperan su codificación
+      codificacion = src.encoding
+      src = src.b unless src.valid_encoding?
       src = src.gsub(REGEX_BYTES) { $2.include?("n") ? $& : "#{$1}#{$2}n" } if src.include?('\x')
       src = src.gsub(/\.read\(1\)\[0\]/, ".read(1).getbyte(0)")
+      src = src.gsub(/^(\s*when\s+[^\n#]*?[^:\s]):(?=\s|$)/) { "#{$1} then" }
+      src = src.gsub(/\b(_INTL|_ISPRINTF|_MAPINTL) +\(/) { "#{$1}(" }
       src = src.sub(/^(\s*def pbSetResizeFactor\(factor\s*=\s*1\s*,\s*norecalc\s*=\s*false\)[^\n]*\n)/) {
-        "#{$1}  factor, norecalc = 1, false   # trucha-fangames: 1×, mkxp-z escala al monitor\n" \
+        "#{$1}  factor, norecalc = 1, false   # trucha-fangames: 1x, mkxp-z escala al monitor\n" \
         "  Graphics.resize_screen(DEFAULTSCREENWIDTH, DEFAULTSCREENHEIGHT) if defined?(DEFAULTSCREENWIDTH)\n"
       }
+      src = src.force_encoding(codificacion)
     end
     intentos = 0
     begin
@@ -33,10 +42,10 @@ module Kernel
       end
       resultado
     rescue SyntaxError => e
-      linea = e.message[NEXT_SUELTO, 1]
+      linea, palabra = e.message.match(SALTO_SUELTO)&.captures
       raise unless linea && src.is_a?(String) && (intentos += 1) <= 50
       lineas = src.lines
-      lineas[linea.to_i - 1] = lineas[linea.to_i - 1].sub(/\bnext\b/, "return")
+      lineas[linea.to_i - 1] = lineas[linea.to_i - 1].sub(/\b#{palabra}\b/, "return")
       src = lineas.join
       retry
     end

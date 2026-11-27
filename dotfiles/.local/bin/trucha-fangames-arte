@@ -99,6 +99,8 @@ def hacer_banner(fondo, sprites, color):
 
 
 def hacer_portada(fondo, logo, sprites, titulo, color):
+    if not logo and not sprites and not titulo.strip():
+        return portada_encajada(fondo, color)
     img = cubrir(fondo, PORTADA)
     img.alpha_composite(degradado(PORTADA, color + (255,), 40, 200))
     img.alpha_composite(degradado(PORTADA, (8, 8, 12, 255), 0, 170))
@@ -133,6 +135,17 @@ def hacer_portada(fondo, logo, sprites, titulo, color):
     return img
 
 
+def portada_encajada(fondo, color):
+    """Para una pantalla de título apaisada: entera en el centro, sobre ella misma ampliada y desenfocada."""
+    img = cubrir(fondo, PORTADA).filter(ImageFilter.GaussianBlur(28))
+    img.alpha_composite(degradado(PORTADA, color + (255,), 60, 160))
+    escala = PORTADA[0] / fondo.width
+    centro = fondo.resize((PORTADA[0], round(fondo.height * escala)), Image.NEAREST if escala >= 2 else Image.LANCZOS)
+    pieza, margen = con_sombra(centro, radio=18, opacidad=170)
+    img.alpha_composite(pieza, (-margen, (PORTADA[1] - centro.height) // 2 - margen))
+    return img
+
+
 def main(argv):
     p = argparse.ArgumentParser(description="Portada y banner de un fangame")
     p.add_argument("id")
@@ -146,6 +159,8 @@ def main(argv):
         p.error("el id solo admite letras, números y guiones")
     try:
         fondo = abrir(a.fondo)
+        caja = fondo.convert("L").point(lambda v: 255 if v > 10 else 0).getbbox()   # fuera bandas negras (capturas)
+        fondo = fondo.crop(caja) if caja else fondo
         logo = abrir(a.logo) if a.logo else None
         sprites = [abrir(s, sprite=True) for s in a.sprite]
     except OSError as e:

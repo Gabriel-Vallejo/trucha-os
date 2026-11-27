@@ -216,5 +216,35 @@ fg.guardar_ajustes({"escalado": "inventado"})
 comprobar("un escalado desconocido vuelve a nítido", fg.ajustes()["escalado"] == "nitido")
 comprobar("el original del autor sigue intacto", (carpeta / "mkxp.json.original").read_text().startswith("{\n  // del autor"))
 
+# ── importar: subcarpetas, nombres de Windows y .rar ──
+anidado = TMP / "anidado"
+escribir(anidado / "Juego v1/Juego/Game.ini", "[Game]\n")
+escribir(anidado / "Juego v1/Juego/Data/Scripts.rxdata", "x")
+escribir(anidado / "Juego v1/Léeme.txt", "hola")
+comprobar("encuentra el juego dentro de una subcarpeta", fg.raiz_del_juego(anidado) == anidado / "Juego v1/Juego")
+comprobar("sin Game.ini se queda la carpeta tal cual", fg.raiz_del_juego(fuente / "gm8") == fuente / "gm8")
+zip_win = TMP / "windows.zip"
+_codificar = zipfile.ZipInfo._encodeFilenameFlags
+zipfile.ZipInfo._encodeFilenameFlags = lambda self: (self.filename.encode("cp437"), self.flag_bits & ~0x800)  # como Windows: sin UTF-8
+with zipfile.ZipFile(zip_win, "w") as z:
+    info = zipfile.ZipInfo("Juego/Game.ini")
+    z.writestr(info, "[Game]\n")
+    info = zipfile.ZipInfo("Juego/VERSI\u03b1N.pdf")   # byte 0xE0: «α» en cp437, «Ó» en el cp850 de Windows
+    z.writestr(info, "x")
+zipfile.ZipInfo._encodeFilenameFlags = _codificar
+destino_win = TMP / "destino_win"
+destino_win.mkdir()
+fg.extraer_zip(zip_win, destino_win)
+comprobar("los nombres de un zip de Windows salen con sus tildes", (destino_win / "Juego/VERSIÓN.pdf").exists())
+import shutil as _shutil
+if _shutil.which("bsdtar"):
+    rar_falso = TMP / "falso.rar"
+    rar_falso.write_text("no soy un rar")
+    try:
+        fg.extraer_otro(rar_falso, TMP)
+        comprobar("un .rar roto da un error claro", False)
+    except ValueError as e:
+        comprobar("un .rar roto da un error claro", "no he podido descomprimirlo" in str(e))
+
 print(f"\n{'Todo bien' if not fallos else f'{fallos} fallos'}")
 sys.exit(1 if fallos else 0)
