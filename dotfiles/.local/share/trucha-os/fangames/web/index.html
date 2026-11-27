@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<!-- nada de red: solo archivos locales (portadas incluidas, que salen de la carpeta de cada juego) -->
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src file:; style-src file: 'unsafe-inline'; font-src file:; img-src file: data:">
+<title>Fangames</title>
+<link rel="stylesheet" href="app.css">
+<script src="app.js" defer></script>
+</head>
+<body>
+<aside id="lateral">
+  <header>
+    <span class="kanji">遊</span>
+    <div><div class="marca">Fangames</div><div class="sub">nativos en Linux</div></div>
+  </header>
+  <nav id="pestanas" role="tablist" aria-label="Secciones">
+    <button role="tab" data-vista="biblioteca" class="activa">Biblioteca</button>
+    <button role="tab" data-vista="anadir">＋ Añadir</button>
+    <button role="tab" data-vista="ajustes">Ajustes</button>
+  </nav>
+  <nav id="lista" aria-label="Juegos"></nav>
+  <footer>
+    <button id="recargar" title="Volver a leer los manifiestos (F5)">↻ Recargar</button>
+    <span class="atajos">↑↓ elegir · Intro jugar</span>
+  </footer>
+</aside>
+
+<main>
+  <section id="vista-biblioteca" class="vista activa" aria-live="polite"></section>
+
+  <section id="vista-anadir" class="vista">
+    <div class="pagina">
+      <h2>Añadir un fangame</h2>
+      <p class="intro">Elige el <b>.zip</b> (o .rar) que te has bajado o la carpeta del juego. Lo descomprimo en tu biblioteca,
+        detecto su motor y, si quieres, <b>Claude</b> lo integra solo: busca su información, le hace portada y banner
+        con sus propios gráficos y lo prueba hasta que arranque.</p>
+      <div class="caja-origen">
+        <div class="origen-botones">
+          <button class="secundario" id="elegir-zip">Elegir .zip</button>
+          <button class="secundario" id="elegir-carpeta">Elegir carpeta</button>
+        </div>
+        <div id="origen" class="origen vacio-origen">Ningún juego elegido</div>
+        <label class="campo"><span>Nombre <i>(opcional)</i></span>
+          <input id="nombre-nuevo" type="text" placeholder="Se saca del archivo si lo dejas vacío" maxlength="80"></label>
+        <label class="interruptor"><input id="con-claude" type="checkbox">
+          <span class="pista-int"></span> Que Claude lo integre (info, portada, banner y prueba)</label>
+        <p id="sin-claude" class="nota" hidden>No encuentro el comando <code>claude</code>: se añadirá con lo que detecte el launcher.</p>
+        <button class="jugar" id="importar" disabled>Añadir a la biblioteca</button>
+      </div>
+      <pre id="progreso" hidden></pre>
+      <h3>Motores que sé usar</h3>
+      <div id="motores-anadir" class="motores"></div>
+    </div>
+  </section>
+
+  <section id="vista-ajustes" class="vista">
+    <div class="pagina">
+      <h2>Ajustes</h2>
+      <div class="grupo">
+        <label class="campo"><span>Carpeta de juegos</span>
+          <span class="fila"><input id="aj-carpeta" type="text"><button class="secundario" data-abrir="juegos">Abrir</button></span></label>
+        <label class="campo"><span>Ordenar la biblioteca</span>
+          <select id="aj-orden"><option value="recientes">Jugados hace poco</option><option value="nombre">Por nombre</option></select></label>
+        <label class="interruptor"><input id="aj-completa" type="checkbox"><span class="pista-int"></span> Jugar a pantalla completa, adaptado al monitor (RPG Maker)</label>
+        <label class="campo"><span>Escalado de los juegos de RPG Maker</span>
+          <select id="aj-escalado"><option value="nitido">Nítido (píxeles tal cual)</option><option value="suave">Suave (bicúbico)</option><option value="xbrz">xBRZ (pixel art redondeado)</option></select></label>
+        <label class="interruptor"><input id="aj-minimizar" type="checkbox"><span class="pista-int"></span> Minimizar el launcher mientras juegas</label>
+        <label class="interruptor"><input id="aj-no-listos" type="checkbox"><span class="pista-int"></span> Mostrar juegos a los que les falta algo</label>
+        <label class="interruptor"><input id="aj-claude" type="checkbox"><span class="pista-int"></span> Integrar con Claude al añadir (marcado por defecto)</label>
+        <button class="jugar" id="guardar-ajustes">Guardar</button>
+      </div>
+      <h3>Motores</h3>
+      <div id="motores-ajustes" class="motores"></div>
+      <h3>Lanzador y archivos</h3>
+      <div class="grupo fila-botones">
+        <button class="secundario" id="crear-accesos">Crear accesos en el lanzador</button>
+        <button class="secundario" data-abrir="catalogo">Abrir mis manifiestos</button>
+      </div>
+    </div>
+  </section>
+</main>
+<div id="aviso" role="status"></div>
+</body>
+</html>

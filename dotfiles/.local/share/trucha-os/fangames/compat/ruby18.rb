@@ -1,0 +1,72 @@
+# ruby18.rb — precarga de trucha-fangames para Essentials muy antiguos (Ruby 1.8).
+# mkxp-z evalúa cada script con Kernel#eval; aquí se arreglan, antes de evaluarlos, dos cosas que Ruby 1.8
+# aceptaba y Ruby 3 no:
+#  · regex con bytes sueltos, /[\x7f-\x9f]/ («invalid multibyte escape»): se les añade /n, que es lo que eran.
+#  · un `next`/`break`/`retry`/`redo` suelto en un método («Invalid next»…): en 1.8 salía del método, así que
+#    pasa a `return`.
+#  · `_INTL ("texto")` con espacio antes del paréntesis, que Ruby 3 lee distinto dentro de una lista.
+#  · `when 0: algo`: la sintaxis de 1.8 para `when 0 then algo`.
+#  · `io.read(1)[0]`: en 1.8 daba el byte (un número); en Ruby 3 da un String, así que pasa a getbyte(0).
+#  · el script de Peter O. para cambiar el tamaño de pantalla (pbSetResizeFactor) agranda la pantalla interna
+#    del juego y mkxp-z la pinta en una esquina (en Windows recortaba la ventana): se fija a 1×, la pantalla
+#    interna pasa a la resolución real del juego (DEFAULTSCREENWIDTH×HEIGHT) y el escalado lo hace mkxp-z.
+# No toca nada más del script.
+module Kernel
+  alias_method :__trucha_eval_original, :eval
+  REGEX_BYTES = %r{(/(?:[^/\n\\]|\\.)*\\x[89a-fA-F][0-9a-fA-F](?:[^/\n\\]|\\.)*/)([imx]*)}
+  SALTO_SUELTO = /:(\d+): Invalid (next|break|retry|redo)/
+
+  def eval(src, binding = nil, *rest)
+    if src.is_a?(String)
+      # scripts con bytes sueltos (Latin-1): se reescriben como binario y luego recuperan su codificación
+      codificacion = src.encoding
+      src = src.b unless src.valid_encoding?
+      src = src.gsub(REGEX_BYTES) { $2.include?("n") ? $& : "#{$1}#{$2}n" } if src.include?('\x')
+      src = src.gsub(/\.read\(1\)\[0\]/, ".read(1).getbyte(0)")
+      src = src.gsub(/\byield getc\b/, "yield((c = getc).is_a?(String) ? c.ord : c)")   # StringInput#each_byte: getc ya no da un número
+      src = src.gsub(/^(\s*when\s+[^\n#]*?[^:\s]):(?=\s|$)/) { "#{$1} then" }
+      src = src.gsub(/\b(_INTL|_ISPRINTF|_MAPINTL) +\(/) { "#{$1}(" }
+      src = src.sub(/^(\s*def pbSetResizeFactor\(factor\s*=\s*1\s*,\s*norecalc\s*=\s*false\)[^\n]*\n)/) {
+        "#{$1}  factor, norecalc = 1, false   # trucha-fangames: 1x, mkxp-z escala al monitor\n" \
+        "  Graphics.resize_screen(DEFAULTSCREENWIDTH, DEFAULTSCREENHEIGHT) if defined?(DEFAULTSCREENWIDTH)\n"
+      }
+      src = src.force_encoding(codificacion)
+    end
+    intentos = 0
+    begin
+      # sin binding, el script tiene que vivir en el nivel superior y no dentro de este método
+      resultado = __trucha_eval_original(src, binding || TOPLEVEL_BINDING, *rest)
+      # en cuanto el juego define su resolución, la pantalla interna se pone a ese tamaño desde el principio
+      if !$trucha_resolucion && Object.const_defined?(:DEFAULTSCREENWIDTH) && Object.const_defined?(:DEFAULTSCREENHEIGHT)
+        $trucha_resolucion = true
+        Graphics.resize_screen(DEFAULTSCREENWIDTH, DEFAULTSCREENHEIGHT) rescue nil
+      end
+      resultado
+    rescue SyntaxError => e
+      linea, palabra = e.message.match(SALTO_SUELTO)&.captures
+      raise unless linea && src.is_a?(String) && (intentos += 1) <= 50
+      lineas = src.lines
+      lineas[linea.to_i - 1] = lineas[linea.to_i - 1].sub(/\b#{palabra}\b/, "return")
+      src = lineas.join
+      retry
+    end
+  end
+  module_function :eval
+  public :eval
+end
+
+# Thread.critical existía en Ruby 1.8 (sección crítica); con el GVL de Ruby 3 no hace falta: no hace nada.
+class Thread
+  def self.critical = false
+  def self.critical=(_valor); end
+end
+
+# Los Essentials antiguos redefinen String#getbyte/#setbyte con la semántica de 1.8 (self[i]), que en Ruby 3
+# devuelve un String en vez del byte. Un módulo antepuesto (prepend) gana a esas redefiniciones del juego.
+module TruchaBytesNativos
+  GETBYTE = String.instance_method(:getbyte)
+  SETBYTE = String.instance_method(:setbyte)
+  def getbyte(i) = GETBYTE.bind_call(self, i)
+  def setbyte(i, b) = SETBYTE.bind_call(self, i, b)
+end
+String.prepend(TruchaBytesNativos)

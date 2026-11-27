@@ -1,0 +1,17 @@
+# Pokémon Africanvs · RPG Maker XP + Pokémon Essentials antiguo (parches win32 y ruby18).
+id = "pokemon-africanus"
+nombre = "Pokémon Africanvs"
+motor = "mkxp-z"
+carpeta = "pokemon-africanus"
+autor = "El Gamid"
+version = "Definitive Edition"
+descripcion = "Lleva el mundo Pokémon a la Antigüedad: la Segunda Guerra Púnica entre Roma y Cartago, con un enfoque histórico."
+genero = "RPG de Pokémon · histórico"
+idioma = "Español"
+region = "Europa antigua (219 a. C.)"
+web = "https://whackahack.com/juegos/pokemon-africanus/"
+color = "#d9922e"
+logo = "Graphics/Titles/pokelogo.png"
+estado = "beta"
+etiquetas = ["RPG Maker XP", "Essentials antiguo"]
+compat = ["win32", "ruby18"]

@@ -1,0 +1,19 @@
+# Pokémon Infinite Fusion · RPG Maker XP + Essentials con mkxp-z. Bajado como su instalador oficial:
+# git clone --depth 1 --branch releases https://github.com/infinitefusion/infinitefusion-e18.git
+id = "pokemon-infinite-fusion"
+nombre = "Pokémon Infinite Fusion"
+motor = "mkxp-z"
+carpeta = "pokemon-infinite-fusion"
+autor = "Equipo de Pokémon Infinite Fusion"
+version = "6.7"
+descripcion = "Reinterpreta Kanto con una idea central: fusionar dos Pokémon cualesquiera, con cientos de sprites hechos a mano por la comunidad."
+genero = "RPG de Pokémon"
+idioma = "Inglés, francés, chino"
+region = "Kanto y Johto"
+web = "https://github.com/infinitefusion/infinitefusion-e18"
+color = "#6b5be0"
+estado = "jugable"
+etiquetas = ["RPG Maker XP", "mkxp-z"]
+caracteristicas = ["Fusiona dos Pokémon cualesquiera", "Sprites de fusión hechos por la comunidad", "Región de Johto añadida"]
+compat = ["win32"]
+notas = "La primera vez tarda en torno a un minuto en arrancar mientras prepara sus datos."

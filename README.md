@@ -31,6 +31,7 @@
 | 🎨 **Temas** | Crimson Ink · Miku Dark · Nino Dark · Marin Dark · Resident Evil · Ceniza · Kaitō · Sumi, con un atajo (⊞+Alt+T) |
 | 🖼️ **Escritorio** | fondo animado (linux-wallpaperengine), reloj pixel, kanji vertical, cava, monitor, tiempo, calendario (十一月), letras, pétalos |
 | 🧠 **Trucha Copilot** | IA local que responde con **mis apuntes** y cita la nota: app con chats y mascota, o `¿` en el lanzador |
+| 🎮 **Fangames** | Launcher de fangames nativos (Pokémon Añil con mkxp-z, Pokémon Reloaded con OpenGMK), sin Wine; un `.toml` por juego |
 | 🧪 **Trucha Lab** | Práctica de CTF con cronómetro en la barra, labs web en Docker y writeup al vault al acabar cada reto |
 | 🛡️ **CTF** | **Competis** (⊞+Shift+Espacio), **Utilidades** con `=` (base64, hex, rot13, timestamps…) y OCR de una zona (⊞+Shift+X) |
 | 💻 **Terminal** | kitty + starship + fastfetch con el torii |
@@ -132,6 +133,53 @@ Embeddings con `qwen3-embedding:0.6b`: índice completo en **69 s**, cada búsqu
 > Otro vault: `TRUCHA_COPILOT_VAULT=/ruta`. Otro modelo: `TRUCHA_COPILOT_MODEL=nombre` (descárgalo antes con `ollama pull`).
 
 ---
+
+## 🎮 Fangames
+
+`trucha-fangames` (o **Fangames** en el lanzador) es una biblioteca de fangames que corren **nativos** en Linux: nada de Wine.
+Tiene tres pestañas:
+
+- **Biblioteca**: portada, banner, descripción, características, información general (autor, versión, género, idioma, web…), última partida y tiempo jugado. Se maneja con teclado o mando (↑↓ e Intro/A).
+- **＋ Añadir**: eliges un `.zip` o una carpeta, lo descomprime en tu biblioteca y detecta el motor solo. Si marcas *Que Claude lo integre*, se lo pasa a Claude Code (`claude -p`, con permisos acotados), que busca la información del juego, le hace portada y banner con sus propios gráficos y lo prueba hasta que arranca.
+- **Ajustes**: carpeta de juegos, orden, minimizar al jugar, pantalla completa adaptada al monitor y filtro de escalado (nítido, suave o xBRZ) para los juegos de RPG Maker, motores instalados y accesos en el lanzador.
+
+| Motor | Para qué | Dónde va |
+|---|---|---|
+| `mkxp-z` | RPG Maker XP/VX/VX Ace y Pokémon Essentials (Añil) | `~/Juegos/fangames/_runtimes/mkxp-z/` (build Linux x86_64 de las Actions de mkxp-z) |
+| `opengmk` | Game Maker 8 (Reloaded) | `~/Juegos/fangames/_runtimes/opengmk/gm8emulator` |
+| `nativo` | juegos que ya traen versión para Linux (AppImage o binario: Insurgence, Reborn, Rejuvenation…) | dentro del propio juego |
+| `gba` | hacks de ROM de Game Boy Advance ya parcheados (Unbound…) | `mgba-qt` del sistema |
+| `wine` | último recurso | el `wine` del sistema |
+
+Cada juego es un manifiesto `.toml`, así que añadir otro a mano es escribir un archivo en `~/.config/trucha-os/fangames/<id>.toml`:
+
+```toml
+id = "mi-fangame"            # letras, números y guiones
+nombre = "Mi Fangame"
+motor = "mkxp-z"             # mkxp-z · opengmk · wine
+carpeta = "mi-fangame"       # dentro de ~/Juegos/fangames (o ruta absoluta)
+ejecutable = "Juego.exe"     # solo opengmk y wine
+autor = "Quien sea"
+version = "1.0"
+descripcion = "Dos o tres frases."
+genero = "RPG de Pokémon"
+idioma = "Español"
+region = "Kanto"
+lanzamiento = "2024"
+web = "https://…"
+logo = "Graphics/Titles/logo.png"            # opcional, dentro de la carpeta del juego
+color = "#3b6fe0"            # color de la ficha
+estado = "jugable"           # jugable · beta · en pruebas
+etiquetas = ["RPG Maker XP"]
+caracteristicas = ["Nuzlocke", "Megas"]
+```
+
+Juegos de RPG Maker viejos (Essentials de la era Ruby 1.8, con llamadas a la API de Windows) llevan
+`compat = ["win32", "ruby18"]`: el launcher añade a su `mkxp.json` los envoltorios de mkxp-z y los parches de
+`~/.local/share/trucha-os/fangames/compat/` (guarda el original como `mkxp.json.original`). Al importar se detecta solo.
+
+La portada y el banner van por convención en `~/Juegos/fangames/_arte/<id>/portada.png` y `banner.png`; `trucha-fangames-arte` los monta con un fondo, el logo y unos sprites del propio juego.
+En la terminal: `trucha-fangames lista`, `jugar <id>`, `probar <id>` (lo arranca, saca captura y lo cierra), `importar <zip> [--claude]`, `parchear <parche.ups> <rom> <nombre>` (hacks de GBA: comprueba que la ROM sea la base correcta) y `accesos`.
 
 ## 🧪 Trucha Lab
 

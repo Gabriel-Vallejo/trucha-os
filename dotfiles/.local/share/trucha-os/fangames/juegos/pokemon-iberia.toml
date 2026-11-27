@@ -1,0 +1,18 @@
+# Pokémon Iberia · RPG Maker XP + Pokémon Essentials antiguo (parches win32 y ruby18).
+id = "pokemon-iberia"
+nombre = "Pokémon Iberia"
+motor = "mkxp-z"
+carpeta = "pokemon-iberia"
+autor = "Eric Lostie"
+version = "2.10"
+descripcion = "Una aventura satírica por toda la península, de Albacete a Lisboa y Barcelona, con formas regionales ibéricas y muy mala leche."
+genero = "RPG de Pokémon · parodia"
+idioma = "Español"
+region = "Península Ibérica"
+web = "https://lostiefangames.com/juegos/pokemon-iberia/"
+color = "#c8373c"
+estado = "beta"
+etiquetas = ["RPG Maker XP", "Essentials antiguo"]
+caracteristicas = ["262 mapas y 11 ciudades reales", "Formas ibéricas", "Nuzlocke y seminuzlocke", "Randomizer integrado"]
+compat = ["win32", "ruby18"]
+notas = "Su autor avisa de que es de sus primeros juegos y ya no recibe actualizaciones."

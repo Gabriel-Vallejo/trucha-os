@@ -1,0 +1,17 @@
+# Pokémon Magnetic · RPG Maker XP + Pokémon Essentials antiguo (parches win32 y ruby18).
+id = "pokemon-magnetic"
+nombre = "Pokémon Magnetic"
+motor = "mkxp-z"
+carpeta = "pokemon-magnetic/Pokémon Magnetic"
+autor = "NachoDark"
+version = "3.7"
+descripcion = "Tres amigos de la infancia recorren la región de Amperia entre misiones secundarias, fakemon e investigaciones de campo."
+genero = "RPG de Pokémon"
+idioma = "Español"
+region = "Amperia"
+web = "https://whackahack.com/juegos/pokemon-magnetic/"
+color = "#e0b43b"
+estado = "beta"
+etiquetas = ["RPG Maker XP", "Essentials antiguo"]
+caracteristicas = ["Fakemon y formas regionales", "Tipo elemental nuevo: Zbor", "Investigaciones de campo", "Misiones secundarias"]
+compat = ["win32", "ruby18"]

@@ -1,0 +1,13 @@
+id = "pokemon-desolation"
+nombre = "Pokémon Desolation"
+motor = "nativo"
+carpeta = "pokemon-desolation"
+ejecutable = "Game.AppImage"
+autor = "Reborn Evolved"
+descripcion = "Fangame en inglés del entorno de Reborn, de tono oscuro y gran dificultad. Trae versión oficial para Linux."
+genero = "RPG de Pokémon"
+idioma = "Inglés"
+web = "https://www.rebornevo.com/deso/desodownloads/"
+color = "#7a6a9e"
+estado = "jugable"
+etiquetas = ["Versión Linux oficial", "mkxp-z"]

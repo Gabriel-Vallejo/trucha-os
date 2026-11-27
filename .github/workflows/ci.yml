@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: Dependencias
         run: >
-          pacman -Syu --noconfirm --needed git nodejs python imagemagick gsfonts
+          pacman -Syu --noconfirm --needed git nodejs python python-pillow imagemagick gsfonts
           tesseract tesseract-data-eng tesseract-data-spa
 
       - uses: actions/checkout@v4
@@ -36,6 +36,9 @@ jobs:
 
       - name: Trucha Copilot, Markdown y LaTeX seguros
         run: node tests/copilot_render.test.mjs
+
+      - name: Fangames (catálogo, motores y partidas con juegos falsos)
+        run: python tests/fangames.test.py
 
       - name: Trucha Lab (vault de juguete y docker falso)
         run: python tests/lab.test.py

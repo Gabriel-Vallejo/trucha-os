@@ -1,0 +1,17 @@
+# Pokémon Gadir Deluxe · RPG Maker XP + Pokémon Essentials antiguo (parches win32 y ruby18).
+id = "pokemon-gadir-deluxe"
+nombre = "Pokémon Gadir Deluxe"
+motor = "mkxp-z"
+carpeta = "pokemon-gadir-deluxe"
+autor = "PKMario y AlekZ"
+version = "DLC v1.1.1"
+descripcion = "Ambientado en la región de Gadir, inspirada en Cádiz, con historia propia, fakemon y formas regionales."
+genero = "RPG de Pokémon"
+idioma = "Español"
+region = "Gadir (Cádiz)"
+web = "https://whackahack.com/juegos/pokemon-gadir-deluxe/"
+color = "#9b5be0"
+estado = "beta"
+etiquetas = ["RPG Maker XP", "Essentials antiguo"]
+caracteristicas = ["Fakemon y formas regionales", "Especies hasta la novena generación", "Área Silvestre", "Modo Nuzlocke"]
+compat = ["win32", "ruby18"]

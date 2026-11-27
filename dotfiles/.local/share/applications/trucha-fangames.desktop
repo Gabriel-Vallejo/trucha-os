@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Fangames
+Comment=Pokémon Añil, Reloaded y más fangames, nativos en Linux
+Exec=trucha-fangames
+Icon=applications-games
+Terminal=false
+StartupWMClass=es.trucha.Fangames
+Categories=Game;
+Keywords=pokemon;fangames;añil;reloaded;mkxp;opengmk;juegos;

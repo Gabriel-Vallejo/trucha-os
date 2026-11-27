@@ -1,0 +1,13 @@
+id = "pokemon-insurgence"
+nombre = "Pokémon Insurgence"
+motor = "nativo"
+carpeta = "pokemon-insurgence"
+ejecutable = "PokemonInsurgence-2.0.1-linux-x86_64.AppImage"
+version = "2.0.1"
+descripcion = "Fangame en inglés con una historia más oscura de lo habitual, Delta Pokémon y megaevoluciones propias. Trae versión oficial para Linux."
+genero = "RPG de Pokémon"
+idioma = "Inglés"
+web = "https://p-insurgence.com/"
+color = "#d94fa0"
+estado = "jugable"
+etiquetas = ["Versión Linux oficial"]

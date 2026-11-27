@@ -1,0 +1,15 @@
+# Bajado como su instalador oficial: git clone --depth 1 --branch releases infinitefusion-hoenn-public
+id = "pokemon-infinite-fusion-2-hoenn"
+nombre = "Pokémon Infinite Fusion 2: Hoenn"
+motor = "mkxp-z"
+carpeta = "pokemon-infinite-fusion-2-hoenn"
+autor = "Equipo de Pokémon Infinite Fusion"
+descripcion = "La segunda parte de Infinite Fusion, ahora en Hoenn: fusiona dos Pokémon cualesquiera con los sprites de la comunidad."
+genero = "RPG de Pokémon"
+idioma = "Inglés, francés, chino"
+region = "Hoenn"
+web = "https://github.com/infinitefusion/infinitefusion-hoenn-public"
+color = "#2f8fd9"
+estado = "beta"
+etiquetas = ["RPG Maker XP", "mkxp-z"]
+compat = ["win32"]

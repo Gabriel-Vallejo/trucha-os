@@ -1,0 +1,14 @@
+id = "pokemon-z"
+nombre = "Pokémon Z"
+motor = "mkxp-z"
+carpeta = "pokemon-z"
+autor = "Eric Lostie"
+version = "2.19"
+descripcion = "Fangame en español de Eric Lostie, uno de los más largos de su catálogo."
+genero = "RPG de Pokémon"
+idioma = "Español"
+web = "https://lostiefangames.com/juegos/pokemon-z/"
+color = "#d9a02f"
+estado = "beta"
+etiquetas = ["RPG Maker XP", "Essentials antiguo"]
+compat = ["win32", "ruby18"]

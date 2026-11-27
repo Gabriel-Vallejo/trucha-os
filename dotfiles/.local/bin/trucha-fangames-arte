@@ -1,0 +1,180 @@
+#!/usr/bin/env python3
+"""trucha-fangames-arte — portada (600×900) y banner (1920×640) de un fangame, montados con sus propios gráficos.
+
+  trucha-fangames-arte <id> --fondo IMG [--logo IMG] [--sprite IMG ...] [--titulo TEXTO] [--color #rrggbb]
+
+Escribe ~/Juegos/fangames/_arte/<id>/portada.png y banner.png, que trucha-fangames usa solas.
+El fondo se amplía sin suavizar (pixel art), los sprites de tira animada se recortan al primer
+fotograma y, si no hay logo, la portada lleva el título en Inter."""
+import argparse
+import os
+import sys
+from pathlib import Path
+
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
+
+JUEGOS = Path(os.environ.get("TRUCHA_FANGAMES_DIR") or Path.home() / "Juegos/fangames")
+PORTADA = (600, 900)
+BANNER = (1920, 640)
+FUENTES = ["/usr/share/fonts/inter/InterVariable.ttf", str(Path.home() / ".local/share/fonts/Inter/InterVariable.ttf"),
+           "/usr/share/fonts/TTF/DejaVuSans-Bold.ttf"]
+
+
+def abrir(ruta, sprite=False):
+    img = Image.open(ruta)
+    img.seek(0)                                     # gif animado: primer fotograma
+    img = img.convert("RGBA")
+    if sprite and img.width >= img.height * 1.5:    # tira de fotogramas cuadrados (sprites de Essentials)
+        img = img.crop((0, 0, img.height, img.height))
+    caja = img.getbbox()
+    return img.crop(caja) if caja else img
+
+
+def cubrir(img, tam):
+    """Escala para cubrir `tam` y recorta al centro; sin suavizado si es pixel art pequeño."""
+    escala = max(tam[0] / img.width, tam[1] / img.height)
+    filtro = Image.NEAREST if img.width < 800 else Image.LANCZOS
+    img = img.resize((round(img.width * escala), round(img.height * escala)), filtro)
+    x, y = (img.width - tam[0]) // 2, (img.height - tam[1]) // 2
+    return img.crop((x, y, x + tam[0], y + tam[1]))
+
+
+def degradado(tam, color, desde, hasta, vertical=True):
+    """Capa de color que va de opacidad `desde` a `hasta` (0-255) a lo largo de la imagen."""
+    largo = tam[1] if vertical else tam[0]
+    tira = Image.new("L", (1, largo) if vertical else (largo, 1))
+    tira.putdata([round(desde + (hasta - desde) * i / max(1, largo - 1)) for i in range(largo)])
+    capa = Image.new("RGBA", tam, color)
+    capa.putalpha(tira.resize(tam))
+    return capa
+
+
+def con_sombra(img, radio=14, opacidad=150):
+    margen = radio * 3
+    lienzo = Image.new("RGBA", (img.width + margen * 2, img.height + margen * 2), (0, 0, 0, 0))
+    sombra = Image.new("RGBA", img.size, (0, 0, 0, opacidad))
+    sombra.putalpha(img.getchannel("A").point(lambda a: min(a, opacidad)))
+    lienzo.alpha_composite(sombra, (margen, margen + radio))
+    lienzo = lienzo.filter(ImageFilter.GaussianBlur(radio))
+    lienzo.alpha_composite(img, (margen, margen))
+    return lienzo, margen
+
+
+def ampliar(img, alto_objetivo):
+    factor = max(1, round(alto_objetivo / img.height))   # múltiplo entero: el pixel art no se deforma
+    return img.resize((img.width * factor, img.height * factor), Image.NEAREST)
+
+
+def fuente(tam):
+    for ruta in FUENTES:
+        try:
+            letra = ImageFont.truetype(ruta, tam, index=0)
+        except OSError:
+            continue
+        try:
+            letra.set_variation_by_axes([32, 800])    # Inter variable: tamaño óptico de titular y peso ExtraBold
+        except (OSError, ValueError):
+            pass
+        return letra
+    return ImageFont.load_default(tam)
+
+
+def color_rgb(hexa):
+    hexa = hexa.lstrip("#")
+    return tuple(int(hexa[i:i + 2], 16) for i in (0, 2, 4)) if len(hexa) == 6 else (229, 56, 59)
+
+
+def hacer_banner(fondo, sprites, color):
+    img = cubrir(fondo, BANNER)
+    img.alpha_composite(degradado(BANNER, color + (255,), 0, 70))
+    img.alpha_composite(degradado(BANNER, (8, 8, 12, 255), 235, 0, vertical=False))   # texto legible a la izquierda
+    x = BANNER[0] - 120
+    for i, sprite in enumerate(reversed(sprites[:3])):
+        grande = ampliar(sprite, 380 if i == 0 else 300)
+        pieza, margen = con_sombra(grande)
+        x -= grande.width + 20
+        y = BANNER[1] - grande.height - 40 - (0 if i == 0 else 30)
+        img.alpha_composite(pieza, (max(0, x - margen), max(0, y - margen)))
+    return img
+
+
+def hacer_portada(fondo, logo, sprites, titulo, color):
+    if not logo and not sprites and not titulo.strip():
+        return portada_encajada(fondo, color)
+    img = cubrir(fondo, PORTADA)
+    img.alpha_composite(degradado(PORTADA, color + (255,), 40, 200))
+    img.alpha_composite(degradado(PORTADA, (8, 8, 12, 255), 0, 170))
+    if sprites:
+        sprite = ampliar(sprites[0], 360)
+        pieza, margen = con_sombra(sprite)
+        img.alpha_composite(pieza, ((PORTADA[0] - sprite.width) // 2 - margen, PORTADA[1] - sprite.height - 70 - margen))
+    if logo:
+        escala = min(500 / logo.width, 300 / logo.height)
+        logo = logo.resize((round(logo.width * escala), round(logo.height * escala)),
+                           Image.NEAREST if escala >= 2 else Image.LANCZOS)
+        pieza, margen = con_sombra(logo, radio=10)
+        img.alpha_composite(pieza, ((PORTADA[0] - logo.width) // 2 - margen, 70 - margen))
+    else:
+        dibujo = ImageDraw.Draw(img)
+        letra = fuente(64)
+        lineas, linea = [], ""
+        for palabra in titulo.split():
+            prueba = f"{linea} {palabra}".strip()
+            if dibujo.textlength(prueba, font=letra) > 520 and linea:
+                lineas.append(linea)
+                linea = palabra
+            else:
+                linea = prueba
+        lineas.append(linea)
+        y = 80
+        for texto in lineas:
+            ancho = dibujo.textlength(texto, font=letra)
+            dibujo.text(((PORTADA[0] - ancho) / 2, y), texto, font=letra, fill=(255, 255, 255, 255),
+                        stroke_width=4, stroke_fill=(0, 0, 0, 200))
+            y += 76
+    return img
+
+
+def portada_encajada(fondo, color):
+    """Para una pantalla de título apaisada: entera en el centro, sobre ella misma ampliada y desenfocada."""
+    img = cubrir(fondo, PORTADA).filter(ImageFilter.GaussianBlur(28))
+    img.alpha_composite(degradado(PORTADA, color + (255,), 60, 160))
+    escala = PORTADA[0] / fondo.width
+    centro = fondo.resize((PORTADA[0], round(fondo.height * escala)), Image.NEAREST if escala >= 2 else Image.LANCZOS)
+    pieza, margen = con_sombra(centro, radio=18, opacidad=170)
+    img.alpha_composite(pieza, (-margen, (PORTADA[1] - centro.height) // 2 - margen))
+    return img
+
+
+def main(argv):
+    p = argparse.ArgumentParser(description="Portada y banner de un fangame")
+    p.add_argument("id")
+    p.add_argument("--fondo", required=True)
+    p.add_argument("--logo")
+    p.add_argument("--sprite", action="append", default=[])
+    p.add_argument("--titulo", default="")
+    p.add_argument("--color", default="#e5383b")
+    a = p.parse_args(argv)
+    if not a.id.replace("-", "").isalnum():
+        p.error("el id solo admite letras, números y guiones")
+    try:
+        fondo = abrir(a.fondo)
+        caja = fondo.convert("L").point(lambda v: 255 if v > 10 else 0).getbbox()   # fuera bandas negras (capturas)
+        fondo = fondo.crop(caja) if caja else fondo
+        logo = abrir(a.logo) if a.logo else None
+        sprites = [abrir(s, sprite=True) for s in a.sprite]
+    except OSError as e:
+        print(f"No puedo abrir una imagen: {e}", file=sys.stderr)
+        return 1
+    color = color_rgb(a.color)
+    destino = JUEGOS / "_arte" / a.id   # sin --salida: solo escribe en el arte de ese juego
+    destino.mkdir(parents=True, exist_ok=True)
+    hacer_banner(fondo, sprites, color).convert("RGB").save(destino / "banner.png", optimize=True)
+    hacer_portada(fondo, logo, sprites, a.titulo or a.id, color).convert("RGB").save(destino / "portada.png", optimize=True)
+    print(destino / "portada.png")
+    print(destino / "banner.png")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))
