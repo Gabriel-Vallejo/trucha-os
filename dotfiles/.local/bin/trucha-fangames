@@ -93,9 +93,15 @@ def configurar():
 
 
 def escribir_atomico(ruta, texto):
-    tmp = ruta.with_suffix(ruta.suffix + ".tmp")
-    tmp.write_text(texto, encoding="utf-8")
-    tmp.replace(ruta)
+    """Escribe en un temporal nuevo (mkstemp: nunca sigue un enlace que ya estuviera ahí) y lo renombra."""
+    fd, tmp = tempfile.mkstemp(dir=ruta.parent, prefix=f".{ruta.name}.")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            f.write(texto)
+        os.replace(tmp, ruta)
+    except BaseException:
+        Path(tmp).unlink(missing_ok=True)
+        raise
 
 
 configurar()
@@ -444,6 +450,9 @@ def extraer_otro(archivo, destino):
     """.rar y .7z con bsdtar (libarchive), que por defecto no escribe fuera del destino ni sigue rutas absolutas."""
     if not shutil.which("bsdtar"):
         raise ValueError("para .rar o .7z hace falta bsdtar (paquete libarchive)")
+    lista = subprocess.run(["bsdtar", "-tvf", str(archivo)], capture_output=True, text=True)
+    if any(l.startswith(("l", "h")) or " link to " in l for l in lista.stdout.splitlines()):
+        raise ValueError("el archivo trae enlaces (simbólicos o duros), no lo descomprimo")
     r = subprocess.run(["bsdtar", "-xf", str(archivo), "-C", str(destino)], capture_output=True, text=True)
     if r.returncode:
         raise ValueError(f"no he podido descomprimirlo: {r.stderr.strip()[:200]}")
@@ -556,6 +565,9 @@ def importar(origen, nombre=None, avisar=print):
             extraer_otro(origen, temporal)
         else:
             raise ValueError("solo sé importar un .zip, .rar, .7z o una carpeta")
+        enlaces = [p for p in temporal.rglob("*") if p.is_symlink()]
+        if enlaces:   # un enlace dentro del juego podría hacer que luego se escriba fuera de él
+            raise ValueError(f"el juego trae enlaces simbólicos, no lo importo: {enlaces[0].relative_to(temporal)}")
         aplanar(temporal)
         temporal.rename(JUEGOS / id_juego)
     except BaseException:

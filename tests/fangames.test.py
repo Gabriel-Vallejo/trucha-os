@@ -216,7 +216,21 @@ fg.guardar_ajustes({"escalado": "inventado"})
 comprobar("un escalado desconocido vuelve a nítido", fg.ajustes()["escalado"] == "nitido")
 comprobar("el original del autor sigue intacto", (carpeta / "mkxp.json.original").read_text().startswith("{\n  // del autor"))
 
-# ── importar: subcarpetas, nombres de Windows y .rar ──
+# ── importar: subcarpetas, nombres de Windows, .rar y enlaces ──
+con_enlace = TMP / "con_enlace"
+escribir(con_enlace / "Game.ini", "[Game]\n")
+(con_enlace / "Data").symlink_to(TMP)
+try:
+    fg.importar(con_enlace, avisar=lambda *_: None)
+    comprobar("rechaza un juego con enlaces simbólicos", False)
+except ValueError as e:
+    comprobar("rechaza un juego con enlaces simbólicos", "enlaces" in str(e) and not list(fg.JUEGOS.glob(".importando-*")))
+enlace_tmp = TMP / "destino.txt"
+(TMP / "objetivo.txt").write_text("intacto")
+(TMP / "destino.txt.tmp").symlink_to(TMP / "objetivo.txt")
+fg.escribir_atomico(enlace_tmp, "nuevo")
+comprobar("escribir_atomico no sigue un .tmp enlazado", (TMP / "objetivo.txt").read_text() == "intacto"
+          and enlace_tmp.read_text() == "nuevo")
 anidado = TMP / "anidado"
 escribir(anidado / "Juego v1/Juego/Game.ini", "[Game]\n")
 escribir(anidado / "Juego v1/Juego/Data/Scripts.rxdata", "x")
