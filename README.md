@@ -172,6 +172,10 @@ etiquetas = ["RPG Maker XP"]
 caracteristicas = ["Nuzlocke", "Megas"]
 ```
 
+Juegos de RPG Maker viejos (Essentials de la era Ruby 1.8, con llamadas a la API de Windows) llevan
+`compat = ["win32", "ruby18"]`: el launcher añade a su `mkxp.json` los envoltorios de mkxp-z y los parches de
+`~/.local/share/trucha-os/fangames/compat/` (guarda el original como `mkxp.json.original`). Al importar se detecta solo.
+
 La portada y el banner van por convención en `~/Juegos/fangames/_arte/<id>/portada.png` y `banner.png`; `trucha-fangames-arte` los monta con un fondo, el logo y unos sprites del propio juego.
 En la terminal: `trucha-fangames lista`, `jugar <id>`, `probar <id>` (lo arranca, saca captura y lo cierra), `importar <zip> [--claude]` y `accesos`.
 

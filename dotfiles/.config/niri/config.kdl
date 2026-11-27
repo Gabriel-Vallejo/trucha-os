@@ -186,6 +186,13 @@ animations {
 window-rule {
     open-maximized true
 }
+// Fangames con mkxp-z: su SDL no aguanta que niri lo maximice al abrir (wp_viewport lo tumba);
+// flota a su tamaño y Alt+Intro lo pone a pantalla completa.
+window-rule {
+    match app-id=r#"^mkxp-z"#
+    open-maximized false
+    open-floating true
+}
 // Work around WezTerm's initial configure bug
 // by setting an empty default-column-width.
 window-rule {

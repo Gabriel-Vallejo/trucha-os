@@ -20,11 +20,11 @@ FUENTES = ["/usr/share/fonts/inter/InterVariable.ttf", str(Path.home() / ".local
            "/usr/share/fonts/TTF/DejaVuSans-Bold.ttf"]
 
 
-def abrir(ruta):
+def abrir(ruta, sprite=False):
     img = Image.open(ruta)
     img.seek(0)                                     # gif animado: primer fotograma
     img = img.convert("RGBA")
-    if img.width >= img.height * 1.5:               # tira de fotogramas cuadrados (sprites de Essentials)
+    if sprite and img.width >= img.height * 1.5:    # tira de fotogramas cuadrados (sprites de Essentials)
         img = img.crop((0, 0, img.height, img.height))
     caja = img.getbbox()
     return img.crop(caja) if caja else img
@@ -147,7 +147,7 @@ def main(argv):
     try:
         fondo = abrir(a.fondo)
         logo = abrir(a.logo) if a.logo else None
-        sprites = [abrir(s) for s in a.sprite]
+        sprites = [abrir(s, sprite=True) for s in a.sprite]
     except OSError as e:
         print(f"No puedo abrir una imagen: {e}", file=sys.stderr)
         return 1

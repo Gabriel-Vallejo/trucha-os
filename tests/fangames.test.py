@@ -185,5 +185,25 @@ comprobar("marca como fallo un resultado con error", fg.resumen_evento(json.dump
     {"type": "result", "subtype": "success", "is_error": True, "result": "Failed to authenticate"})) == "✘ Failed to authenticate")
 comprobar("ignora líneas que no son JSON", fg.resumen_evento("ruido") is None)
 
+# ── parches de compatibilidad para mkxp-z ──
+import zlib as _zlib
+scripts_viejos = TMP / "viejo/Data/Scripts.rxdata"
+escribir(scripts_viejos, "")
+scripts_viejos.write_bytes(b"\x04\x08[" + _zlib.compress(b"x = Win32API.new('kernel32', 'GetTickCount', '', 'l')\nThread.critical = true\n"))
+comprobar("detecta Win32API y Ruby 1.8 en los scripts", fg.compat_necesaria(scripts_viejos) == ["win32", "ruby18"])
+scripts_nuevos = TMP / "nuevo/Data/Scripts.rxdata"
+escribir(scripts_nuevos, "")
+scripts_nuevos.write_bytes(b"\x04\x08[" + _zlib.compress(b"puts 'hola'\n"))
+comprobar("un Essentials moderno no necesita parches", fg.compat_necesaria(scripts_nuevos) == [])
+comprobar("compat desconocido se rechaza", fg.validar({**bueno, "compat": ["dos"]}) != [])
+escribir(carpeta / "mkxp.json", '{\n  // del autor\n  "windowTitle": "Mio",\n}\n')
+fg._mkxp_json({**mio, "compat": ["win32"]}, carpeta)
+generado = (carpeta / "mkxp.json").read_text()
+comprobar("con compat, mkxp.json lleva las precargas y conserva lo del autor",
+          "win32_wrap.rb" in generado and "win32_ventana.rb" in generado and '"windowTitle": "Mio"' in generado
+          and (carpeta / "mkxp.json.original").exists())
+fg._mkxp_json(mio, carpeta)
+comprobar("sin compat vuelve el mkxp.json original", (carpeta / "mkxp.json").read_text().startswith("{\n  // del autor"))
+
 print(f"\n{'Todo bien' if not fallos else f'{fallos} fallos'}")
 sys.exit(1 if fallos else 0)

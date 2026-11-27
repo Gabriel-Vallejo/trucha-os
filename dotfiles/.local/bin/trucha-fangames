@@ -28,6 +28,7 @@ import time
 import tomllib
 import unicodedata
 import zipfile
+import zlib
 from pathlib import Path
 
 HOME = Path.home()
@@ -49,7 +50,7 @@ AJUSTES_POR_DEFECTO = {"carpeta_juegos": str(HOME / "Juegos/fangames"), "minimiz
 OBLIGATORIOS = ("id", "nombre", "motor", "carpeta")
 TEXTOS = ("nombre", "motor", "carpeta", "ejecutable", "autor", "version", "descripcion", "color", "logo",
           "fondo", "estado", "web", "genero", "idioma", "region", "lanzamiento", "notas")
-LISTAS = ("etiquetas", "caracteristicas")
+LISTAS = ("etiquetas", "caracteristicas", "compat")
 RUTAS_DEL_JUEGO = ("ejecutable", "logo", "fondo")   # relativas a la carpeta del juego
 ESTADOS = ("jugable", "beta", "en pruebas")
 ARTE_FIJO = ("portada", "banner", "captura")         # _arte/<id>/<nombre>.png, por convención
@@ -97,8 +98,38 @@ configurar()
 
 
 # ── motores ────────────────────────────────────────────────────────────────
-def _preparar_mkxp(carpeta):
+COMPAT = {   # parches de precarga de mkxp-z para juegos de RPG Maker que no nacieron para él
+    "win32": ["scripts/preload/win32_wrap.rb", "@win32_ventana.rb"],   # llamadas a la API de Windows
+    "ruby18": ["scripts/preload/ruby_classic_wrap.rb", "@ruby18.rb"],  # Essentials antiguos, de Ruby 1.8
+}
+
+
+def _mkxp_json(juego, carpeta):
+    """Si el manifiesto pide `compat`, reescribe mkxp.json con las precargas y el soundfont (guarda el original)."""
+    compat = juego.get("compat", [])
+    actual, original = carpeta / "mkxp.json", carpeta / "mkxp.json.original"
+    if not compat:
+        if original.exists():
+            shutil.copy2(original, actual)
+        return
+    if actual.exists() and not original.exists():
+        shutil.copy2(actual, original)
+    base = original.read_text(encoding="utf-8", errors="replace") if original.exists() else "{\n}"
+    precargas = ["scripts/preload/mkxp_wrap.rb"]
+    for nombre in compat:
+        precargas += [str(SHARE / "compat" / p[1:]) if p.startswith("@") else p for p in COMPAT[nombre]]
+    extra = [f'    "preloadScript": {json.dumps(list(dict.fromkeys(precargas)))},']
+    soundfont = RUNTIMES / "soundfont/soundfont.sf2"
+    if not re.search(r'^\s*"midiSoundFont"', base, re.M) and soundfont.exists():
+        extra.append(f'    "midiSoundFont": {json.dumps(str(soundfont))},')
+    llave = base.index("{") + 1   # mkxp-z admite comentarios y comas sobrantes: se inyecta tras la primera llave
+    escribir_atomico(actual, "// Generado por trucha-fangames (compat: " + ", ".join(compat) + "); el original es mkxp.json.original\n"
+                     + base[:llave] + "\n" + "\n".join(extra) + base[llave:])
+
+
+def _preparar_mkxp(juego, carpeta):
     """mkxp-z toma como juego la carpeta de su ejecutable: se enlaza dentro del juego sin copiar nada."""
+    _mkxp_json(juego, carpeta)
     base = RUNTIMES / "mkxp-z"
     origen, destino = base / "mkxp-z.x86_64", carpeta / "mkxp-z.x86_64"
     if not destino.exists() or destino.stat().st_ino != origen.stat().st_ino:
@@ -163,6 +194,8 @@ def validar(datos):
         errores.append(f"el motor {datos['motor']} necesita «ejecutable»")
     errores += [f"«{c}» tiene que ser una ruta dentro de la carpeta del juego"
                 for c in RUTAS_DEL_JUEGO if datos.get(c) and not ruta_segura(datos[c])]
+    if any(c not in COMPAT for c in datos.get("compat", [])):
+        errores.append(f"compat desconocido (hay {', '.join(COMPAT)})")
     if datos.get("estado", "jugable") not in ESTADOS:
         errores.append(f"estado desconocido «{datos['estado']}» (hay {', '.join(ESTADOS)})")
     return errores
@@ -261,11 +294,12 @@ def lanzar(juego):
     carpeta = carpeta_de(juego)
     motor = MOTORES[juego["motor"]]
     if motor["preparar"]:
-        motor["preparar"](carpeta)
+        motor["preparar"](juego, carpeta)
     LOGS.mkdir(parents=True, exist_ok=True)
     with open(LOGS / f"{juego['id']}.log", "w") as log:
         return subprocess.Popen(motor["orden"](juego, carpeta), cwd=carpeta, stdout=log, stderr=subprocess.STDOUT,
-                                stdin=subprocess.DEVNULL, start_new_session=True)
+                                stdin=subprocess.DEVNULL, start_new_session=True,
+                                env={**os.environ, **motor.get("entorno", {})})
 
 
 def apuntar_partida(id_juego, inicio, fin):
@@ -293,24 +327,30 @@ def jugar(juego, al_terminar=None):
     return hilo
 
 
-def ventana_de(pid):
-    """Id de la ventana de niri que pertenece a ese proceso (o None si no hay niri o aún no hay ventana)."""
+def ventanas_niri():
     try:
-        ventanas = json.loads(subprocess.run(["niri", "msg", "--json", "windows"], capture_output=True,
-                                             text=True, timeout=5).stdout or "[]")
+        return json.loads(subprocess.run(["niri", "msg", "--json", "windows"], capture_output=True,
+                                         text=True, timeout=5).stdout or "[]")
     except (OSError, ValueError, subprocess.TimeoutExpired):
-        return None
-    return next((v["id"] for v in ventanas if v.get("pid") == pid), None)
+        return []
+
+
+def ventana_de(pid, previas=()):
+    """Ventana de niri del juego: la de su pid o, si va por XWayland (otro pid), la primera que no estaba antes."""
+    ventanas = ventanas_niri()
+    propia = next((v["id"] for v in ventanas if v.get("pid") == pid), None)
+    return propia or next((v["id"] for v in ventanas if v["id"] not in previas), None)
 
 
 def probar(juego, segundos=15):
     """Arranca el juego, espera, saca captura de su ventana (si hay niri) y lo cierra. No apunta partida."""
+    previas = {v["id"] for v in ventanas_niri()}
     proceso = lanzar(juego)
     limite = time.time() + segundos
     ventana = None
     while time.time() < limite and proceso.poll() is None:
         time.sleep(1)
-        ventana = ventana or ventana_de(proceso.pid)
+        ventana = ventana or ventana_de(proceso.pid, previas)
     captura = None
     if ventana and proceso.poll() is None:
         destino = ARTE / juego["id"] / "captura.png"
@@ -326,8 +366,10 @@ def probar(juego, segundos=15):
             proceso.wait(timeout=5)
         except subprocess.TimeoutExpired:
             os.killpg(proceso.pid, signal.SIGKILL)
-    log = (LOGS / f"{juego['id']}.log").read_text(errors="replace").splitlines()[-25:]
-    return {"ok": sigue_vivo, "ventana": ventana is not None, "captura": captura, "log": log,
+    lineas = (LOGS / f"{juego['id']}.log").read_text(errors="replace").splitlines()
+    log = lineas[-25:]
+    error = next((l.strip() for l in lineas if re.search(r"\((?:\w+Error|NoMethodError|NameError|Errno::\w+)\)\s*$", l)), None)
+    return {"ok": sigue_vivo and not error, "error": error, "ventana": ventana is not None, "captura": captura, "log": log,
             "codigo": None if sigue_vivo else proceso.returncode}
 
 
@@ -380,6 +422,26 @@ def aplanar(carpeta):
         unica.rmdir()
 
 
+def compat_necesaria(scripts):
+    """Mira los scripts (zlib dentro de Marshal) buscando lo que en Linux/Ruby 3 rompe un juego de RPG Maker."""
+    try:
+        datos = scripts.read_bytes()
+    except OSError:
+        return []
+    texto = bytearray()
+    for m in re.finditer(rb"\x78[\x01\x5e\x9c\xda]", datos):
+        try:
+            texto += zlib.decompressobj().decompress(datos[m.start():m.start() + 4_000_000])
+        except zlib.error:
+            continue
+    compat = []
+    if re.search(rb"Win32API\.new\(\s*['\"](?:kernel32|user32|gdi32)", texto, re.I):
+        compat.append("win32")
+    if b"Thread.critical" in texto:   # señal clara de un Essentials de la era Ruby 1.8
+        compat.append("ruby18")
+    return compat
+
+
 def detectar_motor(carpeta):
     """Mira los archivos (sin ejecutar nada) y propone motor, ejecutable y pistas."""
     pistas = []
@@ -389,7 +451,10 @@ def detectar_motor(carpeta):
         pistas.append(f"RPG Maker (Game.ini + {rgss[0]})")
         if (carpeta / "mkxp.json").exists():
             pistas.append("ya trae mkxp.json (preparado para mkxp-z)")
-        return {"motor": "mkxp-z", "ejecutable": None, "pistas": pistas}
+        compat = compat_necesaria(carpeta / rgss[0])
+        if compat:
+            pistas.append(f"necesita parches de compatibilidad: {', '.join(compat)}")
+        return {"motor": "mkxp-z", "ejecutable": None, "pistas": pistas, "compat": compat}
     if (carpeta / "www/js/rpg_core.js").exists() or (carpeta / "js/rmmz_core.js").exists():
         pistas.append("RPG Maker MV/MZ (HTML5): todavía no hay motor nativo en el launcher")
     exes = sorted((p for p in carpeta.rglob("*.exe") if p.stat().st_size < 400_000_000
@@ -457,6 +522,7 @@ def importar(origen, nombre=None, avisar=print):
     datos = {"id": id_juego, "nombre": nombre, "motor": deteccion["motor"], "carpeta": id_juego,
              "ejecutable": deteccion["ejecutable"], "logo": str(logos[0].relative_to(carpeta)) if logos else None,
              "color": COLORES[sum(map(ord, id_juego)) % len(COLORES)], "estado": "en pruebas",
+             "compat": deteccion.get("compat", []),
              "notas": "; ".join(deteccion["pistas"])}
     escribir_manifiesto(datos, PROPIOS / f"{id_juego}.toml")
     avisar(f"Añadido como «{id_juego}» con {MOTORES[deteccion['motor']]['nombre']}.")
@@ -751,7 +817,7 @@ def main(argv):
         except RuntimeError as e:
             print(f"No puedo arrancarlo: {e}", file=sys.stderr)
             return 1
-        print("Arranca y sigue abierto" if r["ok"] else f"Se cerró solo (código {r['codigo']})")
+        print("Arranca y sigue abierto" if r["ok"] else f"Falla: {r['error']}" if r["error"] else f"Se cerró solo (código {r['codigo']})")
         print(f"Ventana: {'sí' if r['ventana'] else 'no la he visto'}" + (f" · captura en {r['captura']}" if r["captura"] else ""))
         print("Últimas líneas del log:\n  " + "\n  ".join(r["log"]))
         return 0 if r["ok"] else 1
