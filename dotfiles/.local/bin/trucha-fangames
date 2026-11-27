@@ -160,6 +160,14 @@ def _preparar_mkxp(juego, carpeta):
             enlace.symlink_to(base / sub)
 
 
+def _preparar_nativo(juego, carpeta):
+    """Solo ejecuta un ELF que esté de verdad dentro del juego (sin escapar por enlaces) y solo le añade u+x."""
+    exe = (carpeta / juego["ejecutable"]).resolve()
+    if not exe.is_relative_to(carpeta.resolve()) or not es_ejecutable_linux(exe) or exe.stat().st_uid != os.getuid():
+        raise RuntimeError(f"{juego['ejecutable']} no es un ejecutable de Linux tuyo dentro de la carpeta del juego")
+    exe.chmod(exe.stat().st_mode | 0o100)
+
+
 MOTORES = {
     "mkxp-z": {
         "nombre": "mkxp-z", "para": "RPG Maker XP/VX/VX Ace y Pokémon Essentials",
@@ -180,7 +188,7 @@ MOTORES = {
         "nombre": "Linux nativo", "para": "juegos que ya traen su versión para Linux (AppImage o binario)",
         "runtime": lambda: Path("/bin/sh"),   # no hace falta motor: el juego es el ejecutable
         "app_id": r"^mkxp-z",               # para reconocer su ventana si la abre un proceso nieto
-        "preparar": lambda juego, carpeta: (carpeta / juego["ejecutable"]).chmod(0o755),
+        "preparar": lambda juego, carpeta: _preparar_nativo(juego, carpeta),
         # casi todos son mkxp-z empaquetado por su autor, con el mismo choque de HiDPI en Wayland
         "entorno": {"SDL_VIDEO_HIGHDPI_DISABLED": "1"},
         "orden": lambda juego, carpeta: [str(carpeta / juego["ejecutable"])],

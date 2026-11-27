@@ -276,6 +276,19 @@ appimage = TMP / "Suelto.AppImage"
 appimage.write_bytes(b"\x7fELF" + b"\0" * 100)
 id_ai = fg.importar(appimage, nombre="Juego Suelto", avisar=lambda *_: None)
 comprobar("importa una AppImage suelta como juego nativo", fg.leer_catalogo()[0][id_ai]["motor"] == "nativo")
+falso_nativo = {"id": "x", "ejecutable": "no-elf.sh"}
+escribir(TMP / "nat/no-elf.sh", "#!/bin/sh\necho hola\n")
+try:
+    fg._preparar_nativo(falso_nativo, TMP / "nat")
+    comprobar("el motor nativo rechaza lo que no es un ELF", False)
+except RuntimeError:
+    comprobar("el motor nativo rechaza lo que no es un ELF", not os.access(TMP / "nat/no-elf.sh", os.X_OK))
+(TMP / "nat/fuera").symlink_to(appimage)
+try:
+    fg._preparar_nativo({"id": "x", "ejecutable": "fuera"}, TMP / "nat")
+    comprobar("el motor nativo no sigue un enlace fuera del juego", False)
+except RuntimeError:
+    comprobar("el motor nativo no sigue un enlace fuera del juego", True)
 comprobar("descendientes de un proceso", os.getpid() in fg.descendientes(os.getppid()))
 
 print(f"\n{'Todo bien' if not fallos else f'{fallos} fallos'}")
