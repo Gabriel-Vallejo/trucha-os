@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Pruebas de trucha-fangames (catálogo, validación, motores y partidas) con juegos y motores falsos, sin GTK.
   python3 tests/fangames.test.py"""
-import importlib.machinery, importlib.util, json, os, stat, subprocess, sys, tempfile, time
+import importlib.machinery, importlib.util, json, os, stat, subprocess, sys, tempfile, time, zipfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
@@ -65,7 +65,7 @@ escribir(carpeta / "Game.ini", "[Game]\n")
 escribir(carpeta / "logo.png", "png")
 f = fg.ficha(mio)
 comprobar("con Game.ini está instalado pero falta el motor", f["instalado"] and not f["motor_listo"])
-comprobar("el logo sale como file://", f["logo"] == (carpeta / "logo.png").as_uri())
+comprobar("el logo sale como file://", f["logo"].startswith((carpeta / "logo.png").as_uri() + "?v="))
 comprobar("por_que_no explica qué falta", "falta el motor mkxp-z" in fg.por_que_no(mio))
 
 # motor falso: apunta en qué carpeta se ejecutó y sale
@@ -102,6 +102,83 @@ salida = subprocess.run([sys.executable, str(SCRIPT), "lista"], capture_output=T
 comprobar("lista marca listos y no listos", "✔ mio" in salida.stdout and "✘ reloaded" in salida.stdout)
 salida = subprocess.run([sys.executable, str(SCRIPT), "jugar", "nada"], capture_output=True, text=True, env=os.environ)
 comprobar("jugar con id desconocido sale con 2", salida.returncode == 2)
+
+# ── arte por convención ──
+escribir(fg.ARTE / "mio/portada.png", "png")
+comprobar("la portada sale de _arte/<id>/portada.png", fg.ficha(mio)["portada"].startswith((fg.ARTE / "mio/portada.png").as_uri()))
+comprobar("sin banner no hay banner", fg.ficha(mio)["banner"] is None)
+arte = subprocess.run([sys.executable, str(REPO / "dotfiles/.local/bin/trucha-fangames-arte"), "prueba",
+                       "--fondo", str(REPO / "dotfiles/.local/share/trucha-os/trucha-os.png"), "--titulo", "Prueba"],
+                      capture_output=True, text=True, env=os.environ)
+if arte.returncode == 0:
+    from PIL import Image
+    comprobar("trucha-fangames-arte hace portada 600×900 y banner 1920×640",
+              Image.open(fg.ARTE / "prueba/portada.png").size == (600, 900)
+              and Image.open(fg.ARTE / "prueba/banner.png").size == (1920, 640))
+else:
+    comprobar("trucha-fangames-arte funciona (¿falta Pillow?) " + arte.stderr[-200:], "No module named 'PIL'" in arte.stderr)
+
+# ── ajustes ──
+comprobar("ajustes por defecto", fg.ajustes()["orden"] == "recientes")
+fg.guardar_ajustes({"orden": "nombre", "minimizar_al_jugar": "sí", "inventado": 1})
+a = fg.ajustes()
+comprobar("guarda claves válidas e ignora tipos malos y claves raras",
+          a["orden"] == "nombre" and a["minimizar_al_jugar"] is True and "inventado" not in a)
+comprobar("ordenar por nombre", [j["nombre"] for j in fg.biblioteca()["juegos"]][:1] == ["Mi Fangame"])
+fg.guardar_ajustes({"orden": "raro"})
+comprobar("un orden desconocido vuelve a recientes", fg.ajustes()["orden"] == "recientes")
+fg.guardar_ajustes({"mostrar_no_listos": False})
+comprobar("ocultar juegos no listos", [j["id"] for j in fg.biblioteca()["juegos"]] == ["mio"])
+fg.guardar_ajustes({"mostrar_no_listos": True})
+
+# ── detectar motor e importar ──
+fuente = TMP / "fuentes"
+escribir(fuente / "rmxp/Mi Juego RMXP/Game.ini", "[Game]\n")
+escribir(fuente / "rmxp/Mi Juego RMXP/Data/Scripts.rxdata", "x")
+escribir(fuente / "gm8/juego.exe", "MZ" + "\\Software\\Game Maker\\" + "TRunnerForm")
+escribir(fuente / "otro/Juego.exe", "MZ nada")
+escribir(fuente / "otro/unins000.exe", "MZ")
+comprobar("detecta RPG Maker → mkxp-z", fg.detectar_motor(fuente / "rmxp/Mi Juego RMXP")["motor"] == "mkxp-z")
+d = fg.detectar_motor(fuente / "gm8")
+comprobar("detecta Game Maker 8 → opengmk", d["motor"] == "opengmk" and d["ejecutable"] == "juego.exe")
+d = fg.detectar_motor(fuente / "otro")
+comprobar("un .exe desconocido queda con wine y salta el desinstalador", d["motor"] == "wine" and d["ejecutable"] == "Juego.exe")
+comprobar("slug sin tildes ni espacios", fg.slug("Pokémon Añil: Edición ¡Final!") == "pokemon-anil-edicion-final")
+
+zip_bueno = TMP / "Mi Juego RMXP.zip"
+with zipfile.ZipFile(zip_bueno, "w") as z:
+    for p in (fuente / "rmxp").rglob("*"):
+        if p.is_file():
+            z.write(p, p.relative_to(fuente / "rmxp"))
+lineas = []
+nuevo_id = fg.importar(zip_bueno, avisar=lineas.append)
+comprobar("importa el zip con id sacado del nombre", nuevo_id == "mi-juego-rmxp")
+comprobar("aplana la carpeta única del zip", (fg.JUEGOS / nuevo_id / "Game.ini").exists())
+creado = fg.leer_catalogo()[0].get(nuevo_id, {})
+comprobar("deja un manifiesto válido en ~/.config en pruebas",
+          creado.get("motor") == "mkxp-z" and creado.get("estado") == "en pruebas")
+comprobar("importar dos veces no pisa: añade sufijo", fg.importar(zip_bueno, avisar=lineas.append) == "mi-juego-rmxp-2")
+zip_malo = TMP / "malo.zip"
+with zipfile.ZipFile(zip_malo, "w") as z:
+    z.writestr("../../fuera.txt", "x")
+try:
+    fg.importar(zip_malo, avisar=lineas.append)
+    comprobar("rechaza un zip que escribe fuera (zip slip)", False)
+except ValueError:
+    comprobar("rechaza un zip que escribe fuera (zip slip)", not (TMP / "fuera.txt").exists()
+              and not list(fg.JUEGOS.glob(".importando-*")))
+
+# ── Claude ──
+orden = fg.orden_claude(nuevo_id)
+comprobar("la orden de Claude es headless, acotada y con el manifiesto",
+          orden[:2] == ["claude", "-p"] and "--allowedTools" in orden and "Bash(trucha-fangames:*)" in orden
+          and "Bash" not in orden and str(fg.PROPIOS / f"{nuevo_id}.toml") in orden[2])
+comprobar("resume eventos de herramienta", fg.resumen_evento(json.dumps({"type": "assistant", "message": {"content": [
+    {"type": "tool_use", "name": "Bash", "input": {"command": "trucha-fangames lista"}}]}})) == "→ Bash trucha-fangames lista")
+comprobar("resume el resultado final", fg.resumen_evento(json.dumps({"type": "result", "result": "Listo"})) == "✔ Listo")
+comprobar("marca como fallo un resultado con error", fg.resumen_evento(json.dumps(
+    {"type": "result", "subtype": "success", "is_error": True, "result": "Failed to authenticate"})) == "✘ Failed to authenticate")
+comprobar("ignora líneas que no son JSON", fg.resumen_evento("ruido") is None)
 
 print(f"\n{'Todo bien' if not fallos else f'{fallos} fallos'}")
 sys.exit(1 if fallos else 0)

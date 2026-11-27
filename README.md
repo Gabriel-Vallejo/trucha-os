@@ -137,7 +137,11 @@ Embeddings con `qwen3-embedding:0.6b`: índice completo en **69 s**, cada búsqu
 ## 🎮 Fangames
 
 `trucha-fangames` (o **Fangames** en el lanzador) es una biblioteca de fangames que corren **nativos** en Linux: nada de Wine.
-Cada juego es un manifiesto `.toml`, así que añadir otro es escribir un archivo.
+Tiene tres pestañas:
+
+- **Biblioteca**: portada, banner, descripción, características, información general (autor, versión, género, idioma, web…), última partida y tiempo jugado. Se maneja con teclado o mando (↑↓ e Intro/A).
+- **＋ Añadir**: eliges un `.zip` o una carpeta, lo descomprime en tu biblioteca y detecta el motor solo. Si marcas *Que Claude lo integre*, se lo pasa a Claude Code (`claude -p`, con permisos acotados), que busca la información del juego, le hace portada y banner con sus propios gráficos y lo prueba hasta que arranca.
+- **Ajustes**: carpeta de juegos, orden, minimizar al jugar, motores instalados y accesos en el lanzador.
 
 | Motor | Para qué | Dónde va |
 |---|---|---|
@@ -145,7 +149,7 @@ Cada juego es un manifiesto `.toml`, así que añadir otro es escribir un archiv
 | `opengmk` | Game Maker 8 (Reloaded) | `~/Juegos/fangames/_runtimes/opengmk/gm8emulator` |
 | `wine` | último recurso | el `wine` del sistema |
 
-Los juegos se descomprimen en `~/Juegos/fangames/<carpeta>`. Un juego nuevo va en `~/.config/trucha-os/fangames/<id>.toml`:
+Cada juego es un manifiesto `.toml`, así que añadir otro a mano es escribir un archivo en `~/.config/trucha-os/fangames/<id>.toml`:
 
 ```toml
 id = "mi-fangame"            # letras, números y guiones
@@ -153,15 +157,23 @@ nombre = "Mi Fangame"
 motor = "mkxp-z"             # mkxp-z · opengmk · wine
 carpeta = "mi-fangame"       # dentro de ~/Juegos/fangames (o ruta absoluta)
 ejecutable = "Juego.exe"     # solo opengmk y wine
+autor = "Quien sea"
+version = "1.0"
+descripcion = "Dos o tres frases."
+genero = "RPG de Pokémon"
+idioma = "Español"
+region = "Kanto"
+lanzamiento = "2024"
+web = "https://…"
 logo = "Graphics/Titles/logo.png"            # opcional, dentro de la carpeta del juego
-fondo = "Graphics/Titles/Backgrounds/a.png"  # opcional
 color = "#3b6fe0"            # color de la ficha
 estado = "jugable"           # jugable · beta · en pruebas
 etiquetas = ["RPG Maker XP"]
+caracteristicas = ["Nuzlocke", "Megas"]
 ```
 
-`trucha-fangames lista` dice qué falta para cada juego, `trucha-fangames jugar <id>` lo arranca sin ventana y
-`trucha-fangames accesos` añade cada juego listo al lanzador. Guarda la última partida y el tiempo jugado.
+La portada y el banner van por convención en `~/Juegos/fangames/_arte/<id>/portada.png` y `banner.png`; `trucha-fangames-arte` los monta con un fondo, el logo y unos sprites del propio juego.
+En la terminal: `trucha-fangames lista`, `jugar <id>`, `probar <id>` (lo arranca, saca captura y lo cierra), `importar <zip> [--claude]` y `accesos`.
 
 ## 🧪 Trucha Lab
 

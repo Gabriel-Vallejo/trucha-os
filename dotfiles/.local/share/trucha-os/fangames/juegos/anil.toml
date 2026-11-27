@@ -1,14 +1,24 @@
 # Pokémon Añil · RPG Maker XP + Pokémon Essentials v21.1, ya preparado para mkxp-z por sus autores.
 # Descomprime el .zip en ~/Juegos/fangames/anil (la carpeta que tiene Game.ini).
+# Portada y banner: ~/Juegos/fangames/_arte/anil/ (trucha-fangames-arte).
 id = "anil"
 nombre = "Pokémon Añil"
 motor = "mkxp-z"
 carpeta = "anil"
 autor = "Eric Lostie, con Skyflyer y DPertierra"
 version = "4.14"
-descripcion = "Fangame en español sobre Pokémon Essentials, con Nuzlocke, modo random y megas."
+descripcion = "Fangame en español sobre Pokémon Essentials v21, con historia propia y un montón de modos de reto: Nuzlocke, aleatorio y monotipo."
+genero = "RPG de Pokémon"
+idioma = "Español"
 color = "#3b6fe0"
 logo = "Graphics/Titles/logo1.png"
 fondo = "Graphics/Titles/Backgrounds/sky.png"
 estado = "jugable"
 etiquetas = ["RPG Maker XP", "Essentials v21"]
+caracteristicas = [
+  "Modos Nuzlocke, aleatorio y monotipo",
+  "Pokémon que te siguen por el mapa",
+  "Torre Batalla y combates con IA avanzada",
+  "Intercambios y combates online (Cable Club)",
+  "Megaevoluciones y Pokémon de novena generación",
+]

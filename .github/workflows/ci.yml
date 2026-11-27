@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: Dependencias
         run: >
-          pacman -Syu --noconfirm --needed git nodejs python imagemagick gsfonts
+          pacman -Syu --noconfirm --needed git nodejs python python-pillow imagemagick gsfonts
           tesseract tesseract-data-eng tesseract-data-spa
 
       - uses: actions/checkout@v4
