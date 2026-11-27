@@ -289,6 +289,12 @@ try:
     comprobar("el motor nativo no sigue un enlace fuera del juego", False)
 except RuntimeError:
     comprobar("el motor nativo no sigue un enlace fuera del juego", True)
+rom = TMP / "Hack v1.gba"
+rom.write_bytes(b"\0" * 192)
+id_gba = fg.importar(rom, nombre="Hack GBA", avisar=lambda *_: None)
+juego_gba = fg.leer_catalogo()[0][id_gba]
+comprobar("una ROM .gba suelta se importa con mGBA", juego_gba["motor"] == "gba" and juego_gba["ejecutable"] == "Hack v1.gba")
+comprobar("el motor gba exige una ROM .gba", fg.validar({**bueno, "motor": "gba", "ejecutable": "x.exe"}) != [])
 comprobar("descendientes de un proceso", os.getpid() in fg.descendientes(os.getppid()))
 
 print(f"\n{'Todo bien' if not fallos else f'{fallos} fallos'}")

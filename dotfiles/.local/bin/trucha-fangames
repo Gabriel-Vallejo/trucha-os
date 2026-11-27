@@ -193,6 +193,13 @@ MOTORES = {
         "entorno": {"SDL_VIDEO_HIGHDPI_DISABLED": "1"},
         "orden": lambda juego, carpeta: [str(carpeta / juego["ejecutable"])],
     },
+    "gba": {
+        "nombre": "mGBA", "para": "hacks de ROM de Game Boy Advance ya parcheados (.gba)",
+        "runtime": lambda: Path(shutil.which("mgba-qt") or "/usr/bin/mgba-qt"),
+        "preparar": None, "app_id": r"(?i)mgba",
+        "orden": lambda juego, carpeta: ["mgba-qt", *(["-f"] if ajustes()["pantalla_completa"] else []),
+                                         str(carpeta / juego["ejecutable"])],
+    },
     "wine": {
         "nombre": "Wine", "para": "último recurso, para lo que no tiene motor nativo",
         "runtime": lambda: Path(shutil.which("wine") or "/usr/bin/wine"),
@@ -226,6 +233,8 @@ def validar(datos):
         errores.append("el id solo admite letras, números y guiones")
     if datos["motor"] not in MOTORES:
         errores.append(f"motor desconocido «{datos['motor']}» (hay {', '.join(MOTORES)})")
+    elif datos["motor"] == "gba" and not str(datos.get("ejecutable", "")).lower().endswith(".gba"):
+        errores.append("el motor gba necesita «ejecutable» con la ROM .gba")
     elif datos["motor"] != "mkxp-z" and not datos.get("ejecutable"):
         errores.append(f"el motor {datos['motor']} necesita «ejecutable»")
     errores += [f"«{c}» tiene que ser una ruta dentro de la carpeta del juego"
@@ -545,6 +554,10 @@ def es_ejecutable_linux(ruta):
 def detectar_motor(carpeta):
     """Mira los archivos (sin ejecutar nada) y propone motor, ejecutable y pistas."""
     pistas = []
+    roms = sorted(carpeta.glob("*.gba"))
+    if roms:
+        pistas.append(f"ROM de Game Boy Advance ({roms[0].name}): va con mGBA")
+        return {"motor": "gba", "ejecutable": roms[0].name, "pistas": pistas}
     # si el autor ya trae versión para Linux, se usa esa (AppImage o binario en la raíz del juego)
     propio = RUNTIMES / "mkxp-z/mkxp-z.x86_64"   # el mkxp-z que enlaza el launcher no cuenta como versión del autor
     nativos = sorted((p for p in carpeta.iterdir() if p.suffix.lower() not in (".so", ".dll") and es_ejecutable_linux(p)
@@ -611,6 +624,9 @@ def importar(origen, nombre=None, avisar=print):
         if origen.is_dir():
             avisar(f"Copiando {origen.name}…")
             shutil.copytree(origen, temporal, dirs_exist_ok=True, symlinks=True)
+        elif origen.suffix.lower() == ".gba":
+            avisar(f"Copiando {origen.name} (ROM de GBA)…")
+            shutil.copy2(origen, temporal / origen.name)
         elif es_ejecutable_linux(origen):
             avisar(f"Copiando {origen.name} (juego para Linux)…")
             shutil.copy2(origen, temporal / origen.name)
@@ -621,7 +637,7 @@ def importar(origen, nombre=None, avisar=print):
             avisar(f"Descomprimiendo {origen.name}…")
             extraer_otro(origen, temporal)
         else:
-            raise ValueError("solo sé importar un .zip, .rar, .7z o una carpeta")
+            raise ValueError("solo sé importar un .zip, .rar, .7z, una ROM .gba, una AppImage o una carpeta")
         enlaces = [p for p in temporal.rglob("*") if p.is_symlink()]
         if enlaces:   # un enlace dentro del juego podría hacer que luego se escriba fuera de él
             raise ValueError(f"el juego trae enlaces simbólicos, no lo importo: {enlaces[0].relative_to(temporal)}")
@@ -861,11 +877,13 @@ def gui(argv, vista="biblioteca"):
             dialogo = Gtk.FileChooserNative.new("Elige el juego", self.window, accion, "Elegir", "Cancelar")
             if not carpeta:
                 filtro = Gtk.FileFilter()
-                filtro.set_name("Juego comprimido (.zip, .rar, .7z)")
+                filtro.set_name("Juego (.zip, .rar, .7z, .gba, .AppImage)")
                 filtro.add_pattern("*.zip")
                 filtro.add_pattern("*.ZIP")
                 filtro.add_pattern("*.rar")
                 filtro.add_pattern("*.7z")
+                filtro.add_pattern("*.gba")
+                filtro.add_pattern("*.AppImage")
                 dialogo.add_filter(filtro)
             if dialogo.run() == Gtk.ResponseType.ACCEPT:
                 self.js("Fangames.origen", dialogo.get_filename())
